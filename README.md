@@ -1,107 +1,101 @@
-# Design-Agent — DSH 设计 Agent 工作区
+# Design-Agent — DSH Design Agent workspace
 
-本工作区是 DSH 设计 Agent（`my-agent` 预设）的配套代码仓库，当前包含：
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-dsh-blue)](https://github.com/deepseek-ai/deepseek-harness)
+[![Topics: dsh](https://img.shields.io/badge/plugin-dsh-4B9CD3)](https://github.com/topics/dsh)
 
-## plugins/design-router — design-references 确定性工具插件
+A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](https://github.com/deepseek-ai/deepseek-harness)**: the `my-agent` preset, the `design-references` routing skill (DSH-adapted), and the `design-router` deterministic-tool plugin. Built by upgrading an existing HTML-based design agent with the [design-references](https://github.com/haohaiHuang/my-pi-skills/tree/main/skills/design-references) methodology.
 
-移植自 [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) 的
-`extensions/design-router`（pi extension → DSH Cordis 插件），由 `my-agent`
-预设通过 `agent.cordis.yml` 中的绝对路径行挂载：
+> 🇨🇳 中文版见 [README.zh.md](README.zh.md)
+
+## What's inside
+
+| Component | Role |
+| --- | --- |
+| [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (3 read-only tools, zero external runtime deps) |
+| [`presets/my-agent/`](presets/my-agent/) | DSH agent preset (`agent.cordis.yml` + `preset.yml`): five-phase persona with per-stage confirmation gates |
+| [`skills/design-references/`](skills/design-references/) | Scenario-branch routing skill (A product / B content / C general × five phases), DSH-adapted |
+| [`skills/hallmark/`](skills/hallmark/) | Anti-AI-slop execution skill (MIT upstream copy from [nutlope/hallmark](https://github.com/nutlope/hallmark)) |
+
+## plugins/design-router — deterministic tools
+
+Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensions/design-router` (pi extension → DSH Cordis plugin). Mounted by the `my-agent` preset via an absolute-path row in `agent.cordis.yml`:
 
 ```yaml
 - id: design-router
-  name: '/Users/huanghaohai/Desktop/DSH/Design-Agent/plugins/design-router/index.mjs'
+  name: '/absolute/path/to/plugins/design-router/index.mjs'
 ```
 
-### 工具
+### Tools
 
-| 工具 | 作用 | 对应环节 |
+| Tool | Purpose | Phase |
 | --- | --- | --- |
-| `design_lookup <branch> <stage>` | 查 design-references 资源注册表（R/C/E/V 三维索引 + 退化链 + 来源） | 全流程"这一步查什么" |
-| `design_audit <target>` | 机器化 slop gates（hallmark 机器子集）+ interfaces CS-* 8 条 + 环节 4 扫描 + 继承链对比度 | 环节 4 校验 |
-| `design_contrast <target>` | WCAG 2.1 + APCA 近似对比度 | 环节 4 校验 |
+| `design_lookup <branch> <stage>` | Query the design-resource registry (R/C/E/V 3-D index + fallback chain + sources) | "What do I consult at this step?" |
+| `design_audit <target>` | Machine slop gates (hallmark machine subset) + interfaces CS-* 8 rules + phase-4 scans + inherited-contrast | Phase 4 verification |
+| `design_contrast <target>` | WCAG 2.1 + APCA-approx contrast | Phase 4 verification |
 
-### 与 pi 版的差异（有意裁剪）
+### Intentional differences from the pi version
 
-- **去掉** `design_research`（DSH 用「本地台账 grep + refero 探测 + web_search」退化链）
-- **去掉** `hallmark_study_fetch`（DSH 用 `dembrandt` / `defuddle` 替代）
-- **去掉** before_agent_start 注入与 `/design-router` 命令（DSH 技能加载机制已覆盖路由）
-- **不依赖** `@deepseek-ai/dsh-tools`（工作区模块解析不到 dsh 安装目录），
-  工具定义直接用完整 JSON Schema 构造，零外部运行时依赖
+- **Removed** `design_research` (DSH uses the ledger-grep + refero probe + `web_search` fallback chain)
+- **Removed** `hallmark_study_fetch` (DSH uses `dembrandt` / `defuddle` instead)
+- **Removed** `before_agent_start` injection and the `/design-router` command (DSH's skill-loading mechanism already covers routing)
+- **No dependency on `@deepseek-ai/dsh-tools`** (a workspace module cannot resolve the dsh install directory); tool definitions are built with plain JSON Schema — zero external runtime deps
 
-### 目录
+### Layout
 
 ```
 plugins/design-router/
-├── index.mjs          # 插件入口：注册 3 个工具（node:fs 直读，只读不改）
-├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/types
+├── index.mjs          # Plugin entry: registers 3 tools (node:fs reads only, never writes)
+├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/types
 └── data/
-    └── registry.json  # registry.md 的数据化产物（56 资源 × 9 分支路由）
+    └── registry.json  # Data form of registry.md (56 resources × 9 branch routes)
 ```
 
-### 维护
+### Maintenance
 
-- registry.md 是**真源**（`~/.agents/skills/design-references/references/registry.md`），
-  改动后需同步 `data/registry.json`（上游用 `scripts/build-registry.mjs` 生成，
-  本仓库可手动同步或后续补脚本）
-- 检查器逻辑跟随上游 `extensions/design-router/checks/`，上游更新时对照移植
+- `registry.md` is the **source of truth** (`~/.agents/skills/design-references/references/registry.md`); after editing it, sync `data/registry.json` (upstream generates it with `scripts/build-registry.mjs`; this repo syncs manually or with a future script)
+- Checker logic follows upstream `extensions/design-router/checks/`; port on upstream updates
 
-## 配套安装（本机已就位）
+## One-shot reproduction (fresh machine)
 
-| 项 | 位置 | 状态 |
-| --- | --- | --- |
-| design-references 技能 | `~/.agents/skills/design-references/`（已做 DSH 适配） | ✅ |
-| hallmark 技能 | `~/.agents/skills/hallmark/` | ✅ |
-| 资源台账 | `~/resources/design-references.md` | ✅ |
-| kami/zine/logo-generator 本地资产 | `~/Desktop/Design/` | ✅ |
-| dembrandt（URL→设计 token） | 全局 npm v0.30.0（`~/.npm-global/bin/dembrandt`） | ✅ |
-| defuddle（URL→文本） | 全局 npm（`~/.npm-global/bin/defuddle`） | ✅ |
-| openpencil（.fig 工具箱） | — | ⛔ 已决定不装（HTML 媒介不需要） |
-
-## 预设
-
-- `~/.dsh/.agent-presets/my-agent/`：persona 已改写为「design-references 五环节
-  入口 + 完整门禁」，挂载 design-router 插件行
-- 新建会话选择「设计 Agent」预设即生效
-
----
-
-## 一键复现（全新机器安装本仓库）
-
-本仓库是**完整可复现包**：插件 + 预设 + DSH 适配版技能都在仓库内。
+The repo is a **complete reproducible package**: plugin + preset + DSH-adapted skills included.
 
 ```bash
-# 1. 技能（design-references 已做 DSH 适配；hallmark 为 MIT 上游副本）
+# 1. Skills (design-references is DSH-adapted; hallmark is an MIT upstream copy)
 cp -R skills/design-references ~/.agents/skills/
 cp -R skills/hallmark ~/.agents/skills/
 
-# 2. 预设
+# 2. Preset
 mkdir -p ~/.dsh/.agent-presets
 cp -R presets/my-agent ~/.dsh/.agent-presets/
 
-# 3. 插件源码（保持在工作区，供预设绝对路径引用）
-#    把 plugins/ 放到你想要的目录，然后改下面一行：
-#    presets/my-agent/agent.cordis.yml 中 design-router 行的 name 改为
-#    插件 index.mjs 的绝对路径
+# 3. Plugin source (keep it in a workspace the preset's absolute path points at)
+#    Place plugins/ where you want it, then edit the design-router row in
+#    presets/my-agent/agent.cordis.yml to the absolute path of index.mjs
 
-# 4. 外部依赖（软依赖，缺失只降级不影响主流程）
-npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
-# defuddle：npm install -g defuddle
+# 4. External deps (soft deps — missing ones degrade gracefully)
+npm install -g dembrandt        # URL → design tokens (phase-1 candidate verification)
+# defuddle: npm install -g defuddle
 
-# 5. 本机资产（台账 + kami/zine/logo-generator 参考库，见 ~/Desktop/Design/）
-#    ——来自用户个人精选，不在本仓库；缺失时走退化链
+# 5. Machine-local assets (ledger + kami/zine/logo-generator reference libs)
+#    — personal selections, not in this repo; the fallback chain covers absence
 ```
 
-**注意**：预设中插件行是绝对路径（`/Users/huanghaohai/Desktop/DSH/Design-Agent/...`），
-新机器必须改成你自己的路径，否则挂载失败。
+**Note**: the preset's plugin row uses an absolute path; on a new machine you **must** change it to your own path or the mount fails.
 
-### 仓库结构
+### Repository structure
 
 ```
-├── plugins/design-router/     # 确定性工具插件（3 工具，零外部运行时依赖）
-├── presets/my-agent/          # DSH 预设（agent.cordis.yml + preset.yml）
+├── plugins/design-router/     # Deterministic-tool plugin (3 tools, zero runtime deps)
+├── presets/my-agent/          # DSH preset (agent.cordis.yml + preset.yml)
 ├── skills/
-│   ├── design-references/     # 路由技能（DSH 适配版）
-│   └── hallmark/              # 反 AI 味执行技能（MIT 上游副本）
-└── README.md
+│   ├── design-references/     # Routing skill (DSH-adapted)
+│   └── hallmark/              # Anti-AI-slop skill (MIT upstream copy)
+├── README.md                  # English (primary)
+└── README.zh.md               # 中文
 ```
+
+## Related
+
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) — the harness this runs on (`dsh`, everything is a plugin)
+- [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) — upstream skills repo (design-references / skill-router / vision)
+- [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) — curated DSH plugin list
