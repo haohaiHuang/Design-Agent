@@ -63,3 +63,45 @@ plugins/design-router/
 - `~/.dsh/.agent-presets/my-agent/`：persona 已改写为「design-references 五环节
   入口 + 完整门禁」，挂载 design-router 插件行
 - 新建会话选择「设计 Agent」预设即生效
+
+---
+
+## 一键复现（全新机器安装本仓库）
+
+本仓库是**完整可复现包**：插件 + 预设 + DSH 适配版技能都在仓库内。
+
+```bash
+# 1. 技能（design-references 已做 DSH 适配；hallmark 为 MIT 上游副本）
+cp -R skills/design-references ~/.agents/skills/
+cp -R skills/hallmark ~/.agents/skills/
+
+# 2. 预设
+mkdir -p ~/.dsh/.agent-presets
+cp -R presets/my-agent ~/.dsh/.agent-presets/
+
+# 3. 插件源码（保持在工作区，供预设绝对路径引用）
+#    把 plugins/ 放到你想要的目录，然后改下面一行：
+#    presets/my-agent/agent.cordis.yml 中 design-router 行的 name 改为
+#    插件 index.mjs 的绝对路径
+
+# 4. 外部依赖（软依赖，缺失只降级不影响主流程）
+npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
+# defuddle：npm install -g defuddle
+
+# 5. 本机资产（台账 + kami/zine/logo-generator 参考库，见 ~/Desktop/Design/）
+#    ——来自用户个人精选，不在本仓库；缺失时走退化链
+```
+
+**注意**：预设中插件行是绝对路径（`/Users/huanghaohai/Desktop/DSH/Design-Agent/...`），
+新机器必须改成你自己的路径，否则挂载失败。
+
+### 仓库结构
+
+```
+├── plugins/design-router/     # 确定性工具插件（3 工具，零外部运行时依赖）
+├── presets/my-agent/          # DSH 预设（agent.cordis.yml + preset.yml）
+├── skills/
+│   ├── design-references/     # 路由技能（DSH 适配版）
+│   └── hallmark/              # 反 AI 味执行技能（MIT 上游副本）
+└── README.md
+```
