@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>候选 A · Linear 系 — Skill Gallery 灰模</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   候选 A · Linear 系深石墨工具感（灰模/占位级，只为辅助选择）
+   来源：Linear DESIGN.md（educlopez/design-bites）+ dembrandt 实测
+   ============================================================ */
+
+/* ---- Linear tokens ---- */
+:root{
+  --surface-void:#000000;          /* Surface/Void */
+  --surface-base:#08090A;          /* Surface/Base 页面画布 */
+  --surface-frame:#0F1011;         /* Surface/Frame 抬升容器 */
+  --surface-card:#101112;          /* Surface/Card 卡片 */
+  --surface-view:#161718;          /* Surface/View 活动视图 */
+  --text-primary:#F7F8F8;          /* Text/Primary 近白微冷 */
+  --text-secondary:#D0D6E0;        /* Text/Secondary 蓝灰 */
+  --text-tertiary:#8A8F98;         /* Text/Tertiary 刻意暗淡 */
+  --accent:#5E6AD2;                /* Accent/Primary muted indigo */
+  --accent-soft:rgba(94,106,210,.14);
+  --border:rgba(255,255,255,.08);  /* Border/Subtle 月光玻璃 */
+  --border-strong:rgba(255,255,255,.16);
+  --status-red:#EB5757;
+  --status-green:#10B981;
+  --status-violet:#8B5CF6;
+  --status-indigo:#6366F1;
+  --radius-sm:4px; --radius-md:6px; --radius-lg:8px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-feature-settings:"cv01","ss03";
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased}
+body{
+  background:var(--surface-base);
+  color:var(--text-primary);
+  font-family:var(--font);
+  font-size:16px;line-height:1.5;
+  font-feature-settings:"cv01","ss03";
+}
+
+/* ---- 72px 固定顶栏 ---- */
+.topbar{
+  position:sticky;top:0;z-index:10;
+  height:72px;
+  display:flex;align-items:center;gap:32px;
+  padding:0 32px;
+  background:rgba(8,9,10,.82);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:510;letter-spacing:.2px}
+.brand-mark{
+  width:20px;height:20px;border-radius:5px;
+  background:linear-gradient(135deg,#5E6AD2 0%,#3E4A9E 100%);
+  display:grid;place-items:center;color:#fff;font-size:11px;font-weight:600;
+}
+.topbar .search{
+  flex:0 1 360px;height:32px;
+  display:flex;align-items:center;gap:8px;padding:0 12px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  color:var(--text-tertiary);font-size:13px;
+}
+.topbar .spacer{flex:1}
+.stat{
+  font-size:13px;color:var(--text-tertiary);
+  display:flex;align-items:center;gap:6px;
+}
+.stat b{color:var(--text-secondary);font-weight:590}
+.stat+.stat{margin-left:20px}
+.btn{
+  height:32px;padding:0 16px;border:none;border-radius:var(--radius-md);
+  background:var(--accent);color:#fff;font-size:13px;font-weight:400;
+  font-family:var(--font);cursor:pointer;
+}
+
+/* ---- 主区 ---- */
+main{padding:32px}
+.wrap{max-width:1280px;margin:0 auto}
+
+.eyebrow{font-size:13px;color:var(--text-tertiary);font-weight:510;letter-spacing:.4px;text-transform:uppercase}
+h1{font-size:32px;font-weight:510;line-height:1.1;letter-spacing:-.6px;margin:8px 0 6px;color:var(--text-primary)}
+.sub{font-size:14px;color:var(--text-secondary);max-width:560px;line-height:1.6}
+
+/* 统计条 */
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  margin:28px 0 0;
+}
+.statcard{
+  background:var(--surface-frame);
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:16px 18px;
+}
+.statcard .k{font-size:13px;color:var(--text-tertiary)}
+.statcard .v{font-size:26px;font-weight:590;letter-spacing:-.4px;margin-top:4px}
+.statcard .d{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+
+/* 分类筛选 */
+.filters{display:flex;gap:8px;margin:28px 0 20px;flex-wrap:wrap}
+.chip{
+  height:30px;padding:0 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-secondary);font-size:13px;font-family:var(--font);cursor:pointer;
+}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--text-primary);font-weight:510}
+
+/* 卡片栅格 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{
+  background:var(--surface-card);
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:18px 18px 16px;
+  cursor:pointer;transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease;
+  box-shadow:rgba(0,0,0,0) 0 8px 2px,rgba(0,0,0,.01) 0 5px 2px,rgba(0,0,0,.04) 0 3px 2px,rgba(0,0,0,.07) 0 1px 1px,rgba(0,0,0,.08) 0 0 1px;
+}
+.card:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card h3{font-size:16px;font-weight:590;letter-spacing:-.2px;color:var(--text-primary)}
+.card .desc{font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.55;min-height:40px}
+.card .meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{
+  font-size:11px;color:var(--text-tertiary);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:2px 8px;line-height:1.6;
+}
+.ver{font-size:12px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+
+/* 状态徽标 */
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:510;line-height:1}
+.status::before{content:"";width:7px;height:7px;border-radius:50%}
+.status.on::before{background:var(--status-green);box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+.status.on{color:var(--status-green)}
+.status.draft::before{background:var(--status-violet);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.status.draft{color:var(--status-violet)}
+.status.arch::before{background:var(--text-tertiary)}
+.status.arch{color:var(--text-tertiary)}
+
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<!-- 顶栏（灰模） -->
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">S</span>Skill Vault</div>
+  <div class="search">⌕ 搜索 Skill（灰模占位）</div>
+  <div class="spacer"></div>
+  <div class="stat">共 <b>12</b> 个</div>
+  <div class="stat">活跃 <b>8</b></div>
+  <div class="stat">草稿 <b>3</b></div>
+  <button class="btn">＋ 新建 Skill</button>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="eyebrow">My Skill Collection</div>
+    <h1>我的 AI Skill 管理台</h1>
+    <p class="sub">这里展示候选 A（Linear 系）的视觉语言：深石墨画布、月光细线、510/590 字重体系、靛蓝点缀。内容为真实挂载的 Skill 资产。</p>
+
+    <!-- 统计条 -->
+    <div class="stats">
+      <div class="statcard"><div class="k">全部 Skills</div><div class="v">12</div><div class="d">含草稿与归档</div></div>
+      <div class="statcard"><div class="k">活跃中</div><div class="v">8</div><div class="d">可随时调用</div></div>
+      <div class="statcard"><div class="k">草稿箱</div><div class="v">3</div><div class="d">未完成打磨</div></div>
+      <div class="statcard"><div class="k">累计调用</div><div class="v">—</div><div class="d">待接入统计</div></div>
+    </div>
+
+    <!-- 分类筛选（灰模） -->
+    <div class="filters">
+      <button class="chip on">全部</button>
+      <button class="chip">设计</button>
+      <button class="chip">文档</button>
+      <button class="chip">工具</button>
+      <button class="chip">图表</button>
+      <button class="chip">插画</button>
+    </div>
+
+    <!-- 卡片栅格 -->
+    <div class="grid">
+      <article class="card">
+        <div class="row"><h3>design-references</h3><span class="status on">活跃</span></div>
+        <p class="desc">设计任务路由：场景分支识别、五环节方法论、参考库台账查询。</p>
+        <div class="meta"><div class="tags"><span class="tag">设计</span><span class="tag">路由</span></div><span class="ver">v2.1.0</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>huashu-design</h3><span class="status on">活跃</span></div>
+        <p class="desc">HTML 高保真原型、交互 Demo、动画、设计方向顾问与专家评审。</p>
+        <div class="meta"><div class="tags"><span class="tag">设计</span><span class="tag">原型</span></div><span class="ver">v1.8.3</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>kami</h3><span class="status on">活跃</span></div>
+        <p class="desc">暖纸墨蓝排版系统：文档、落地页、简历、幻灯片的专业排版约束。</p>
+        <div class="meta"><div class="tags"><span class="tag">文档</span><span class="tag">排版</span></div><span class="ver">v3.0.1</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>hallmark</h3><span class="status on">活跃</span></div>
+        <p class="desc">反 AI 味设计审计：58 道 slop-test 门禁、构建纪律与验收。</p>
+        <div class="meta"><div class="tags"><span class="tag">设计</span><span class="tag">审计</span></div><span class="ver">v1.2.0</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>baoyu-design</h3><span class="status draft">草稿</span></div>
+        <p class="desc">设计产物生成：UI mockup、落地页、视觉探索的自包含 HTML 输出。</p>
+        <div class="meta"><div class="tags"><span class="tag">设计</span><span class="tag">产物</span></div><span class="ver">v0.9.0</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>lark-doc</h3><span class="status on">活跃</span></div>
+        <p class="desc">飞书云文档与知识库内容操作：读取、编辑、下载与思维笔记。</p>
+        <div class="meta"><div class="tags"><span class="tag">工具</span><span class="tag">飞书</span></div><span class="ver">v2.4.2</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>lark-base</h3><span class="status on">活跃</span></div>
+        <p class="desc">飞书多维表格：建表、字段、记录、视图、统计与仪表盘。</p>
+        <div class="meta"><div class="tags"><span class="tag">工具</span><span class="tag">飞书</span></div><span class="ver">v2.2.0</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>orange-line</h3><span class="status draft">草稿</span></div>
+        <p class="desc">纽约客风编辑插画：细墨线、留白与单一橙色点缀。</p>
+        <div class="meta"><div class="tags"><span class="tag">插画</span></div><span class="ver">v0.5.1</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>mermaid-viz</h3><span class="status on">活跃</span></div>
+        <p class="desc">文本转 Mermaid 图表：流程图、架构图、思维导图的专业可视化。</p>
+        <div class="meta"><div class="tags"><span class="tag">图表</span></div><span class="ver">v1.4.0</span></div>
+      </article>
+      <article class="card">
+        <div class="row"><h3>darwin-skill</h3><span class="status arch">归档</span></div>
+        <p class="desc">Skill 自主优化器：九维评分、盲评验证、版本回滚（已归档）。</p>
+        <div class="meta"><div class="tags"><span class="tag">工具</span></div><span class="ver">v0.3.0</span></div>
+      </article>
+    </div>
+
+    <footer class="foot"><span>候选 A · Linear 系深石墨 — 灰模 demo（占位级，非最终交付）</span><span>token 来源：Linear DESIGN.md</span></footer>
+  </div>
+</main>
+
+</body>
+</html>
