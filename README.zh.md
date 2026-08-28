@@ -12,7 +12,7 @@
 
 | 组件 | 作用 |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（3 个只读工具，零外部运行时依赖） |
+| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（6 个只读工具，零外部运行时依赖） |
 | [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：五环节 persona + 每环节确认门禁 |
 | [`skills/design-references/`](skills/design-references/) | 场景分支路由技能（A 产品/B 内容/C 通用 × 五环节），DSH 适配版 |
 | [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
@@ -21,11 +21,12 @@
 
 移植自 [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) 的
 `extensions/design-router`（pi extension → DSH Cordis 插件），由 `my-agent`
-预设通过 `agent.cordis.yml` 中的绝对路径行挂载：
+预设通过 `agent.cordis.yml` 中的**相对路径行**挂载（预设内 `plugins/` 为指向
+仓库根 `plugins/` 的相对软链，安装时 `cp -RL` 展开——无需写死绝对路径）：
 
 ```yaml
 - id: design-router
-  name: '/绝对/路径/到/plugins/design-router/index.mjs'
+  name: './plugins/design-router/index.mjs'
 ```
 
 ### 工具
@@ -51,10 +52,10 @@
 
 ```
 plugins/design-router/
-├── index.mjs          # 插件入口：注册 3 个工具（node:fs 直读，只读不改）
+├── index.mjs          # 插件入口：注册 6 个工具（node:fs 直读，只读不改）
 ├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/types
 └── data/
-    └── registry.json  # registry.md 的数据化产物（56 资源 × 9 分支路由）
+    └── registry.json  # registry.md 的数据化产物（79 资源 × 9 分支路由）
 ```
 
 ### 维护

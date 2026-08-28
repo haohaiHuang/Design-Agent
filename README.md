@@ -19,11 +19,11 @@ A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](ht
 
 ## plugins/design-router — deterministic tools
 
-Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensions/design-router` (pi extension → DSH Cordis plugin). Mounted by the `my-agent` preset via an absolute-path row in `agent.cordis.yml`:
+Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensions/design-router` (pi extension → DSH Cordis plugin). Mounted by the `my-agent` preset via a **relative-path row** in `agent.cordis.yml` (the preset's `plugins/` is a relative symlink to the repo-root `plugins/`, expanded by `cp -RL` on install — no absolute paths needed):
 
 ```yaml
 - id: design-router
-  name: '/absolute/path/to/plugins/design-router/index.mjs'
+  name: './plugins/design-router/index.mjs'
 ```
 
 ### Tools
@@ -48,10 +48,10 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 
 ```
 plugins/design-router/
-├── index.mjs          # Plugin entry: registers 3 tools (node:fs reads only, never writes)
+├── index.mjs          # Plugin entry: registers 6 tools (node:fs reads only, never writes)
 ├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/types
 └── data/
-    └── registry.json  # Data form of registry.md (56 resources × 9 branch routes)
+    └── registry.json  # Data form of registry.md (79 resources × 9 branch routes)
 ```
 
 ### Maintenance
@@ -96,7 +96,7 @@ plain `cp -R` (same result, just a second copy).
 ### Repository structure
 
 ```
-├── plugins/design-router/     # Deterministic-tool plugin (3 tools, zero runtime deps)
+├── plugins/design-router/     # Deterministic-tool plugin (6 tools, zero runtime deps)
 ├── presets/my-agent/          # DSH preset (agent.cordis.yml + preset.yml)
 ├── skills/
 │   ├── design-references/     # Routing skill (DSH-adapted)
