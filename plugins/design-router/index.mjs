@@ -205,8 +205,7 @@ function apply(ctx) {
         ...(registry.cheatExtra?.[stage] || []),
       ];
       const hits = slugs
-        .map((slug) => registry.resources.find((r) => r.slug === slug))
-        .filter((r) => Boolean(r));
+        .flatMap((slug) => registry.resources.filter((r) => r.slug === slug));
       if (hits.length === 0) {
         return `分支 ${branch} × 环节 ${stage}：无注册资源（登记空白区，见 registry.md）。该环节走退化链人工执行。`;
       }
@@ -300,7 +299,7 @@ function apply(ctx) {
         // extra 专项资源（如 logo 任务：logoExtra 环节 2 的资源）
         if (route.extra === "logo") {
           const logoSlugs = registry.logoExtra?.["2"] || [];
-          const logoHits = logoSlugs.map((s) => registry.resources.find((r) => r.slug === s)).filter(Boolean);
+          const logoHits = logoSlugs.flatMap((s) => registry.resources.filter((r) => r.slug === s));
           if (logoHits.length) {
             lines.push("", "### 专项资源（logo 任务必查）");
             for (const r of logoHits) {

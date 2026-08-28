@@ -76,6 +76,29 @@
 | Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾） | 转译 | 次 | 网页动效（液态/粘性/果冻效果） | → 官网 demo 浏览 → web_search | 官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries` |
 | transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…） | 转译 | 次 | 网页动效（UI 过渡/微交互） | → 官网复制 → web_search | `https://transitions.dev/`（含 agent skill 集成） |
 | vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav） | 转译 | 兜底 | 网页（Tailwind 区块，与 Aceternity/21st.dev 同型） | → 官网浏览 → web_search | `https://vibeprompts.dev/` |
+| Recent Design（近期网页设计灵感） | 转译 | 次 | 网页 / 通用 | → web_search | `https://recent.design/` |
+| Awwwards（获奖网站评选，含 /websites 子页） | 转译 | 次 | 网页 / 通用 | → web_search | `https://www.awwwards.com/` |
+| SiteInspire（精选网页设计） | 转译 | 次 | 网页 / 通用 | → web_search | `https://www.siteinspire.com/` |
+| Landbook（落地页灵感画廊） | 转译 | 次 | 网页 / 落地页 | → web_search | `https://land-book.com/` |
+| One Page Love（单页网站灵感） | 转译 | 次 | 网页 / 单页 | → web_search | `https://onepagelove.com/inspiration` |
+| Lapa Ninja（7300+ 落地页案例） | 转译 | 次 | 网页 / 落地页 | → web_search | `https://www.lapa.ninja/` |
+| Muzli（设计灵感聚合 hub） | 转译 | 次 | 网页 / 通用 | → web_search | `https://muz.li/` |
+| Inspora（设计灵感） | 转译 | 兜底 | 网页 / 通用 | → web_search | `https://www.inspora.design/` |
+| Logggos（Logo 灵感） | 转译 | 次 | logo / App Icon / 品牌图形 | → logo-design-patterns → 上游仓库 | `https://www.logggos.club/` |
+| LogoArchive（历史 Logo 档案） | 转译 | 次 | logo / 品牌图形 | → logoinspo → logo-design-patterns | `https://www.logo-archive.org/` |
+| Logoinspo（1200+ Logo 灵感） | 转译 | 次 | logo / App Icon | → logo-design-patterns | `https://www.logoinspo.com/` |
+| Logosystem（1300+ Logo 含动效） | 转译 | 次 | logo / 动效 logo | → logoinspo → logo-design-patterns | `https://logosystem.co/` |
+| Logobook（世界顶级 Logo 符号集） | 转译 | 次 | logo / 品牌图形 | → logo-archive → logo-design-patterns | `https://logobook.com/` |
+| Footer（页脚设计画廊） | 转译 | 次 | 网页 / 页脚组件 | → 官网浏览 → web_search | `https://www.footer.design/` |
+| CTA.gallery（Call-to-Action 灵感） | 转译 | 次 | 网页 / CTA 组件 | → 官网浏览 → web_search | `https://www.cta.gallery/` |
+| Navbar Gallery（导航栏设计） | 转译 | 次 | 网页 / 导航组件 | → 官网浏览 → web_search | `https://www.navbar.gallery/` |
+| Supahero（Hero 区块库） | 转译 | 次 | 网页 / Hero 组件 | → 官网浏览 → web_search | `https://supahero.io/` |
+| ThreeUI（Three.js 3D 组件/着色器） | 转译 | 次 | 网页 / 3D 组件 / C2 动效 | → 官网浏览 → web_search | `https://threeui.com/browse` |
+| Design Spells（设计细节/微交互） | 转译 | 次 | 网页 / 微交互细节 | → 官网浏览 → web_search | `https://designspells.com/` |
+| Mobbin（真实 APP 截图库，iOS/Android） | 转译 | 主 | APP / 移动端（A1 重点） | → refero → web_search | `https://mobbin.com/discover/apps/ios/latest` |
+| loadmo.re（移动端网页设计归档） | 转译 | 兜底 | 移动端网页 | → web_search | `https://loadmo.re/` |
+| UiPedia（设计资源/工具导航） | 转译 | 兜底 | 通用（找设计工具/资源时） | → web_search | `https://www.uipedia.design/` |
+| Dribbble 案例（单页链接，具体设计稿） | 转译 | 兜底 | 网页（单案例参考） | → 灵感库聚合 | `https://dribbble.com/` |
 
 > **本文件只存共通定义**（资源是什么、怎么用、来源在哪）。本机是否安装、装在哪 = 机器状态（DSH 无 skill-router：手动维护台账 `~/resources/design-references.md`，并同步 design_lookup 工具的数据 `plugins/design-router/data/registry.json`——registry.md 改动后需用 `node plugins/design-router/scripts/build-registry.mjs` 重生成，或手动同步）。风格桶字段以 `data/registry.json` 为准（design_route/design_diversity 读取），本表同步维护。
 
@@ -86,7 +109,7 @@
 | Kami 约束骨架（十条不变量 + 设计令牌） | 规则 | 主 | 通用排版（所有场景常驻） | → Kami 轻量版 README → 十条不变量心法手动应用 | 本地目录 `~/Desktop/Design/kami-design-principles/`（README.md + design-tokens.css，自 kami 技能 references/design.md 提取） |
 | Kami 完整设计规范 | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） | skill 仓库 `https://github.com/tw93/Kami`（规范在 `references/design.md`） |
 | Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 | 本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼） |
-| 海报构图词典（32 构图词条：焦点/几何/动势/分割/网格/图文/破格；速查表按内容量×情绪选主构图；A 侧转 CSS 约束、B 侧转图像配方） | 转译 | 主 | 海报（B1）/ 杂志（B2）/ 网页 hero（A） | → 主构图1+辅助1+破格≤1 手动画组织 | skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书） |
+| 海报构图词典（32 构图词条：焦点/几何/动势/分割/网格/图文/破格；速查表按内容量×情绪选主构图；A 侧转 CSS 约束、B 侧转图像配方） | 转译 | 主 | 海报（B1 环节 1/2/4）/ 杂志（B2 环节 2）/ 网页 hero（A1/A2 环节 2） | → 主构图1+辅助1+破格≤1 手动画组织 | skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书） |
 | DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 网站网页浏览拿 / getdesign.md | refero 网站（见上）；`https://getdesign.md/` |
 | dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens） | 直引 | 次 | APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账） | → refero 网站网页浏览拿 DESIGN.md / getdesign.md | 本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt` |
 | design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm） |
