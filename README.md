@@ -33,6 +33,7 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 | `design_lookup <branch> <stage>` | Query the design-resource registry (R/C/E/V 3-D index + fallback chain + sources; output tags style buckets) | "What do I consult at this step?" |
 | `design_route <need>` | Map need keywords to recommended style-bucket combos (primary must-check + secondary on-demand) + per-bucket representative resources | Phase 1 research (anti-homogeneity routing) |
 | `design_diversity <c1> <c2> <c3>` | Machine check of 3 candidates' difference (hue family / font tone / source bucket), PASS/FAIL | Before presenting candidates in Phase 1 (anti-homogeneity check) |
+| `design_quality <report\|query>` | Record/query source-quality signals (extraction success / rework rate / reachability — objective, not taste-based); local log, not in git | Record after Phase 4 / consume for downranking in Phase 1 |
 | `design_audit <target>` | Machine slop gates (hallmark machine subset) + interfaces CS-* 8 rules + phase-4 scans + inherited-contrast | Phase 4 verification |
 | `design_contrast <target>` | WCAG 2.1 + APCA-approx contrast | Phase 4 verification |
 

@@ -11,9 +11,10 @@
  *   - 不依赖 @deepseek-ai/dsh-tools（工作区模块解析不到 dsh 安装目录），
  *     直接用完整 JSON Schema 构造工具定义（与 dsh-tool 注册的 schema 同构）
  */
-import { readFileSync, statSync, readdirSync } from "node:fs";
-import { join, extname, resolve } from "node:path";
+import { readFileSync, statSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { join, extname, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 import { runTypographyChecks } from "./checks/typography.mjs";
 import { runLayoutChecks } from "./checks/layout.mjs";
@@ -33,6 +34,37 @@ function loadRegistry() {
   } catch {
     return { resources: [], routes: {}, logoExtra: {} };
   }
+}
+
+// ---------- 质量日志（本地 ~/.dsh/design-router-quality.json，不入 git）----------
+const QUALITY_LOG = join(homedir(), ".dsh", "design-router-quality.json");
+const QUALITY_RANK = { 优: 4, 良: 3, 中: 2, 未评估: 1, 差: 0 };
+
+function loadQualityLog() {
+  try {
+    return existsSync(QUALITY_LOG) ? JSON.parse(readFileSync(QUALITY_LOG, "utf8")) : { version: 1, entries: {} };
+  } catch {
+    return { version: 1, entries: {} };
+  }
+}
+
+function saveQualityLog(log) {
+  try {
+    mkdirSync(dirname(QUALITY_LOG), { recursive: true });
+    writeFileSync(QUALITY_LOG, JSON.stringify(log, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 某资源的历史质量：优先取日志记录，无则回退 registry 静态字段 */
+function resourceQuality(slug, registry) {
+  const log = loadQualityLog();
+  const entry = log.entries[slug];
+  if (entry && entry.quality) return entry.quality;
+  const res = registry?.resources.find((r) => r.slug === slug);
+  return res?.quality || "未评估";
 }
 
 // ---------- audit 文件收集 ----------
@@ -169,11 +201,24 @@ function apply(ctx) {
       if (hits.length === 0) {
         return `分支 ${branch} × 环节 ${stage}：无注册资源（登记空白区，见 registry.md）。该环节走退化链人工执行。`;
       }
+      // 按质量排序（优→良→未评估→中→差），差质沉底且标注
+      const sorted = [...hits].sort((a, b) => {
+        const qa = QUALITY_RANK[resourceQuality(a.slug, registry)] ?? 0;
+        const qb = QUALITY_RANK[resourceQuality(b.slug, registry)] ?? 0;
+        return qb - qa;
+      });
       const bucketName = (b) => (b && registry.buckets?.[b] ? `[桶 ${b} · ${registry.buckets[b].split("：")[0]}]` : "");
+      const qualityTag = (r) => {
+        const q = resourceQuality(r.slug, registry);
+        if (q === "差") return "⚠️ 质量差（历史低质，最后兜底）";
+        if (q === "中") return "🟡 质量中（提取部分失败）";
+        if (q === "优") return "⭐ 质量优";
+        return "";
+      };
       const lines = [`## ${branch} · 环节 ${stage} 资源`, ""];
-      for (const r of hits) {
+      for (const r of sorted) {
         lines.push(
-          `### ${r.name} ${bucketName(r.bucket)}`,
+          `### ${r.name} ${bucketName(r.bucket)} ${qualityTag(r)}`,
           `- 角色: ${r.role} · 形态: ${r.form} · 层级: ${r.level}`,
           `- 适用: ${r.scenarios}`,
           `- 退化链: ${r.fallback}`,
@@ -191,6 +236,7 @@ function apply(ctx) {
           "4. 每个候选标注「来源桶 + 来源资源 + 证据」；候选间色相/字体气质/布局骨架至少两维不同。",
           "5. 拿不准该去哪几个桶 → 调 `design_route <需求特征>` 返回推荐桶组合。",
           "6. 3 候选产出后 → 调 `design_diversity <c1> <c2> <c3>` 机器校验差异度，不达标回炉重选。",
+          "7. 质量标注：⭐优/（空）良/🟡中/⚠️差——候选优先从优/良源取，差源最后兜底。",
           "",
         );
       }
@@ -218,17 +264,30 @@ function apply(ctx) {
         }
       }
       const bucketRep = (b) => {
-        const reps = registry.resources.filter((r) => r.bucket === b).map((r) => r.slug);
+        // 桶代表：排除差质源（rank 0），其余按质量排序（优→良→未评估→中）
+        const allReps = registry.resources.filter((r) => r.bucket === b);
+        const reps = allReps
+          .filter((r) => (QUALITY_RANK[resourceQuality(r.slug, registry)] ?? 1) > 0)
+          .sort((a, b2) => (QUALITY_RANK[resourceQuality(b2.slug, registry)] ?? 1) - (QUALITY_RANK[resourceQuality(a.slug, registry)] ?? 1))
+          .map((r) => r.slug);
+        const degraded = allReps.filter((r) => (QUALITY_RANK[resourceQuality(r.slug, registry)] ?? 1) === 0).map((r) => r.slug);
         const note = registry.bucketNotes?.[b] ? `｜查询指引: ${registry.bucketNotes[b]}` : "";
-        return reps.length ? `代表: ${reps.slice(0, 4).join(", ")}${note}` : `查询指引: ${note || "见 registry.md 该桶资源"}`;
+        const health = allReps.length === 0 ? "🔴 空桶" : allReps.length === 1 ? "🟡 弱桶" : "🟢 健康";
+        const degradedNote = degraded.length ? `（⚠️ ${degraded.length} 个差质源已降权）` : "";
+        const repNote = reps.length ? `代表: ${reps.slice(0, 4).join(", ")}` : "（无可用源，走查询指引）";
+        return `${repNote}${degradedNote}${note}｜${health}`;
+      };
+      const bucketLine = (b) => {
+        const allReps = registry.resources.filter((r) => r.bucket === b);
+        return `- **[${b}]** ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`;
       };
       if (matched) {
         const { pattern, route } = matched;
         lines.push(`匹配模式: ${pattern}`, "");
         lines.push("### 主桶（必查，各取 ≥1 候选源）");
-        for (const b of route.primary) lines.push(`- **[${b}]** ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`);
+        for (const b of route.primary) lines.push(bucketLine(b));
         lines.push("", "### 次桶（按需，增强候选多样性）");
-        for (const b of route.secondary) lines.push(`- [${b}] ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`);
+        for (const b of route.secondary) lines.push(bucketLine(b));
         // extra 专项资源（如 logo 任务：logoExtra 环节 2 的资源）
         if (route.extra === "logo") {
           const logoSlugs = registry.logoExtra?.["2"] || [];
@@ -249,6 +308,56 @@ function apply(ctx) {
         lines.push("", "按需求气质挑 2-3 个桶（主）+ 1-2 个次桶，再回 design_lookup 查各桶资源。");
       }
       return lines.join("\n");
+    },
+  }));
+
+  // ---- design_quality（质量信号记录/查询）----
+  ctx.tools.register(defineToolDef({
+    name: "design_quality",
+    description:
+      "记录或查询参考来源的质量信号（客观、非审美）：dembrandt/defuddle 提取是否成功、候选是否'未验证'、环节 4 回炉次数、网站可达性。质量档：优（多次验证一次通过）/ 良（验证成功）/ 中（提取部分失败或未验证）/ 差（多次回炉或不可达）。动作 report 在任务收尾（环节 4 后）记录；query 在环节 1 查历史。日志存本地 ~/.dsh/design-router-quality.json，不入 git。",
+    parameters: {
+      action: { type: "string", required: true, description: "report（记录信号）或 query（查历史）" },
+      slug: { type: "string", required: true, description: "资源 slug（如 refero-design / zine-style-library）。query 时可用 'all' 查全部" },
+      quality: { type: "string", required: false, description: "report 时必填：优 / 良 / 中 / 差" },
+      reason: { type: "string", required: false, description: "report 时可选：信号依据（提取失败/未验证/回炉次数/不可达）" },
+    },
+    async execute(args) {
+      const action = String(args.action || "").toLowerCase();
+      const slug = String(args.slug || "").toLowerCase();
+      const log = loadQualityLog();
+      if (action === "report") {
+        const q = String(args.quality || "");
+        if (!["优", "良", "中", "差"].includes(q)) {
+          return "❌ report 需 quality ∈ {优, 良, 中, 差}";
+        }
+        const res = registry.resources.find((r) => r.slug === slug);
+        if (!res) return `❌ 未知 slug: ${slug}（可用 design_lookup 查合法 slug）`;
+        const prev = log.entries[slug];
+        const entry = {
+          quality: q,
+          reason: args.reason || "",
+          at: new Date().toISOString(),
+          count: (prev?.count || 0) + 1,
+        };
+        log.entries[slug] = entry;
+        const ok = saveQualityLog(log);
+        return `${ok ? "✅ 已记录" : "⚠️ 写入失败"}: ${slug} → ${q}（${entry.reason || "无理由"}，累计 ${entry.count} 次）\n日志: ${QUALITY_LOG}`;
+      }
+      // query
+      if (slug === "all") {
+        const lines = ["## design_quality · 全部来源质量", ""];
+        for (const [s, e] of Object.entries(log.entries || {})) {
+          lines.push(`- ${s}: ${e.quality}（${e.reason || "无理由"}，${e.count} 次，${e.at?.slice(0, 10) || "?"}）`);
+        }
+        lines.push("", `共 ${Object.keys(log.entries || {}).length} 个来源有记录。` + (Object.keys(log.entries || {}).length === 0 ? "尚无记录——任务收尾时用 design_quality report 写入。" : ""));
+        return lines.join("\n");
+      }
+      const e = log.entries[slug];
+      const res = registry.resources.find((r) => r.slug === slug);
+      if (!res && !e) return `❌ 未知 slug: ${slug}`;
+      const q = e?.quality || res?.quality || "未评估";
+      return `## ${slug} 质量\n- 当前: ${q}${e ? `（${e.reason || "无理由"}，累计 ${e.count} 次，最近 ${e.at?.slice(0, 10) || "?"}）` : "（无历史记录，registry 默认）"}\n- 档位说明: ${registry.qualityLevels?.[q] || "见 registry.md"}`;
     },
   }));
 
