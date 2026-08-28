@@ -2,6 +2,7 @@
 
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-dsh-blue)](https://github.com/deepseek-ai/deepseek-harness)
 [![Topics: dsh](https://img.shields.io/badge/plugin-dsh-4B9CD3)](https://github.com/topics/dsh)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 🇬🇧 English version: [README.md](README.md)
 
@@ -113,7 +114,7 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 | hallmark 技能 + `site/` 主题 tokens 与示例 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | MIT（完整文本见 [`skills/hallmark/LICENSE`](skills/hallmark/LICENSE)） | `skills/hallmark/` |
 | registry 中引用的外部设计资源（kami/zine/logo-generator 等） | 各上游仓库 | 仅链接引用（未复制入仓，来源 URL 见 [`registry.md`](skills/design-references/references/registry.md)） | — |
 
-其余内容（`plugins/`、`presets/`、`skills/design-references/`）为本仓库自有。
+其余内容（`plugins/`、`presets/`、`skills/design-references/`）为本仓库自有，遵循 [MIT License](LICENSE)（Copyright © 2026 haohaiHuang）。
 
 ## 相关链接
 

@@ -2,6 +2,7 @@
 
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-dsh-blue)](https://github.com/deepseek-ai/deepseek-harness)
 [![Topics: dsh](https://img.shields.io/badge/plugin-dsh-4B9CD3)](https://github.com/topics/dsh)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](https://github.com/deepseek-ai/deepseek-harness)**: the `my-agent` preset, the `design-references` routing skill (DSH-adapted), and the `design-router` deterministic-tool plugin. Built by upgrading an existing HTML-based design agent with the [design-references](https://github.com/haohaiHuang/my-pi-skills/tree/main/skills/design-references) methodology.
 
@@ -110,7 +111,7 @@ This repo bundles the following third-party content (upstream licenses/attributi
 | hallmark skill + `site/` theme tokens & examples | [nutlope/hallmark](https://github.com/nutlope/hallmark) | MIT (full text in [`skills/hallmark/LICENSE`](skills/hallmark/LICENSE)) | `skills/hallmark/` |
 | External design resources referenced by the registry (kami/zine/logo-generator, etc.) | respective upstream repos | link-only references (not vendored; source URLs in [`registry.md`](skills/design-references/references/registry.md)) | — |
 
-Everything else (`plugins/`, `presets/`, `skills/design-references/`) is original to this repo.
+Everything else (`plugins/`, `presets/`, `skills/design-references/`) is original to this repo and licensed under the [MIT License](LICENSE) (Copyright © 2026 haohaiHuang).
 
 ## Related
 
