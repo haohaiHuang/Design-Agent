@@ -85,6 +85,7 @@ cp -RL presets/my-agent ~/.dsh/.agent-presets/
 # 4. External deps (soft deps — missing ones degrade gracefully)
 npm install -g dembrandt        # URL → design tokens (phase-1 candidate verification)
 # defuddle: npm install -g defuddle
+# npm install -g @open-pencil/cli   # Optional: read/convert/verify .fig/.pen design files (falls back to Figma-family skills / manual review)
 
 # ── Bring your own (personal picks; absence degrades to the fallback chain) ──
 # 5. Machine-local assets (ledger + kami/zine/logo-generator reference libs)

@@ -90,6 +90,7 @@ cp -RL presets/my-agent ~/.dsh/.agent-presets/
 # 4. 外部依赖（软依赖，缺失只降级不影响主流程）
 npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 # defuddle：npm install -g defuddle
+# npm install -g @open-pencil/cli   # 可选：.fig/.pen 设计文件直读/转换/校验（未装时走 Figma 家族/人工核对）
 
 # —— 自备（个人精选，缺失时走退化链）——
 # 5. 本机资产（台账 + kami/zine/logo-generator 参考库，见 ~/Desktop/Design/）
