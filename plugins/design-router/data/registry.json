@@ -949,6 +949,18 @@
       "source": "https://dribbble.com/",
       "bucket": null,
       "quality": "未评估"
+    },
+    {
+      "name": "海报构图词典（32 构图词条：焦点/几何/动势/分割/网格/图文/破格；速查表按内容量×情绪选主构图；A 侧转 CSS 约束、B 侧转图像配方）",
+      "role": "C",
+      "form": "转译",
+      "level": "主",
+      "scenarios": "海报（B1）/ 杂志（B2）/ 网页 hero（A）",
+      "fallback": "→ 主构图1+辅助1+破格≤1 手动画组织",
+      "source": "skill 文件 references/poster-compositions.md（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书）",
+      "slug": "poster-compositions",
+      "bucket": null,
+      "quality": "未评估"
     }
   ],
   "routes": {
@@ -971,7 +983,8 @@
       "2": [
         "kami-skeleton",
         "refero-design",
-        "design-md-skill"
+        "design-md-skill",
+        "poster-compositions"
       ],
       "3": [
         "kami-skill",
@@ -1010,7 +1023,8 @@
       "2": [
         "kami-skeleton",
         "refero-design",
-        "design-md-skill"
+        "design-md-skill",
+        "poster-compositions"
       ],
       "3": [
         "huashu-design",
@@ -1047,7 +1061,8 @@
       ],
       "2": [
         "zine-family-recipes",
-        "logo-background-styles"
+        "logo-background-styles",
+        "poster-compositions"
       ],
       "3": [
         "gpt-image-2",
@@ -1065,7 +1080,8 @@
       ],
       "2": [
         "zine-family-recipes",
-        "kami-spec"
+        "kami-spec",
+        "poster-compositions"
       ],
       "3": [
         "gpt-image-2",
