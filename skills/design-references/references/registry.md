@@ -52,7 +52,7 @@
 | logo-generator WebGL 动态背景规格 | 规则 | 兜底 | 网页动态背景 / C2 动效 | → GitHub 直读 → 本地兜底 | 源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md` |
 | hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…） | 规则 | 次 | 网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集） | → skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底） | `https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`） |
 | hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项） | 规则 | 次 | 网页 / 通用（按 genre 信号加载对应文件） | → skill 本地文件直读（软依赖，未安装则跳过） | `https://github.com/nutlope/hallmark`（`references/genres/*.md`） |
-| interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集 DSH 版 `/Users/huanghaohai/Desktop/DSH/Design-Agent/plugins/design-router/checks/cheat.mjs`（上游 `extensions/design-router/checks/cheat.ts`） |
+| interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`） |
 
 ## E 执行工具（环节 3：能动手的技能）
 
@@ -85,7 +85,7 @@
 | design-qa-checklist（UI QA 清单） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 | skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`） |
 | 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
 | logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
-| hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 DSH 的 design_audit 工具合并执行） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 DSH 版 `/Users/huanghaohai/Desktop/DSH/Design-Agent/plugins/design-router/checks/`（上游 `extensions/design-router/checks/`） |
+| hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 DSH 的 design_audit 工具合并执行） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
 
 ---
 

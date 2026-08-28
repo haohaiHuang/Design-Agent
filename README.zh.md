@@ -14,7 +14,7 @@
 | [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（3 个只读工具，零外部运行时依赖） |
 | [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：五环节 persona + 每环节确认门禁 |
 | [`skills/design-references/`](skills/design-references/) | 场景分支路由技能（A 产品/B 内容/C 通用 × 五环节），DSH 适配版 |
-| [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)） |
+| [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
 
 ## plugins/design-router — 确定性工具
 
@@ -69,14 +69,15 @@ plugins/design-router/
 cp -R skills/design-references ~/.agents/skills/
 cp -R skills/hallmark ~/.agents/skills/
 
-# 2. 预设
+# 2. 预设（cp -RL：把 presets/my-agent/plugins 相对软链展开为自包含副本，
+#    装好后预设目录不再依赖仓库路径，可整体拷贝/换机迁移）
 mkdir -p ~/.dsh/.agent-presets
-cp -R presets/my-agent ~/.dsh/.agent-presets/
+cp -RL presets/my-agent ~/.dsh/.agent-presets/
 
-# 3. 插件源码（保持在工作区，供预设绝对路径引用）
-#    把 plugins/ 放到你想要的目录，然后改下面一行：
-#    presets/my-agent/agent.cordis.yml 中 design-router 行的 name 改为
-#    插件 index.mjs 的绝对路径
+# 3. 插件源码（保持在工作区仓库根 plugins/，可 git 管理）
+#    预设通过相对路径 './plugins/design-router/index.mjs' 引用：
+#    presets/my-agent/plugins 是指向仓库根 plugins/ 的相对软链，
+#    cp -RL 复制时展开为真实目录，因此换机器无需改任何路径。
 
 # 4. 外部依赖（软依赖，缺失只降级不影响主流程）
 npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
@@ -86,8 +87,10 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 #    ——来自用户个人精选，不在本仓库；缺失时走退化链
 ```
 
-**注意**：预设中插件行是绝对路径（`/Users/huanghaohai/Desktop/DSH/Design-Agent/...`），
-新机器必须改成你自己的路径，否则挂载失败。
+**注意**：预设中插件行用的是**相对路径** `./plugins/design-router/index.mjs`
+（`presets/my-agent/plugins` 为相对软链，`cp -RL` 展开），换机器直接复制预设目录即可，
+**无需修改任何路径**。若不想用软链，也可以把 `plugins/design-router/` 整体复制进
+`presets/my-agent/plugins/` 再 `cp -R`（结果相同，只是多一份拷贝）。
 
 ### 仓库结构
 
@@ -96,10 +99,21 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 ├── presets/my-agent/          # DSH 预设（agent.cordis.yml + preset.yml）
 ├── skills/
 │   ├── design-references/     # 路由技能（DSH 适配版）
-│   └── hallmark/              # 反 AI 味执行技能（MIT 上游副本）
+│   └── hallmark/              # 反 AI 味执行技能（MIT 上游副本，含 site/ 主题资产）
 ├── README.md                  # 英文（主版）
 └── README.zh.md               # 中文
 ```
+
+## 第三方内容与许可声明
+
+本仓库包含以下第三方内容（均已保留上游许可/来源标注）：
+
+| 内容 | 来源 | 许可 | 位置 |
+| --- | --- | --- | --- |
+| hallmark 技能 + `site/` 主题 tokens 与示例 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | MIT（完整文本见 [`skills/hallmark/LICENSE`](skills/hallmark/LICENSE)） | `skills/hallmark/` |
+| registry 中引用的外部设计资源（kami/zine/logo-generator 等） | 各上游仓库 | 仅链接引用（未复制入仓，来源 URL 见 [`registry.md`](skills/design-references/references/registry.md)） | — |
+
+其余内容（`plugins/`、`presets/`、`skills/design-references/`）为本仓库自有。
 
 ## 相关链接
 

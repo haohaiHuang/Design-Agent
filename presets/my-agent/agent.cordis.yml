@@ -347,7 +347,7 @@
 # 提供 3 个只读工具：design_lookup（registry 三维索引查询）/ design_audit
 # （机器 slop gates + 环节4 扫描 + 对比度）/ design_contrast（对比度）。
 # 只注册工具、不发布服务，故松散放置（同 tool-bash）。
-# 源码在工作区（可 git 管理）：/Users/huanghaohai/Desktop/DSH/Design-Agent/plugins/design-router/
-# 绝对路径由 mount 转为 file URL 加载（PresetTree.import 支持绝对路径）。
+# 源码在工作区仓库根 plugins/ 下（可 git 管理）；本目录下 plugins 是相对软链，
+# 安装（cp -RL）时展开为自包含副本，故此处用相对路径，换机器无需改路径。
 - id: design-router
-  name: '/Users/huanghaohai/Desktop/DSH/Design-Agent/plugins/design-router/index.mjs'
+  name: './plugins/design-router/index.mjs'

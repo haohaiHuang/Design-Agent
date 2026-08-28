@@ -14,7 +14,7 @@ A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](ht
 | [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (3 read-only tools, zero external runtime deps) |
 | [`presets/my-agent/`](presets/my-agent/) | DSH agent preset (`agent.cordis.yml` + `preset.yml`): five-phase persona with per-stage confirmation gates |
 | [`skills/design-references/`](skills/design-references/) | Scenario-branch routing skill (A product / B content / C general × five phases), DSH-adapted |
-| [`skills/hallmark/`](skills/hallmark/) | Anti-AI-slop execution skill (MIT upstream copy from [nutlope/hallmark](https://github.com/nutlope/hallmark)) |
+| [`skills/hallmark/`](skills/hallmark/) | Anti-AI-slop execution skill (MIT upstream copy from [nutlope/hallmark](https://github.com/nutlope/hallmark); `site/` theme tokens & examples bundled in-skill, self-contained) |
 
 ## plugins/design-router — deterministic tools
 
@@ -64,13 +64,16 @@ The repo is a **complete reproducible package**: plugin + preset + DSH-adapted s
 cp -R skills/design-references ~/.agents/skills/
 cp -R skills/hallmark ~/.agents/skills/
 
-# 2. Preset
+# 2. Preset (cp -RL expands the relative plugins symlink in presets/my-agent/
+#    into a self-contained copy — after install the preset no longer depends on
+#    the repo path, so it can be copied around or migrated freely)
 mkdir -p ~/.dsh/.agent-presets
-cp -R presets/my-agent ~/.dsh/.agent-presets/
+cp -RL presets/my-agent ~/.dsh/.agent-presets/
 
-# 3. Plugin source (keep it in a workspace the preset's absolute path points at)
-#    Place plugins/ where you want it, then edit the design-router row in
-#    presets/my-agent/agent.cordis.yml to the absolute path of index.mjs
+# 3. Plugin source (keep it under the repo-root plugins/ for git management)
+#    The preset references it via the RELATIVE path './plugins/design-router/index.mjs':
+#    presets/my-agent/plugins is a relative symlink to the repo-root plugins/,
+#    which cp -RL expands to a real directory — no path edits needed on any machine.
 
 # 4. External deps (soft deps — missing ones degrade gracefully)
 npm install -g dembrandt        # URL → design tokens (phase-1 candidate verification)
@@ -80,7 +83,11 @@ npm install -g dembrandt        # URL → design tokens (phase-1 candidate verif
 #    — personal selections, not in this repo; the fallback chain covers absence
 ```
 
-**Note**: the preset's plugin row uses an absolute path; on a new machine you **must** change it to your own path or the mount fails.
+**Note**: the preset's plugin row uses a **relative path** (`./plugins/design-router/index.mjs`,
+with `presets/my-agent/plugins` as a relative symlink expanded by `cp -RL`), so a fresh
+machine just copies the preset directory — **no path edits required**. If you'd rather
+avoid symlinks, copy `plugins/design-router/` into `presets/my-agent/plugins/` and use
+plain `cp -R` (same result, just a second copy).
 
 ### Repository structure
 
@@ -89,10 +96,21 @@ npm install -g dembrandt        # URL → design tokens (phase-1 candidate verif
 ├── presets/my-agent/          # DSH preset (agent.cordis.yml + preset.yml)
 ├── skills/
 │   ├── design-references/     # Routing skill (DSH-adapted)
-│   └── hallmark/              # Anti-AI-slop skill (MIT upstream copy)
+│   └── hallmark/              # Anti-AI-slop skill (MIT upstream copy, incl. site/ theme assets)
 ├── README.md                  # English (primary)
 └── README.zh.md               # 中文
 ```
+
+## Third-party content & license attribution
+
+This repo bundles the following third-party content (upstream licenses/attribution preserved):
+
+| Content | Source | License | Location |
+| --- | --- | --- | --- |
+| hallmark skill + `site/` theme tokens & examples | [nutlope/hallmark](https://github.com/nutlope/hallmark) | MIT (full text in [`skills/hallmark/LICENSE`](skills/hallmark/LICENSE)) | `skills/hallmark/` |
+| External design resources referenced by the registry (kami/zine/logo-generator, etc.) | respective upstream repos | link-only references (not vendored; source URLs in [`registry.md`](skills/design-references/references/registry.md)) | — |
+
+Everything else (`plugins/`, `presets/`, `skills/design-references/`) is original to this repo.
 
 ## Related
 
