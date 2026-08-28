@@ -32,7 +32,9 @@
 
 | 工具 | 作用 | 对应环节 |
 | --- | --- | --- |
-| `design_lookup <branch> <stage>` | 查 design-references 资源注册表（R/C/E/V 三维索引 + 退化链 + 来源） | 全流程"这一步查什么" |
+| `design_lookup <branch> <stage>` | 查 design-references 资源注册表（R/C/E/V 三维索引 + 退化链 + 来源，输出标注风格桶） | 全流程"这一步查什么" |
+| `design_route <需求特征>` | 按需求关键词返回推荐风格桶组合（主桶必查 + 次桶按需）+ 各桶代表资源 | 环节 1 调研（反同质化定位） |
+| `design_diversity <c1> <c2> <c3>` | 3 候选差异度机器检查（色相族/字体气质/来源桶），PASS/FAIL | 环节 1 候选展示前（反同质化校验） |
 | `design_audit <target>` | 机器化 slop gates（hallmark 机器子集）+ interfaces CS-* 8 条 + 环节 4 扫描 + 继承链对比度 | 环节 4 校验 |
 | `design_contrast <target>` | WCAG 2.1 + APCA 近似对比度 | 环节 4 校验 |
 

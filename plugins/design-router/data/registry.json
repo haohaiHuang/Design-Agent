@@ -10,7 +10,8 @@
       "scenarios": "APP / 网页 / Mac",
       "fallback": "→ 用户参考库候选池（台账+registry）→ web_search",
       "source": "网站 `https://styles.refero.design/`（SPA，需浏览器浏览——pi 平台用 ego-browser / 其他平台 WebFetch 或人工）",
-      "slug": "refero-design"
+      "slug": "refero-design",
+      "bucket": "minimal"
     },
     {
       "name": "Zine 风格库（52 个 AI 海报技能风格配方）",
@@ -20,7 +21,8 @@
       "scenarios": "海报 / 杂志",
       "fallback": "→ 本地文件直读（无退化）",
       "source": "本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary`",
-      "slug": "zine-style-library"
+      "slug": "zine-style-library",
+      "bucket": "retro"
     },
     {
       "name": "VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集）",
@@ -30,7 +32,8 @@
       "scenarios": "网页 / Mac",
       "fallback": "→ getdesign.md 官网",
       "source": "`https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/`",
-      "slug": "voltagent"
+      "slug": "voltagent",
+      "bucket": "minimal"
     },
     {
       "name": "dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式）",
@@ -40,7 +43,8 @@
       "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 失败时）",
       "fallback": "→ hallmark_study_fetch（快验，零依赖）→ WebFetch / 人工核对",
       "source": "npm 全局 `dembrandt`（v0.28.0，MIT）；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
-      "slug": "dembrandt"
+      "slug": "dembrandt",
+      "bucket": null
     },
     {
       "name": "Beautiful UI（AI-native 界面范式）",
@@ -50,7 +54,8 @@
       "scenarios": "APP",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.beautifului.ai/`",
-      "slug": "beautiful-ui"
+      "slug": "beautiful-ui",
+      "bucket": "minimal"
     },
     {
       "name": "Aceternity UI（落地页组件/区块范式）",
@@ -60,7 +65,8 @@
       "scenarios": "网页",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://ui.aceternity.com/`",
-      "slug": "aceternity"
+      "slug": "aceternity",
+      "bucket": "minimal"
     },
     {
       "name": "21st.dev（shadcn/ui 组件市场）",
@@ -70,7 +76,8 @@
       "scenarios": "网页",
       "fallback": "→ 官网浏览",
       "source": "`https://21st.dev/`",
-      "slug": "21st-dev"
+      "slug": "21st-dev",
+      "bucket": "minimal"
     },
     {
       "name": "minimal.gallery（极简网页灵感）",
@@ -80,7 +87,8 @@
       "scenarios": "网页",
       "fallback": "→ web_search",
       "source": "`https://minimal.gallery/`",
-      "slug": "minimal-gallery"
+      "slug": "minimal-gallery",
+      "bucket": "minimal"
     },
     {
       "name": "Uiverse Galaxy（组件/按钮素材）",
@@ -90,7 +98,8 @@
       "scenarios": "网页",
       "fallback": "→ 本地克隆 grep",
       "source": "`https://uiverse.io/`",
-      "slug": "uiverse"
+      "slug": "uiverse",
+      "bucket": "bold"
     },
     {
       "name": "orange-line-illustration（纽约客风编辑插画风格）",
@@ -100,7 +109,8 @@
       "scenarios": "海报 / 杂志",
       "fallback": "→ 技能本地文件",
       "source": "skill 仓库 `https://github.com/orange2ai/orange-line-illustration.git`",
-      "slug": "orange-line-illustration"
+      "slug": "orange-line-illustration",
+      "bucket": "editorial"
     },
     {
       "name": "Lucide（图标库·首选）",
@@ -110,7 +120,8 @@
       "scenarios": "通用",
       "fallback": "→ CDN 直引（无退化）",
       "source": "`https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg`",
-      "slug": "lucide"
+      "slug": "lucide",
+      "bucket": null
     },
     {
       "name": "Heroicons（图标库·补充）",
@@ -120,7 +131,8 @@
       "scenarios": "通用",
       "fallback": "→ CDN 直引",
       "source": "`https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg`",
-      "slug": "heroicons"
+      "slug": "heroicons",
+      "bucket": null
     },
     {
       "name": "Google Fonts（字体源）",
@@ -130,7 +142,8 @@
       "scenarios": "通用",
       "fallback": "→ CDN 直引",
       "source": "`https://fonts.google.com/`",
-      "slug": "google-fonts"
+      "slug": "google-fonts",
+      "bucket": null
     },
     {
       "name": "Hero Patterns（SVG 背景纹理）",
@@ -140,7 +153,8 @@
       "scenarios": "通用",
       "fallback": "→ 官网复制",
       "source": "`https://heropatterns.com/`",
-      "slug": "hero-patterns"
+      "slug": "hero-patterns",
+      "bucket": null
     },
     {
       "name": "CSS 渐变工具",
@@ -150,7 +164,8 @@
       "scenarios": "通用",
       "fallback": "→ 官网",
       "source": "`https://cssgradient.io/`（或同类）",
-      "slug": "css-gradient-tools"
+      "slug": "css-gradient-tools",
+      "bucket": null
     },
     {
       "name": "DESIGN.md 格式规范（Google spec）",
@@ -160,7 +175,8 @@
       "scenarios": "通用",
       "fallback": "→ 官网",
       "source": "`https://getdesign.md/`；参考实现 `https://github.com/google-labs-code/design.md`",
-      "slug": "design-md-spec"
+      "slug": "design-md-spec",
+      "bucket": null
     },
     {
       "name": "Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾）",
@@ -170,7 +186,8 @@
       "scenarios": "网页动效（液态/粘性/果冻效果）",
       "fallback": "→ 官网 demo 浏览 → web_search",
       "source": "官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries`",
-      "slug": "liquid-gooey"
+      "slug": "liquid-gooey",
+      "bucket": "liquid"
     },
     {
       "name": "transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…）",
@@ -180,7 +197,8 @@
       "scenarios": "网页动效（UI 过渡/微交互）",
       "fallback": "→ 官网复制 → web_search",
       "source": "`https://transitions.dev/`（含 agent skill 集成）",
-      "slug": "transitions-dev"
+      "slug": "transitions-dev",
+      "bucket": "liquid"
     },
     {
       "name": "vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav）",
@@ -190,7 +208,8 @@
       "scenarios": "网页（Tailwind 区块，与 Aceternity/21st.dev 同型）",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://vibeprompts.dev/`",
-      "slug": "vibeprompts"
+      "slug": "vibeprompts",
+      "bucket": "minimal"
     },
     {
       "name": "Kami 约束骨架（十条不变量 + 设计令牌）",
@@ -200,7 +219,8 @@
       "scenarios": "通用排版（所有场景常驻）",
       "fallback": "→ Kami 轻量版 README → 十条不变量心法手动应用",
       "source": "本地目录 `~/Desktop/Design/kami-design-principles/`（README.md + design-tokens.css，自 kami 技能 references/design.md 提取）",
-      "slug": "kami-skeleton"
+      "slug": "kami-skeleton",
+      "bucket": "warmpaper"
     },
     {
       "name": "Kami 完整设计规范",
@@ -210,7 +230,8 @@
       "scenarios": "文档 / 网页",
       "fallback": "→ 本地文件直读（无退化）",
       "source": "skill 仓库 `https://github.com/tw93/Kami`（规范在 `references/design.md`）",
-      "slug": "kami-spec"
+      "slug": "kami-spec",
+      "bucket": "warmpaper"
     },
     {
       "name": "Zine 风格族配方（从风格库提炼的色板/质感/排版规律）",
@@ -220,7 +241,8 @@
       "scenarios": "海报 / 杂志",
       "fallback": "→ style-families.md 直读",
       "source": "本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼）",
-      "slug": "zine-family-recipes"
+      "slug": "zine-family-recipes",
+      "bucket": "retro"
     },
     {
       "name": "DESIGN.md（选定参考的设计系统文件）",
@@ -230,7 +252,8 @@
       "scenarios": "APP / 网页 / Mac",
       "fallback": "→ refero 网站网页浏览拿 / getdesign.md",
       "source": "refero 网站（见上）；`https://getdesign.md/`",
-      "slug": "design-md"
+      "slug": "design-md",
+      "bucket": null
     },
     {
       "name": "dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens）",
@@ -240,7 +263,8 @@
       "scenarios": "APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账）",
       "fallback": "→ refero 网站网页浏览拿 DESIGN.md / getdesign.md",
       "source": "本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt`",
-      "slug": "dembrandt-extract"
+      "slug": "dembrandt-extract",
+      "bucket": null
     },
     {
       "name": "design-md-skill（Google spec 生成器）",
@@ -250,7 +274,8 @@
       "scenarios": "APP / 网页 / Mac（约束生成）",
       "fallback": "→ 手动写约束集（遵循 workflow.md 格式）",
       "source": "skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm）",
-      "slug": "design-md-skill"
+      "slug": "design-md-skill",
+      "bucket": null
     },
     {
       "name": "huashu-design 设计哲学（20 条，含反 AI slop）",
@@ -260,7 +285,8 @@
       "scenarios": "网页 / 通用",
       "fallback": "→ 技能本地文件",
       "source": "skill 仓库 `https://github.com/alchaincyf/huashu-design`",
-      "slug": "huashu-philosophy"
+      "slug": "huashu-philosophy",
+      "bucket": null
     },
     {
       "name": "brand-guidelines / theme-factory（anthropics）",
@@ -270,7 +296,8 @@
       "scenarios": "通用",
       "fallback": "→ 手动应用品牌准则",
       "source": "`https://github.com/anthropics/skills`",
-      "slug": "brand-guidelines"
+      "slug": "brand-guidelines",
+      "bucket": null
     },
     {
       "name": "logo-generator 设计模式库（8 条参数化原则 + 构图模式 + 检查清单）",
@@ -280,7 +307,8 @@
       "scenarios": "logo / App Icon / 品牌图形",
       "fallback": "→ 上游仓库 → 原则人工应用",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md`",
-      "slug": "logo-design-patterns"
+      "slug": "logo-design-patterns",
+      "bucket": null
     },
     {
       "name": "logo-generator 背景风格库（12 种展示背景规格：色值/噪点/纹理/氛围/饱和度）",
@@ -290,7 +318,8 @@
       "scenarios": "海报 / 展示图 / logo showcase 背景",
       "fallback": "→ GitHub 直读 → 本地兜底",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/background_styles.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/background_styles.md`",
-      "slug": "logo-background-styles"
+      "slug": "logo-background-styles",
+      "bucket": null
     },
     {
       "name": "logo-generator WebGL 动态背景规格",
@@ -300,7 +329,8 @@
       "scenarios": "网页动态背景 / C2 动效",
       "fallback": "→ GitHub 直读 → 本地兜底",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md`",
-      "slug": "logo-webgl-backgrounds"
+      "slug": "logo-webgl-backgrounds",
+      "bucket": null
     },
     {
       "name": "hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…）",
@@ -310,7 +340,8 @@
       "scenarios": "网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集）",
       "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底）",
       "source": "`https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`）",
-      "slug": "hallmark-anti-patterns"
+      "slug": "hallmark-anti-patterns",
+      "bucket": null
     },
     {
       "name": "hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项）",
@@ -320,7 +351,8 @@
       "scenarios": "网页 / 通用（按 genre 信号加载对应文件）",
       "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过）",
       "source": "`https://github.com/nutlope/hallmark`（`references/genres/*.md`）",
-      "slug": "hallmark-genre-bans"
+      "slug": "hallmark-genre-bans",
+      "bucket": null
     },
     {
       "name": "interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景）",
@@ -330,7 +362,8 @@
       "scenarios": "网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖）",
       "fallback": "→ 官网直读（静态文档） → 人工应用",
       "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
-      "slug": "interfaces-cheat-sheet"
+      "slug": "interfaces-cheat-sheet",
+      "bucket": null
     },
     {
       "name": "kami 技能（WeasyPrint 排版 → HTML/PDF）",
@@ -340,7 +373,8 @@
       "scenarios": "文档 / 海报排版 / 网页",
       "fallback": "→ 手写 HTML 遵循令牌",
       "source": "`https://github.com/tw93/Kami`",
-      "slug": "kami-skill"
+      "slug": "kami-skill",
+      "bucket": null
     },
     {
       "name": "huashu-design（HTML 高保真原型/幻灯片/动画）",
@@ -350,7 +384,8 @@
       "scenarios": "网页 / 通用",
       "fallback": "→ kami / 手写 HTML",
       "source": "`https://github.com/alchaincyf/huashu-design`",
-      "slug": "huashu-design"
+      "slug": "huashu-design",
+      "bucket": null
     },
     {
       "name": "baoyu-design（HTML 设计产物：mockup/deck/落地页）",
@@ -360,7 +395,8 @@
       "scenarios": "网页 / 通用",
       "fallback": "→ huashu-design",
       "source": "仓库 `https://github.com/JimLiu/baoyu-design`（注意：非 baoyu-ai，npm 无包）",
-      "slug": "baoyu-design"
+      "slug": "baoyu-design",
+      "bucket": null
     },
     {
       "name": "frontend-design（anthropics/skills）",
@@ -370,7 +406,8 @@
       "scenarios": "网页 / Mac",
       "fallback": "→ 手写 HTML/CSS",
       "source": "`https://github.com/anthropics/skills`（skill 路径 `skills/frontend-design/`）",
-      "slug": "frontend-design"
+      "slug": "frontend-design",
+      "bucket": null
     },
     {
       "name": "gpt-image-2（图像生成/编辑）",
@@ -380,7 +417,8 @@
       "scenarios": "海报 / 杂志插图",
       "fallback": "→ 其他绘图工具",
       "source": "源仓库 `https://github.com/Wangnov/gpt-image-2-skill`",
-      "slug": "gpt-image-2"
+      "slug": "gpt-image-2",
+      "bucket": null
     },
     {
       "name": "imagegen（openai/skills 官方图像生成）",
@@ -390,7 +428,8 @@
       "scenarios": "海报 / 杂志插图",
       "fallback": "→ gpt-image-2",
       "source": "`https://github.com/openai/skills`（skill 路径 `skills/imagegen/`）",
-      "slug": "imagegen"
+      "slug": "imagegen",
+      "bucket": null
     },
     {
       "name": "Figma 家族（openai/skills：generate/implement/design-system-rules）",
@@ -400,7 +439,8 @@
       "scenarios": "APP / 网页",
       "fallback": "→ HTML 原型",
       "source": "`https://github.com/openai/skills`（skills/figma-*）",
-      "slug": "figma-family"
+      "slug": "figma-family",
+      "bucket": null
     },
     {
       "name": "guizang-ppt-skill（横向翻页网页 PPT）",
@@ -410,7 +450,8 @@
       "scenarios": "PPT",
       "fallback": "→ kami slides 路径",
       "source": "`https://github.com/op7418/guizang-ppt-skill`",
-      "slug": "guizang-ppt-skill"
+      "slug": "guizang-ppt-skill",
+      "bucket": null
     },
     {
       "name": "motion（Motion.dev 官方，动效）",
@@ -420,7 +461,8 @@
       "scenarios": "通用（网页动效）",
       "fallback": "→ motion-dev-animations / CSS 动画",
       "source": "`https://github.com/motiondivision/motion`（⚠️ 该仓库为 JS 库非 skill，且与 motion-dev-animations 同型，按装前规则不装）",
-      "slug": "motion-lib"
+      "slug": "motion-lib",
+      "bucket": null
     },
     {
       "name": "motion-dev-animations（动效补充）",
@@ -430,7 +472,8 @@
       "scenarios": "通用（网页动效）",
       "fallback": "→ CSS 动画",
       "source": "`https://github.com/199-biotechnologies/motion-dev-animations-skill`",
-      "slug": "motion-dev-animations"
+      "slug": "motion-dev-animations",
+      "bucket": null
     },
     {
       "name": "Anime.js（动效补充）",
@@ -440,7 +483,8 @@
       "scenarios": "通用（动效）",
       "fallback": "→ motion",
       "source": "`https://animejs.com/`",
-      "slug": "animejs"
+      "slug": "animejs",
+      "bucket": null
     },
     {
       "name": "hyperframes（HTML 渲染视频/动画）",
@@ -450,7 +494,8 @@
       "scenarios": "通用（视频）",
       "fallback": "→ 静态 HTML 分段",
       "source": "`https://github.com/heygen-com/hyperframes`",
-      "slug": "hyperframes"
+      "slug": "hyperframes",
+      "bucket": null
     },
     {
       "name": "diagram-design（架构/流程/图表 SVG）",
@@ -460,7 +505,8 @@
       "scenarios": "通用（图表）",
       "fallback": "→ 手写 SVG",
       "source": "`https://github.com/cathrynlavery/diagram-design`",
-      "slug": "diagram-design"
+      "slug": "diagram-design",
+      "bucket": null
     },
     {
       "name": "theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics）",
@@ -470,7 +516,8 @@
       "scenarios": "通用",
       "fallback": "→ 手动应用",
       "source": "`https://github.com/anthropics/skills`",
-      "slug": "anthropics-tools"
+      "slug": "anthropics-tools",
+      "bucket": null
     },
     {
       "name": "OpenAI imagegen（官方图像）",
@@ -480,7 +527,8 @@
       "scenarios": "海报 / 杂志",
       "fallback": "→ gpt-image-2",
       "source": "`https://github.com/openai/skills`（skills/imagegen/）",
-      "slug": "openai-imagegen"
+      "slug": "openai-imagegen",
+      "bucket": null
     },
     {
       "name": "OpenMotion（AI 动效导演工具：描述→可编辑场景计划→canvas+timeline→导出视频/WebM/HTML；免费，兼容 Claude Code/Codex 订阅）",
@@ -490,7 +538,8 @@
       "scenarios": "视频动效（品牌片/产品视频/logo 动效/说明片）",
       "fallback": "→ hyperframes（HTML 渲染） → 手动视频工具",
       "source": "官网 `https://openmotion.design/`（macOS/Windows）",
-      "slug": "openmotion"
+      "slug": "openmotion",
+      "bucket": null
     },
     {
       "name": "Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）",
@@ -500,7 +549,8 @@
       "scenarios": "通用排版",
       "fallback": "→ 取色器 + 目测 → 三条规则人脑执行",
       "source": "本地 `~/Desktop/Design/kami-design-principles/README.md`（三查章节）",
-      "slug": "kami-sancha"
+      "slug": "kami-sancha",
+      "bucket": null
     },
     {
       "name": "huashu 5 维评审（设计成品多维度审查）",
@@ -510,7 +560,8 @@
       "scenarios": "网页 / 通用",
       "fallback": "→ Kami 三查 + 人工评审",
       "source": "`https://github.com/alchaincyf/huashu-design`（5 维评审章节）",
-      "slug": "huashu-5dim"
+      "slug": "huashu-5dim",
+      "bucket": null
     },
     {
       "name": "Zine 风格一致性自检（对照选定风格族的色板/质感/排版核对）",
@@ -520,7 +571,8 @@
       "scenarios": "海报 / 杂志",
       "fallback": "→ 人工对照 style-families.md",
       "source": "本地 `~/Desktop/Design/zine-style-references/style-families.md`",
-      "slug": "zine-consistency"
+      "slug": "zine-consistency",
+      "bucket": null
     },
     {
       "name": "design-qa-checklist（UI QA 清单）",
@@ -530,7 +582,8 @@
       "scenarios": "APP（交互可用性）",
       "fallback": "→ 手动过导航/状态/反馈三问",
       "source": "skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`）",
-      "slug": "design-qa-checklist"
+      "slug": "design-qa-checklist",
+      "bucket": null
     },
     {
       "name": "设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个）",
@@ -540,7 +593,8 @@
       "scenarios": "APP / 网页（UX 调研）",
       "fallback": "→ 手动走方法步骤",
       "source": "同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`",
-      "slug": "design-research-methods"
+      "slug": "design-research-methods",
+      "bucket": null
     },
     {
       "name": "logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512）",
@@ -550,7 +604,8 @@
       "scenarios": "logo / App Icon / 品牌图形",
       "fallback": "→ 上游仓库 → 原则人工应用",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md`",
-      "slug": "logo-quality-floor"
+      "slug": "logo-quality-floor",
+      "bucket": null
     },
     {
       "name": "hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项）",
@@ -560,7 +615,8 @@
       "scenarios": "网页 / 通用（产出后校验；机器可判定子集已由 pi 的 design-router extension 的 design_audit 合并执行）",
       "fallback": "→ skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底）",
       "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
-      "slug": "hallmark-slop-test"
+      "slug": "hallmark-slop-test",
+      "bucket": null
     }
   ],
   "routes": {
@@ -740,5 +796,96 @@
     "2": [
       "interfaces-cheat-sheet"
     ]
+  },
+  "buckets": {
+    "minimal": "极简现代：干净留白/几何/现代无衬线（refero 同品类主池）",
+    "editorial": "编辑杂志：网格/衬线/印刷感/克制（kami/zine 编辑向/纽约客插画）",
+    "darktech": "暗色科技：深底/霓虹/终端/仪表盘（cobalt/terminal 系）",
+    "bold": "撞色大胆：高饱和/波普/趣味（carnival/playful 系）",
+    "warmpaper": "暖纸人文：暖底/书卷气/克制排版（kami 暖纸/lumen/atmospheric 系）",
+    "liquid": "液态动效：流体/粘性/微交互（gooey/transitions 系）",
+    "dataviz": "数据可视化：图表/规格表/信息密度（stat-led/spec-sheet 系）",
+    "retro": "复古档案：像素/拼贴/档案感（zine retro/pixel 系）"
+  },
+  "routing": {
+    "saas|落地页|landing|工具|product|startup": {
+      "primary": [
+        "minimal"
+      ],
+      "secondary": [
+        "darktech",
+        "editorial"
+      ]
+    },
+    "ai|agent|chat|对话|智能|copilot": {
+      "primary": [
+        "minimal"
+      ],
+      "secondary": [
+        "liquid",
+        "darktech"
+      ]
+    },
+    "数据|dashboard|仪表盘|analytics|监控|报表": {
+      "primary": [
+        "dataviz"
+      ],
+      "secondary": [
+        "minimal",
+        "darktech"
+      ]
+    },
+    "文档|docs|内容|article|博客|blog|阅读": {
+      "primary": [
+        "editorial"
+      ],
+      "secondary": [
+        "warmpaper",
+        "minimal"
+      ]
+    },
+    "海报|poster|品牌|brand|营销|campaign|视觉": {
+      "primary": [
+        "bold"
+      ],
+      "secondary": [
+        "retro",
+        "editorial"
+      ]
+    },
+    "电商|ecommerce|商城|shop|零售": {
+      "primary": [
+        "minimal"
+      ],
+      "secondary": [
+        "bold",
+        "warmpaper"
+      ]
+    },
+    "演示|ppt|slides|deck|提案": {
+      "primary": [
+        "editorial"
+      ],
+      "secondary": [
+        "minimal",
+        "bold"
+      ]
+    },
+    "移动|mobile|app|ios|android": {
+      "primary": [
+        "minimal"
+      ],
+      "secondary": [
+        "liquid",
+        "darktech"
+      ]
+    }
+  },
+  "bucketNotes": {
+    "darktech": "hallmark 主题 cobalt/terminal（技能内 references/themes/）；refero 搜暗色仪表盘/开发工具类产品（Vercel/Raycast 暗色系）",
+    "dataviz": "hallmark 宏结构 stat-led/spec-sheet（技能内 SKILL.md）；refero 搜数据分析类产品（Linear/Amplitude 类仪表盘）；diagram-design 工具产图表",
+    "warmpaper": "kami 暖纸底（本地 ~/Desktop/Design/kami-design-principles/）；hallmark 主题 lumen/atmospheric（技能内 references/themes/）",
+    "retro": "zine 复古族（本地 ~/Desktop/Design/zine-style-references/）；hallmark 主题 复古/档案类",
+    "bold": "hallmark 主题 carnival/playful（技能内 references/themes/）；uiverse 组件"
   }
 }

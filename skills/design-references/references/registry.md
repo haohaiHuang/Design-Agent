@@ -1,13 +1,41 @@
 # 资源注册表 — 三维索引
 
-**维度**：`角色`（R调研源 / C约束模板 / E执行工具 / V校验标准）× `形态`（直引 / 转译 / 规则 / 工具）× `层级`（主 / 次 / 兜底）+ 适用场景 + **退化链** + **精确来源**。
+**维度**：`角色`（R调研源 / C约束模板 / E执行工具 / V校验标准）× `形态`（直引 / 转译 / 规则 / 工具）× `层级`（主 / 次 / 兜底）+ 适用场景 + **退化链** + **精确来源** + **风格桶**（R 角色调研源标注）。
 
 **查法**：`[分支] × [环节] → 找对应格子`。主层级必查，次按需，兜底无匹配才查。
 **填法**：新增资源先登记再使用；一条资源可占多行（每行一个格子），但每行只占一格。
 **装前规则**：新增资源必须六栏全填（含**精确来源**——URL/仓库/本地路径，禁止只写名称）；与现有资源**同型**（同角色+同形态+同场景）的不装；站不住位置的不装。
 **来源规则**：所有资源必须带可复现来源——换电脑后按来源（URL/仓库/路径）可精确找到，禁止仅凭名称。
 
-> **本文件只存共通定义**（资源是什么、怎么用、来源在哪）。本机是否安装、装在哪 = 机器状态（DSH 无 skill-router：手动维护台账 `~/resources/design-references.md`，并同步 design_lookup 工具的数据 `plugins/design-router/data/registry.json`——registry.md 改动后需用 `node plugins/design-router/scripts/build-registry.mjs` 重生成，或手动同步）。
+---
+
+## 风格桶（反同质化索引，环节 1 必用）
+
+`design_route <需求特征>` 按需求返回推荐桶组合（主桶必查 + 次桶按需）；3 候选必须来自 ≥2 个不同桶，refero 等真实产品库每桶只算 1 个候选；候选产出后调 `design_diversity` 机器校验。
+
+| 桶 | 视觉特征 | 代表资源 | 查询指引（桶内无 registry 资源时） |
+| --- | --- | --- | --- |
+| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、voltagent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts | — |
+| **editorial** 编辑杂志 | 网格/衬线/印刷感/克制 | orange-line-illustration（kami 编辑向） | kami 完整规范；zine 编辑族 |
+| **darktech** 暗色科技 | 深底/霓虹/终端/仪表盘 | —（hallmark 主题） | hallmark cobalt/terminal 主题；refero 搜暗色工具类产品 |
+| **bold** 撞色大胆 | 高饱和/波普/趣味 | uiverse | hallmark carnival/playful 主题 |
+| **warmpaper** 暖纸人文 | 暖底/书卷气/克制排版 | kami-skeleton、kami-spec | hallmark lumen/atmospheric 主题；本地 kami-design-principles |
+| **liquid** 液态动效 | 流体/粘性/微交互 | liquid-gooey、transitions-dev | — |
+| **dataviz** 数据可视化 | 图表/规格表/信息密度 | —（hallmark 宏结构） | hallmark stat-led/spec-sheet 宏结构；refero 搜数据分析产品 |
+| **retro** 复古档案 | 像素/拼贴/档案感 | zine-style-library、zine-family-recipes | zine 复古族（本地） |
+
+**需求路由表**（`design_route` 内建，需求特征关键词 → 主/次桶）：
+
+| 需求特征 | 主桶（必查） | 次桶（按需） |
+| --- | --- | --- |
+| SaaS/落地页/工具/product/startup | minimal | darktech、editorial |
+| AI/agent/chat/对话/智能/copilot | minimal | liquid、darktech |
+| 数据/dashboard/仪表盘/analytics/报表 | dataviz | minimal、darktech |
+| 文档/docs/内容/article/博客/阅读 | editorial | warmpaper、minimal |
+| 海报/poster/品牌/brand/营销/视觉 | bold | retro、editorial |
+| 电商/ecommerce/商城/shop/零售 | minimal | bold、warmpaper |
+| 演示/ppt/slides/deck/提案 | editorial | minimal、bold |
+| 移动/mobile/app/ios/android | minimal | liquid、darktech |
 
 ---
 
@@ -34,6 +62,8 @@
 | Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾） | 转译 | 次 | 网页动效（液态/粘性/果冻效果） | → 官网 demo 浏览 → web_search | 官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries` |
 | transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…） | 转译 | 次 | 网页动效（UI 过渡/微交互） | → 官网复制 → web_search | `https://transitions.dev/`（含 agent skill 集成） |
 | vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav） | 转译 | 兜底 | 网页（Tailwind 区块，与 Aceternity/21st.dev 同型） | → 官网浏览 → web_search | `https://vibeprompts.dev/` |
+
+> **本文件只存共通定义**（资源是什么、怎么用、来源在哪）。本机是否安装、装在哪 = 机器状态（DSH 无 skill-router：手动维护台账 `~/resources/design-references.md`，并同步 design_lookup 工具的数据 `plugins/design-router/data/registry.json`——registry.md 改动后需用 `node plugins/design-router/scripts/build-registry.mjs` 重生成，或手动同步）。风格桶字段以 `data/registry.json` 为准（design_route/design_diversity 读取），本表同步维护。
 
 ## C 约束模板（环节 2：规则/令牌，回答"我们怎么做"）
 
