@@ -58,8 +58,8 @@ plugins/design-router/
 
 ### Maintenance
 
-- `registry.md` is the **source of truth** (`~/.agents/skills/design-references/references/registry.md`); after editing it, sync `data/registry.json` (upstream generates it with `scripts/build-registry.mjs`; this repo syncs manually or with a future script)
-- Checker logic follows upstream `extensions/design-router/checks/`; port on upstream updates
+- `registry.md` is the **source of truth** (`~/.agents/skills/design-references/references/registry.md`); after editing it, run `node plugins/design-router/scripts/build-registry.mjs` to regenerate `data/registry.json` (+ `data/manifest.json` version metadata). **Never hand-edit registry.json.**
+- Checker logic follows upstream `extensions/design-router/checks/` (TS→MJS port); after upstream updates, run `node plugins/design-router/scripts/check-checks-sync.mjs /path/to/my-pi-skills/extensions/design-router/checks` to verify gate coverage (threshold details still need manual porting review)
 
 ## One-shot reproduction (fresh machine)
 

@@ -63,9 +63,11 @@ plugins/design-router/
 ### 维护
 
 - registry.md 是**真源**（`~/.agents/skills/design-references/references/registry.md`），
-  改动后需同步 `data/registry.json`（上游用 `scripts/build-registry.mjs` 生成，
-  本仓库可手动同步或后续补脚本）
-- 检查器逻辑跟随上游 `extensions/design-router/checks/`，上游更新时对照移植
+  改动后运行 `node plugins/design-router/scripts/build-registry.mjs` 重生成
+  `data/registry.json`（含 `data/manifest.json` 版本元数据）；**禁止手改 registry.json**
+- 检查器逻辑跟随上游 `extensions/design-router/checks/`（TS→MJS 移植），上游更新后运行
+  `node plugins/design-router/scripts/check-checks-sync.mjs /path/to/my-pi-skills/extensions/design-router/checks`
+  核对 gate 覆盖一致性（阈值细节仍需人工对照移植）
 
 ## 一键复现（全新机器安装本仓库）
 

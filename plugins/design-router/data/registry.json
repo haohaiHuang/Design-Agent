@@ -549,7 +549,7 @@
       "level": "主",
       "scenarios": "海报（B1 环节 1/2/4）/ 杂志（B2 环节 2）/ 网页 hero（A1/A2 环节 2）",
       "fallback": "→ 主构图1+辅助1+破格≤1 手动画组织",
-      "source": "skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书）",
+      "source": "skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书）。**A3 Mac 桌面应用有意不挂**——构图词典面向\"单屏画面组织\"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合",
       "slug": "poster-compositions",
       "bucket": null,
       "quality": "未评估"

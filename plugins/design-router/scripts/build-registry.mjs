@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SRC = join(HERE, "../../../skills/design-references/references/registry.md");
@@ -578,7 +579,23 @@ function main() {
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(output, null, 2) + "\n");
 
-  console.log(`✅ registry.json 生成：${resources.length} 条资源，${Object.keys(ROUTES).length} 个分支路由`);
+  // 版本配套元数据（追溯用）：checks/ 的 gate 号语义跟随 hallmarkRuleVersion；
+  // designReferencesSource 记录 registry.md 来源 commit（非 git 环境回退写死值）。
+  let drCommit = "unknown";
+  try {
+    drCommit = execSync("git rev-parse --short HEAD", { cwd: join(HERE, "../../..") }).toString().trim();
+  } catch {
+    /* 非 git 环境 */
+  }
+  const manifest = {
+    hallmarkRuleVersion: "1.1.0",
+    designReferencesSource: `skills/design-references @ ${drCommit}`,
+    registryGenerated: output.generated,
+    registryResourceCount: resources.length,
+  };
+  writeFileSync(join(HERE, "../data/manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+
+  console.log(`✅ registry.json + manifest.json 生成：${resources.length} 条资源，${Object.keys(ROUTES).length} 个分支路由`);
   if (skipped.length) {
     console.log(`⚠️ 未匹配 slug 的资源（${skipped.length}）：`);
     for (const s of skipped) console.log(`   - ${s}`);
