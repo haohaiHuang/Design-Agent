@@ -6,13 +6,15 @@
 
 A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](https://github.com/deepseek-ai/deepseek-harness)**: the `my-agent` preset, the `design-references` routing skill (DSH-adapted), and the `design-router` deterministic-tool plugin. Built by upgrading an existing HTML-based design agent with the [design-references](https://github.com/haohaiHuang/my-pi-skills/tree/main/skills/design-references) methodology.
 
+> ⚠️ **What this package reproduces: the machinery, not the content.** The routing, discipline, and tools are fully self-contained (clone → `cp -RL` → run). But the *reference library* is personal — several primary-level resources point at `~/Desktop/Design/...` and `~/resources/design-references.md`, private assets that do not ship with the repo. On a fresh machine those degrade to the fallback chain (`web_search` + `dembrandt` + the bundled hallmark discipline). If you want the full personal reference set, copy those directories yourself; without them the package still works, as a "hallmark discipline + web research" design agent. See [One-shot reproduction](#one-shot-reproduction-fresh-machine) for what ships vs. what you bring.
+
 > 🇨🇳 中文版见 [README.zh.md](README.zh.md)
 
 ## What's inside
 
 | Component | Role |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (3 read-only tools, zero external runtime deps) |
+| [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (5 read-only tools + 1 local-log writer, zero external runtime deps) |
 | [`presets/my-agent/`](presets/my-agent/) | DSH agent preset (`agent.cordis.yml` + `preset.yml`): five-phase persona with per-stage confirmation gates |
 | [`skills/design-references/`](skills/design-references/) | Scenario-branch routing skill (A product / B content / C general × five phases), DSH-adapted |
 | [`skills/hallmark/`](skills/hallmark/) | Anti-AI-slop execution skill (MIT upstream copy from [nutlope/hallmark](https://github.com/nutlope/hallmark); `site/` theme tokens & examples bundled in-skill, self-contained) |
@@ -48,7 +50,7 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 
 ```
 plugins/design-router/
-├── index.mjs          # Plugin entry: registers 6 tools (node:fs reads only, never writes)
+├── index.mjs          # Plugin entry: registers 6 tools (5 read-only + 1 local-log writer)
 ├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/types
 └── data/
     └── registry.json  # Data form of registry.md (79 resources × 9 branch routes)
@@ -61,9 +63,10 @@ plugins/design-router/
 
 ## One-shot reproduction (fresh machine)
 
-The repo is a **complete reproducible package**: plugin + preset + DSH-adapted skills included.
+The repo reproduces the **machinery**: plugin + preset + DSH-adapted skills are all in-repo (reference-library *content* is personal — see the warning at the top).
 
 ```bash
+# ── Ships with the repo (clone → run) ──
 # 1. Skills (design-references is DSH-adapted; hallmark is an MIT upstream copy)
 cp -R skills/design-references ~/.agents/skills/
 cp -R skills/hallmark ~/.agents/skills/
@@ -83,8 +86,10 @@ cp -RL presets/my-agent ~/.dsh/.agent-presets/
 npm install -g dembrandt        # URL → design tokens (phase-1 candidate verification)
 # defuddle: npm install -g defuddle
 
+# ── Bring your own (personal picks; absence degrades to the fallback chain) ──
 # 5. Machine-local assets (ledger + kami/zine/logo-generator reference libs)
-#    — personal selections, not in this repo; the fallback chain covers absence
+#    Without them the package still runs — as a "hallmark discipline + web_search/dembrandt"
+#    design agent — but the candidate pool loses your personal picks.
 ```
 
 **Note**: the preset's plugin row uses a **relative path** (`./plugins/design-router/index.mjs`,

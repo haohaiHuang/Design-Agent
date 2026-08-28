@@ -2,12 +2,15 @@
  * design-router — design-references 确定性能力 × DSH 插件
  *
  * 定位：把 design-references 的确定性层（registry 查询、机器化检查）从"模型读
- * markdown 后自己 grep"升级为确定性工具。由 my-agent 预设以绝对路径挂载。
+ * markdown 后自己 grep"升级为确定性工具。由 my-agent 预设挂载（相对路径）。
+ *
+ * 工具清单（6 个）：design_lookup / design_route / design_diversity /
+ * design_audit / design_contrast（5 个只读）+ design_quality（含 1 个写入动作：
+ * 仅写本地质量日志 ~/.dsh/design-router-quality.json，不入 git、不碰工作区）。
  *
  * 移植自 my-pi-skills extensions/design-router（pi extension → DSH Cordis 插件）：
  *   - 去掉 pi 专属的 before_agent_start 注入、/design-router 命令、design_research
  *     （DSH 用 web_search + 台账退化链）、hallmark_study_fetch（DSH 用 dembrandt/defuddle）
- *   - 保留 3 个确定性工具：design_lookup / design_audit / design_contrast
  *   - 不依赖 @deepseek-ai/dsh-tools（工作区模块解析不到 dsh 安装目录），
  *     直接用完整 JSON Schema 构造工具定义（与 dsh-tool 注册的 schema 同构）
  */
@@ -315,7 +318,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_quality",
     description:
-      "记录或查询参考来源的质量信号（客观、非审美）：dembrandt/defuddle 提取是否成功、候选是否'未验证'、环节 4 回炉次数、网站可达性。质量档：优（多次验证一次通过）/ 良（验证成功）/ 中（提取部分失败或未验证）/ 差（多次回炉或不可达）。动作 report 在任务收尾（环节 4 后）记录；query 在环节 1 查历史。日志存本地 ~/.dsh/design-router-quality.json，不入 git。",
+      "记录或查询参考来源的质量信号（客观、非审美）：dembrandt/defuddle 提取是否成功、候选是否'未验证'、环节 4 回炉次数、网站可达性。质量档：优（多次验证一次通过）/ 良（验证成功）/ 中（提取部分失败或未验证）/ 差（多次回炉或不可达）。动作 report 在任务收尾（环节 4 后）记录；query 在环节 1 查历史。**写入边界**：本工具是 design-router 唯一带写入动作的工具——仅写本地 `~/.dsh/design-router-quality.json`（mkdirSync + writeFileSync），不入 git、不碰工作区/其他路径。",
     parameters: {
       action: { type: "string", required: true, description: "report（记录信号）或 query（查历史）" },
       slug: { type: "string", required: true, description: "资源 slug（如 refero-design / zine-style-library）。query 时可用 'all' 查全部" },

@@ -8,11 +8,13 @@
 
 本仓库是 [DeepSeek Harness (DSH)](https://github.com/deepseek-ai/deepseek-harness) 上**设计 Agent 的完整可复现包**：`my-agent` 预设 + `design-references` 路由技能（DSH 适配版）+ `design-router` 确定性工具插件。由 [design-references](https://github.com/haohaiHuang/my-pi-skills/tree/main/skills/design-references) 方法论升级既有 HTML 设计 Agent 而来。
 
+> ⚠️ **本包复现的是"机器"，不是"内容"。** 路由、纪律与工具完全自包含（clone → `cp -RL` → 即用）；但**参考库是个人精选**——若干主层级资源指向 `~/Desktop/Design/...` 与 `~/resources/design-references.md`（私人资产，不随仓库走）。新机器上这些会退化为兜底链（`web_search` + `dembrandt` + 内置 hallmark 纪律）。想要完整个人参考集需自行拷贝这些目录；缺失时本包仍可用，退化为「纯 Hallmark 纪律 + 网络调研」的设计 Agent。见下方"一键复现"（随包内容 vs 自备内容）。
+
 ## 仓库内容
 
 | 组件 | 作用 |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（6 个只读工具，零外部运行时依赖） |
+| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（5 个只读 + 1 个本地日志写入，零外部运行时依赖） |
 | [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：五环节 persona + 每环节确认门禁 |
 | [`skills/design-references/`](skills/design-references/) | 场景分支路由技能（A 产品/B 内容/C 通用 × 五环节），DSH 适配版 |
 | [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
@@ -52,7 +54,7 @@
 
 ```
 plugins/design-router/
-├── index.mjs          # 插件入口：注册 6 个工具（node:fs 直读，只读不改）
+├── index.mjs          # 插件入口：注册 6 个工具（5 只读 + 1 本地日志写入，其余不碰文件）
 ├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/types
 └── data/
     └── registry.json  # registry.md 的数据化产物（79 资源 × 9 分支路由）
@@ -67,9 +69,10 @@ plugins/design-router/
 
 ## 一键复现（全新机器安装本仓库）
 
-本仓库是**完整可复现包**：插件 + 预设 + DSH 适配版技能都在仓库内。
+本仓库复现**机器部分**：插件 + 预设 + DSH 适配版技能都在仓库内（参考库内容为个人精选，见文首声明）。
 
 ```bash
+# —— 随包（clone 即得）——
 # 1. 技能（design-references 已做 DSH 适配；hallmark 为 MIT 上游副本）
 cp -R skills/design-references ~/.agents/skills/
 cp -R skills/hallmark ~/.agents/skills/
@@ -88,8 +91,10 @@ cp -RL presets/my-agent ~/.dsh/.agent-presets/
 npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 # defuddle：npm install -g defuddle
 
+# —— 自备（个人精选，缺失时走退化链）——
 # 5. 本机资产（台账 + kami/zine/logo-generator 参考库，见 ~/Desktop/Design/）
-#    ——来自用户个人精选，不在本仓库；缺失时走退化链
+#    缺失时包退化为「纯 Hallmark 纪律 + web_search/dembrandt 网络调研」，
+#    主流程仍可运行，只是候选池少了个人精选资源
 ```
 
 **注意**：预设中插件行用的是**相对路径** `./plugins/design-router/index.mjs`

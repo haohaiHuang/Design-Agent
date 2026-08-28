@@ -129,6 +129,13 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **选择裁决**：用户显式指令 > 参考驱动（真实产品优先）> Hallmark 形态/气质库 > catalog 静默兜底（仅用户 go ahead 时）。去 AI 味是**两段式**：anti-patterns 进环节 2 约束（前置防线），slop-test 在环节 4 验收（后置闸门）。
 
+**加载预算（铁律 10，防上下文烧穿）**：任何任务里，本 skill + hallmark + 执行技能（kami/huashu 等）的**累计参考文件读取上限**：
+- **每个环节 ≤3 个参考文件**（主层级 1-2 个 + 当前需要的 1 个；禁止一次读完全部 references/）
+- **hallmark 按需加载**：只读当前环节要用的——环节 1 读宏结构/theme 索引（不读全部 theme 详情）；环节 3 读 1 个 genre 文件 + 命中的组件原型（5-7 个封顶）；环节 4 读 slop-test。**禁止**预读 component-cookbook 全文、全部 21 theme、全部 genre（hallmark 自述这是它最大的 token 浪费点）
+- **design_lookup/design_route 输出优先**：能由工具返回的资源清单/桶组合不重复读 registry.md 全文
+- 参考文件命中即用即弃：约束转译进环节 2 约束集后，源文件不再保留在上下文中
+- 超限信号：若已读 >8 个参考文件而任务未到环节 2，先停——问自己"哪些是当前环节必须的"，丢弃其余再继续
+
 **DSH 平台配套**：`design-router` 插件（my-agent 预设挂载，源码在本仓库 `plugins/design-router/`）提供确定性工具——`design_lookup`（registry 三维索引查询，输出标注风格桶+质量等级，差质沉底）/ `design_route`（需求特征 → 推荐风格桶组合，含桶健康与差质降权，环节 1 反同质化）/ `design_diversity`（3 候选差异度机器校验）/ `design_quality`（质量信号记录/查询，任务收尾写，环节 1 读）/ `design_audit`（机器层校验，环节 4 必用）/ `design_contrast`（对比度）。原 pi 版另有 `design_research`（确定性调研）与 `hallmark_study_fetch`（URL→DNA 快验）未移植——DSH 分别用「本地台账 grep + refero 探测 + web_search」与「dembrandt / defuddle」退化链替代。候选验证升级路径：全局 CLI `dembrandt`（URL→设计 token，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 步骤 8）。
 
 ## 数据源
