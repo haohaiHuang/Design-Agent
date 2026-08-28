@@ -617,6 +617,259 @@
       "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
       "slug": "hallmark-slop-test",
       "bucket": null
+    },
+    {
+      "slug": "recent-design",
+      "name": "Recent Design（近期网页设计灵感）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 通用",
+      "fallback": "→ web_search",
+      "source": "https://recent.design/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "awwwards",
+      "name": "Awwwards（获奖网站评选，含 /websites 子页）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 通用",
+      "fallback": "→ web_search",
+      "source": "https://www.awwwards.com/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "siteinspire",
+      "name": "SiteInspire（精选网页设计）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 通用",
+      "fallback": "→ web_search",
+      "source": "https://www.siteinspire.com/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "land-book",
+      "name": "Landbook（落地页灵感画廊）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 落地页",
+      "fallback": "→ web_search",
+      "source": "https://land-book.com/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "onepagelove",
+      "name": "One Page Love（单页网站灵感）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 单页",
+      "fallback": "→ web_search",
+      "source": "https://onepagelove.com/inspiration",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "lapa-ninja",
+      "name": "Lapa Ninja（7300+ 落地页案例）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 落地页",
+      "fallback": "→ web_search",
+      "source": "https://www.lapa.ninja/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "muzli",
+      "name": "Muzli（设计灵感聚合 hub）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 通用",
+      "fallback": "→ web_search",
+      "source": "https://muz.li/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "inspora",
+      "name": "Inspora（设计灵感）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "网页 / 通用",
+      "fallback": "→ web_search",
+      "source": "https://www.inspora.design/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "logggos",
+      "name": "Logggos（Logo 灵感）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "logo / App Icon / 品牌图形",
+      "fallback": "→ logo-design-patterns → 上游仓库",
+      "source": "https://www.logggos.club/",
+      "bucket": null
+    },
+    {
+      "slug": "logo-archive",
+      "name": "LogoArchive（历史 Logo 档案）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "logo / 品牌图形",
+      "fallback": "→ logoinspo → logo-design-patterns",
+      "source": "https://www.logo-archive.org/",
+      "bucket": null
+    },
+    {
+      "slug": "logoinspo",
+      "name": "Logoinspo（1200+ Logo 灵感）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "logo / App Icon",
+      "fallback": "→ logo-design-patterns",
+      "source": "https://www.logoinspo.com/",
+      "bucket": null
+    },
+    {
+      "slug": "logosystem",
+      "name": "Logosystem（1300+ Logo 含动效）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "logo / 动效 logo",
+      "fallback": "→ logoinspo → logo-design-patterns",
+      "source": "https://logosystem.co/",
+      "bucket": null
+    },
+    {
+      "slug": "logobook",
+      "name": "Logobook（世界顶级 Logo 符号集）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "logo / 品牌图形",
+      "fallback": "→ logo-archive → logo-design-patterns",
+      "source": "https://logobook.com/",
+      "bucket": null
+    },
+    {
+      "slug": "footer-design",
+      "name": "Footer（页脚设计画廊）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 页脚组件",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://www.footer.design/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "cta-gallery",
+      "name": "CTA.gallery（Call-to-Action 灵感）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / CTA 组件",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://www.cta.gallery/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "navbar-gallery",
+      "name": "Navbar Gallery（导航栏设计）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 导航组件",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://www.navbar.gallery/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "supahero",
+      "name": "Supahero（Hero 区块库）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / Hero 组件",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://supahero.io/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "threeui",
+      "name": "ThreeUI（Three.js 3D 组件/着色器）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 3D 组件 / C2 动效",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://threeui.com/browse",
+      "bucket": "liquid"
+    },
+    {
+      "slug": "designspells",
+      "name": "Design Spells（设计细节/微交互魔法）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 微交互细节",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "https://designspells.com/",
+      "bucket": "liquid"
+    },
+    {
+      "slug": "mobbin",
+      "name": "Mobbin（真实 APP 截图库，iOS/Android）",
+      "role": "R",
+      "form": "转译",
+      "level": "主",
+      "scenarios": "APP / 移动端（A1 重点）",
+      "fallback": "→ refero → web_search",
+      "source": "https://mobbin.com/discover/apps/ios/latest",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "loadmore",
+      "name": "loadmo.re（移动端网页设计归档）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "移动端网页",
+      "fallback": "→ web_search",
+      "source": "https://loadmo.re/",
+      "bucket": "minimal"
+    },
+    {
+      "slug": "uipedia",
+      "name": "UiPedia（设计资源/工具导航）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "通用（找设计工具/资源时）",
+      "fallback": "→ web_search",
+      "source": "https://www.uipedia.design/",
+      "bucket": null
+    },
+    {
+      "slug": "dribbble-shot",
+      "name": "Dribbble 案例（单页链接，具体设计稿）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "网页（单案例参考）",
+      "fallback": "→ 灵感库聚合",
+      "source": "https://dribbble.com/",
+      "bucket": null
     }
   ],
   "routes": {
@@ -625,7 +878,16 @@
         "refero-design",
         "beautiful-ui",
         "minimal-gallery",
-        "dembrandt"
+        "dembrandt",
+        "recent-design",
+        "awwwards",
+        "siteinspire",
+        "land-book",
+        "onepagelove",
+        "lapa-ninja",
+        "muzli",
+        "inspora",
+        "mobbin"
       ],
       "2": [
         "kami-skeleton",
@@ -649,7 +911,22 @@
         "refero-design",
         "aceternity",
         "21st-dev",
-        "dembrandt"
+        "dembrandt",
+        "recent-design",
+        "awwwards",
+        "siteinspire",
+        "land-book",
+        "onepagelove",
+        "lapa-ninja",
+        "muzli",
+        "inspora",
+        "footer-design",
+        "cta-gallery",
+        "navbar-gallery",
+        "supahero",
+        "designspells",
+        "threeui",
+        "loadmore"
       ],
       "2": [
         "kami-skeleton",
@@ -736,7 +1013,12 @@
         "google-fonts",
         "hero-patterns",
         "21st-dev",
-        "uiverse"
+        "uiverse",
+        "footer-design",
+        "cta-gallery",
+        "navbar-gallery",
+        "supahero",
+        "designspells"
       ],
       "2": [
         "kami-skeleton"
@@ -752,7 +1034,8 @@
     "C2": {
       "1": [
         "transitions-dev",
-        "liquid-gooey"
+        "liquid-gooey",
+        "threeui"
       ],
       "2": [],
       "3": [
@@ -777,7 +1060,12 @@
   },
   "logoExtra": {
     "2": [
-      "logo-design-patterns"
+      "logo-design-patterns",
+      "logggos",
+      "logo-archive",
+      "logoinspo",
+      "logosystem",
+      "logobook"
     ],
     "4": [
       "logo-quality-floor"
