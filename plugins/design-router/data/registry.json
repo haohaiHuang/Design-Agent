@@ -1096,6 +1096,16 @@
     "retro": "复古档案：像素/拼贴/档案感（zine retro/pixel 系）"
   },
   "routing": {
+    "logo|app icon|图标|icon|商标|brandmark|logo 设计|logo设计": {
+      "primary": [
+        "bold"
+      ],
+      "secondary": [
+        "minimal",
+        "retro"
+      ],
+      "extra": "logo"
+    },
     "saas|落地页|landing|工具|product|startup": {
       "primary": [
         "minimal"

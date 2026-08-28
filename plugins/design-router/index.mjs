@@ -229,6 +229,17 @@ function apply(ctx) {
         for (const b of route.primary) lines.push(`- **[${b}]** ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`);
         lines.push("", "### 次桶（按需，增强候选多样性）");
         for (const b of route.secondary) lines.push(`- [${b}] ${registry.buckets?.[b] ?? ""} ${bucketRep(b)}`);
+        // extra 专项资源（如 logo 任务：logoExtra 环节 2 的资源）
+        if (route.extra === "logo") {
+          const logoSlugs = registry.logoExtra?.["2"] || [];
+          const logoHits = logoSlugs.map((s) => registry.resources.find((r) => r.slug === s)).filter(Boolean);
+          if (logoHits.length) {
+            lines.push("", "### 专项资源（logo 任务必查）");
+            for (const r of logoHits) {
+              lines.push(`- **${r.name}**（${r.form}·${r.level}） ${r.source}`);
+            }
+          }
+        }
         lines.push("", "铁律：3 候选来自 ≥2 桶；refero 类真实产品库每桶只算 1 个候选。");
       } else {
         lines.push(`未命中路由表（关键词: ${q || "空"}）。返回全部 8 桶：`, "");
