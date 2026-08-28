@@ -40,12 +40,17 @@ function loadRegistry() {
 }
 
 // ---------- 质量日志（本地 ~/.dsh/design-router-quality.json，不入 git）----------
-const QUALITY_LOG = join(homedir(), ".dsh", "design-router-quality.json");
+// 路径可用环境变量 DSH_DESIGN_ROUTER_QUALITY_LOG 覆盖（测试隔离用）；默认 ~/.dsh。
 const QUALITY_RANK = { 优: 4, 良: 3, 中: 2, 未评估: 1, 差: 0 };
+
+function qualityLogPath() {
+  return process.env.DSH_DESIGN_ROUTER_QUALITY_LOG || join(homedir(), ".dsh", "design-router-quality.json");
+}
 
 function loadQualityLog() {
   try {
-    return existsSync(QUALITY_LOG) ? JSON.parse(readFileSync(QUALITY_LOG, "utf8")) : { version: 1, entries: {} };
+    const p = qualityLogPath();
+    return existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : { version: 1, entries: {} };
   } catch {
     return { version: 1, entries: {} };
   }
@@ -53,8 +58,9 @@ function loadQualityLog() {
 
 function saveQualityLog(log) {
   try {
-    mkdirSync(dirname(QUALITY_LOG), { recursive: true });
-    writeFileSync(QUALITY_LOG, JSON.stringify(log, null, 2));
+    const p = qualityLogPath();
+    mkdirSync(dirname(p), { recursive: true });
+    writeFileSync(p, JSON.stringify(log, null, 2));
     return true;
   } catch {
     return false;
@@ -345,7 +351,7 @@ function apply(ctx) {
         };
         log.entries[slug] = entry;
         const ok = saveQualityLog(log);
-        return `${ok ? "✅ 已记录" : "⚠️ 写入失败"}: ${slug} → ${q}（${entry.reason || "无理由"}，累计 ${entry.count} 次）\n日志: ${QUALITY_LOG}`;
+        return `${ok ? "✅ 已记录" : "⚠️ 写入失败"}: ${slug} → ${q}（${entry.reason || "无理由"}，累计 ${entry.count} 次）\n日志: ${qualityLogPath()}`;
       }
       // query
       if (slug === "all") {

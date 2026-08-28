@@ -8,8 +8,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
-import { tmpdir, homedir } from "node:os";
+import { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { fileURLToPath } from "node:url";
@@ -94,13 +94,24 @@ test("design_diversity：异构候选 PASS", async () => {
   assert.match(out, /✅ PASS/);
 });
 
-test("design_quality：report 只写 ~/.dsh 本地日志（不碰工作区）", async () => {
+test("design_quality：report 只写本地日志（路径可注入 temp dir，不碰真实 ~/.dsh）", async () => {
   const { design_quality } = tools();
-  const logPath = join(homedir(), ".dsh", "design-router-quality.json");
-  const before = existsSync(logPath) ? JSON.parse(await import("node:fs").then((m) => m.readFileSync(logPath, "utf8"))) : { entries: {} };
-  const out = await design_quality.execute({ action: "report", slug: "refero-design", quality: "良", reason: "测试" });
-  assert.match(out, /已记录|写入失败/);
-  // 边界声明：不依赖断言日志是否落盘（沙箱环境可能拦截），只验证工具行为不越界
-  assert.doesNotThrow(() => design_quality.execute({ action: "query", slug: "refero-design" }));
-  void before;
+  // 隔离：日志路径指向 temp dir，测试后清理，绝不动真实 ~/.dsh/design-router-quality.json
+  const tmp = mkdtempSync(join(tmpdir(), "dr-quality-"));
+  const logPath = join(tmp, "quality.json");
+  process.env.DSH_DESIGN_ROUTER_QUALITY_LOG = logPath;
+  try {
+    assert.equal(existsSync(logPath), false, "temp 日志初始不存在");
+    const out = await design_quality.execute({ action: "report", slug: "refero-design", quality: "良", reason: "测试" });
+    assert.match(out, /✅ 已记录/);
+    assert.equal(existsSync(logPath), true, "report 应写入注入的 temp 路径");
+    const written = JSON.parse(readFileSync(logPath, "utf8"));
+    assert.equal(written.entries["refero-design"].quality, "良");
+    // query 读同一注入路径
+    const q = await design_quality.execute({ action: "query", slug: "refero-design" });
+    assert.match(q, /良/);
+  } finally {
+    delete process.env.DSH_DESIGN_ROUTER_QUALITY_LOG;
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });
