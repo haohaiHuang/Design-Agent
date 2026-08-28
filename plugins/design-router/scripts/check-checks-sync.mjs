@@ -15,10 +15,15 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DSH_CHECKS = join(HERE, "../checks");
-const PI_CHECKS = process.argv[2] || join(HERE, "../../../../../../my-pi-skills/extensions/design-router/checks");
+// 默认 ~/my-pi-skills（可用 PI_SKILLS_CHECKS 环境变量或显式路径参数覆盖）
+const PI_CHECKS =
+  process.env.PI_SKILLS_CHECKS ||
+  process.argv[2] ||
+  join(homedir(), "my-pi-skills", "extensions", "design-router", "checks");
 
 /** 提取实际使用的 gate 号（排除类型定义、注释里的字符串） */
 function extractGates(content) {
