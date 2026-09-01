@@ -43,9 +43,16 @@
 
 - 不装 emilkowalski/skills 的任何 skill（animate/review-animations 等）——Skill=工作流/原则封装，与五环节编排层重复，原则已提炼进约束集 + gates
 - 未移植 emil 的 RECIPES.md（按钮/dropdown/toast 实现配方）——那是实现细节，原则层已覆盖；需要具体配方时按需读原仓库
-- 未动 `plugins/design-router/checks/`（EM-* 机器 gate 尚未写进 .mjs 代码，当前以 workflow.md 文本 gate 存在）——如需机器化，下次修订在 `plugins/design-router/checks/layout.mjs` 加 EM-1/2/3/5/7（grep 型），a11y.mjs 已有 reduced-motion 检查可对齐 EM-8
+
+### 后续修订（2026-09-01 追加）：EM-* 机器 gates 已代码级实现
+
+- **文件**：`plugins/design-router/checks/layout.mjs`（本仓库）+ `plugins/design-router/index.mjs`（audit 描述）
+- **pi 版同步**：无需（pi 版 extension 未做此步，按需再同步）
+- **改成什么**：layout.mjs 新增 EM-2（入场 scale(0)）/ EM-3（UI 用 ease-in）/ EM-5（时长 >300ms）三个独立 gate；EM-1（transition: all）由已有 gate 10 覆盖、EM-7（布局属性动画）由 gate 14 覆盖、EM-8（缺 prefers-reduced-motion）由 a11y.mjs gate 27 覆盖——同语义不重复输出。workflow.md 环节 4 机器层补「机器实现映射」段；design_audit description 更新；测试套件新增 EM-2/3/5 触发用例（8→9 个）
+- **为什么**：REVISION-LOG 原「未动 checks/」待办已清——EM-1/2/3/5/7 为纯 grep 型，进 design_audit 与 CS-* 并列，环节 4 机器校验闭环
 
 ### 修订验证
 
 - 改动 1/2/3 已在 pi 版 + 本仓库双端落盘（本轮对话完成）
 - pi 版 inject-map.md 环节 4 表同步更新（EM-* 子集 + 动效视觉自查）
+- EM 机器 gates：本仓库 `ff98f66` 已实现并验证（9/9 测试通过）；pi 版 extension 未同步（本次为 DSH 侧代码级补全）
