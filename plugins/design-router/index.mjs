@@ -477,7 +477,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_audit",
     description:
-      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
+      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + 动效 EM-* 子集（EM-2 入场 scale(0) / EM-3 UI 用 ease-in / EM-5 时长>300ms；EM-1 由 gate 10、EM-7 由 gate 14、EM-8 由 gate 27 覆盖）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
     parameters: {
       target: { type: "string", required: true, description: "文件或目录路径（目录会递归收集 html/css/js/tsx/vue 等）" },
     },

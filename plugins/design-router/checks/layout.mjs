@@ -150,6 +150,53 @@ export function runLayoutChecks(files) {
         });
       }
     }
+
+    // ---- 动效 EM-* 子集（来源 emilkowalski/skills STANDARDS.md，grep 可查的机器子集）----
+    // EM-1（transition: all）由 gate 10 覆盖；EM-7（布局属性动画）由 gate 14 覆盖——同语义不重复输出。
+
+    // EM-2: 入场动画 scale(0)（内容从 scale(0) 进入会闪跳/布局抖动）
+    for (const ln of grepLines(c, /@keyframes[^\{]*\s*\{[^}]*scale\s*\(\s*0\s*\)|transform\s*:[^;]*scale\s*\(\s*0\s*\)/i)) {
+      findings.push({
+        gate: "EM-2",
+        rule: "motion-enter-scale-zero",
+        severity: "warn",
+        message: "动效 EM-2: 入场动画 scale(0)（transform: scale(0)）。入场应从 scale(0.95-0.98) 起，避免闪跳/布局抖动。",
+        location: loc(f.path, ln),
+      });
+    }
+
+    // EM-3: UI 元素上用 ease-in（UI 动画应默认 ease-out；ease-in 用于离场）
+    for (const ln of grepLines(c, /animation-timing-function\s*:\s*ease-in\b|transition-timing-function\s*:\s*ease-in\b/i)) {
+      findings.push({
+        gate: "EM-3",
+        rule: "motion-ease-in-ui",
+        severity: "warn",
+        message: "动效 EM-3: UI 元素上使用 ease-in（animation/transition-timing-function: ease-in）。UI 入场/状态变化应默认 ease-out；ease-in 仅用于离场动画。",
+        location: loc(f.path, ln),
+      });
+    }
+
+    // EM-5: UI 动画时长 >300ms 无理由（UI 状态变化应在 300ms 内；>300ms 仅限叙事性/全屏过渡）
+    for (const ln of grepLines(c, /(animation|transition)-duration\s*:\s*([^;]+)/i)) {
+      const line = c.split("\n")[ln - 1];
+      const m = line.match(/(animation|transition)-duration\s*:\s*([^;]+)/i);
+      if (!m) continue;
+      const durVals = m[2].match(/(\d+(?:\.\d+)?)(ms|s)\b/gi);
+      if (!durVals) continue;
+      const over = durVals.filter((v) => {
+        const n = parseFloat(v);
+        return /ms$/i.test(v) ? n > 300 : n > 0.3;
+      });
+      if (over.length) {
+        findings.push({
+          gate: "EM-5",
+          rule: "motion-duration-over-300",
+          severity: "warn",
+          message: `动效 EM-5: UI 动画时长 >300ms（${over.join(", ")}）无理由。UI 状态变化应在 300ms 内；>300ms 仅限叙事性/全屏过渡。`,
+          location: loc(f.path, ln),
+        });
+      }
+    }
   }
 
   return findings;

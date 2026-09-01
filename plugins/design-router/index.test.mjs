@@ -59,6 +59,25 @@ test("默认字体（Arial）触发 gate 1", async () => {
   }
 });
 
+test("动效 EM-2/3/5 机器 gates 触发", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-em-"));
+  try {
+    writeFileSync(
+      join(dir, "bad.css"),
+      "@keyframes enter { from { transform: scale(0); } to { transform: scale(1); } }\n" +
+        ".btn { animation-timing-function: ease-in; }\n" +
+        ".panel { transition-duration: 500ms; }\n",
+    );
+    const out = await design_audit.execute({ target: dir });
+    assert.match(out, /\[gate EM-2\]/);
+    assert.match(out, /\[gate EM-3\]/);
+    assert.match(out, /\[gate EM-5\]/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("design_route：SaaS 需求命中路由表并返回主桶", async () => {
   const { design_route } = tools();
   const out = await design_route.execute({ query: "SaaS 落地页" });
