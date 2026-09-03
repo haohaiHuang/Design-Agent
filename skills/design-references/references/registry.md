@@ -9,30 +9,21 @@
 **装前规则**：新增资源必须六栏全填（含**精确来源**——URL/仓库/本地路径，禁止只写名称）；与现有资源**同型**（同角色+同形态+同场景）的不装；站不住位置的不装。
 **来源规则**：所有资源必须带可复现来源——换电脑后按来源（URL/仓库/路径）可精确找到，禁止仅凭名称。
 
-**质量规则（后验降权，非审美）**：资源 `quality` 字段（优/良/中/差/未评估）由客观信号决定——dembrandt/defuddle 提取是否成功、候选是否"未验证"、环节 4 回炉次数、网站可达性。**禁止以用户选择打分**（审美主观）。质量由 `design_quality` 工具记录（本地 `~/.dsh/design-router-quality.json`，不入 git），任务收尾（环节 4 后）写入；环节 1 由 `design_lookup`（质量排序、差质沉底标注）与 `design_route`（桶代表排除差质源）消费。
-
-**维护协议（增删改必走）**：
-
-| 动作 | 步骤 | 必做校验 |
-| --- | --- | --- |
-| **增** | 六栏登记 + 打风格桶 + 挂 routes + 同步台账 | 跑 `design_route` 确认路由命中新桶 |
-| **删** | 移除资源 + 清 routes/logoExtra/quality 引用 + 台账 | **跑 `design_route` 查桶健康**——该桶变空/变弱时按下方空桶规则处理 |
-| **改** | 改来源/层级/桶归属 + 更新台账 | 桶归属变了 → 重跑 `design_route` 确认路由；来源变了 → 重置 quality 为未评估 |
-
-**空桶/弱桶规则**：`design_route` 输出自动标注桶健康状态（🟢 健康≥2 源 / 🟡 弱桶=1 源 / 🔴 空桶=0 源）。空桶自动降级——不报错，改用 `bucketNotes` 查询指引（hallmark 主题/本地资产/相邻桶）兜底；路由表保留空桶条目（用户可能补回），但标注 🔴 提醒。**弱桶优先补源**：新增参考网站时先补弱桶/空桶，再考虑健康桶。
+> **本文件只存共通定义**（资源是什么、怎么用、来源在哪）。本机是否安装、装在哪、版本哈希 = 机器状态，由 skill-router 扫描登记（`catalog.sh matrix` → 私有 inventory 仓库），不写进本文件。
+> DSH 无 skill-router：手动维护台账 `~/resources/design-references.md`，并同步 design_lookup 工具的数据 `plugins/design-router/data/registry.json`——registry.md 改动后需用 `node plugins/design-router/scripts/build-registry.mjs` 重生成（pi 平台为 `node scripts/build-registry.mjs` 或 `/design-router reload`），或手动同步。风格桶字段以 `data/registry.json` 为准（design_route/design_diversity 读取），本表同步维护。
 
 ---
 
 ## 风格桶（反同质化索引，环节 1 必用）
 
-`design_route <需求特征>` 按需求返回推荐桶组合（主桶必查 + 次桶按需）；3 候选必须来自 ≥2 个不同桶，refero 等真实产品库每桶只算 1 个候选；候选产出后调 `design_diversity` 机器校验。
+`design_route <需求特征>` 按需求返回推荐桶组合（主桶必查 + 次桶按需）；3 候选必须来自 ≥2 个不同桶，refero 等真实产品库每桶只算 1 个候选；候选产出后调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示，FAIL 回炉。
 
 | 桶 | 视觉特征 | 代表资源 | 查询指引（桶内无 registry 资源时） |
 | --- | --- | --- | --- |
-| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、voltagent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts | — |
-| **editorial** 编辑杂志 | 网格/衬线/印刷感/克制 | orange-line-illustration（kami 编辑向） | kami 完整规范；zine 编辑族 |
+| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、VoltAgent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts | — |
+| **editorial** 编辑杂志 | 网格/衬线/印刷感/克制 | orange-line-illustration | kami 编辑向；zine 编辑族 |
 | **darktech** 暗色科技 | 深底/霓虹/终端/仪表盘 | —（hallmark 主题） | hallmark cobalt/terminal 主题；refero 搜暗色工具类产品 |
-| **bold** 撞色大胆 | 高饱和/波普/趣味 | uiverse | hallmark carnival/playful 主题 |
+| **bold** 撞色大胆 | 高饱和/波普/趣味 | Uiverse | hallmark carnival/playful 主题 |
 | **warmpaper** 暖纸人文 | 暖底/书卷气/克制排版 | kami-skeleton、kami-spec | hallmark lumen/atmospheric 主题；本地 kami-design-principles |
 | **liquid** 液态动效 | 流体/粘性/微交互 | liquid-gooey、transitions-dev | — |
 | **dataviz** 数据可视化 | 图表/规格表/信息密度 | —（hallmark 宏结构） | hallmark stat-led/spec-sheet 宏结构；refero 搜数据分析产品 |
@@ -42,14 +33,31 @@
 
 | 需求特征 | 主桶（必查） | 次桶（按需） |
 | --- | --- | --- |
-| SaaS/落地页/工具/product/startup | minimal | darktech、editorial |
-| AI/agent/chat/对话/智能/copilot | minimal | liquid、darktech |
-| 数据/dashboard/仪表盘/analytics/报表 | dataviz | minimal、darktech |
-| 文档/docs/内容/article/博客/阅读 | editorial | warmpaper、minimal |
-| 海报/poster/品牌/brand/营销/视觉 | bold | retro、editorial |
-| 电商/ecommerce/商城/shop/零售 | minimal | bold、warmpaper |
-| 演示/ppt/slides/deck/提案 | editorial | minimal、bold |
-| 移动/mobile/app/ios/android | minimal | liquid、darktech |
+| logo / app icon / 品牌图形 | bold | minimal、retro |
+| SaaS / 落地页 / 工具 / product / startup | minimal | darktech、editorial |
+| AI / agent / chat / 对话 / 智能 / copilot | minimal | liquid、darktech |
+| 数据 / dashboard / 仪表盘 / analytics / 报表 | dataviz | minimal、darktech |
+| 文档 / docs / 内容 / article / 博客 / 阅读 | editorial | warmpaper、minimal |
+| 海报 / poster / 品牌 / brand / 营销 / 视觉 | bold | retro、editorial |
+| 电商 / ecommerce / 商城 / shop / 零售 | minimal | bold、warmpaper |
+| 演示 / ppt / slides / deck / 提案 | editorial | minimal、bold |
+| 移动 / mobile / app / ios / android | minimal | liquid、darktech |
+
+**空桶/弱桶规则**：`design_route` 输出自动标注桶健康（🟢 健康≥2 源 / 🟡 弱桶=1 源 / 🔴 空桶=0 源）。空桶不报错，改用 `bucketNotes` 查询指引兜底（hallmark 主题/本地资产/相邻桶）；路由表保留空桶条目（可能补回），标注 🔴 提醒。**弱桶优先补源**：新增参考网站时先补弱桶/空桶，再考虑健康桶。
+
+## 质量规则（后验降权，非审美）
+
+资源 `quality` 字段（优/良/中/差/未评估）由**客观信号**决定——dembrandt / hallmark_study_fetch（pi）/ defuddle（DSH）提取是否成功、候选是否"未验证"、环节 4 回炉次数、网站可达性。**禁止以用户选择打分**（审美主观）。质量由 `design_quality` 工具记录（本地 `~/.pi/design-router-quality.json`（pi）/ `~/.dsh/design-router-quality.json`（DSH），不入 git），任务收尾（环节 4 后）写入；环节 1 由 `design_lookup`（质量排序、差质沉底标注）与 `design_route`（桶代表排除差质源）消费。
+
+## 维护协议（增删改必走）
+
+| 动作 | 步骤 | 必做校验 |
+| --- | --- | --- |
+| **增** | 六栏登记 + 打风格桶（仅风格候选资源）+ 挂 routes + 同步台账 | 跑 `design_route` 确认路由命中新桶 |
+| **删** | 移除资源 + 清 routes/logoExtra/quality 引用 + 台账 | **跑 `design_route` 查桶健康**——该桶变空/变弱时按空桶规则处理 |
+| **改** | 改来源/层级/桶归属 + 更新台账 | 桶归属变了 → 重跑 `design_route` 确认路由；来源变了 → 重置 quality 为未评估 |
+
+改 registry.md 后重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json；禁止手改 registry.json。
 
 ---
 
@@ -57,10 +65,11 @@
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
 | --- | --- | --- | --- | --- | --- |
-| refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览） | 转译 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ web_search | 网站 `https://styles.refero.design/`（SPA，需浏览器——DSH 用 web_search 探测 + dembrandt 验证升级，或人工） |
+| refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览） | 转译 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ web_search | 网站 `https://styles.refero.design/`（SPA，需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测 + dembrandt 验证升级，或人工） |
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
+| 海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单） | 转译 | 次 | 海报（构图候选池：按内容量×情绪选主构图） | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
-| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / defuddle 抽取不足时） | → defuddle（文本抽取，零依赖）→ web_search / 人工核对 | npm 全局 `dembrandt`（已装 v0.30.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
+| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（已装 v0.30.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
 | Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search | `https://ui.aceternity.com/` |
 | 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 | `https://21st.dev/` |
@@ -100,8 +109,6 @@
 | UiPedia（设计资源/工具导航） | 转译 | 兜底 | 通用（找设计工具/资源时） | → web_search | `https://www.uipedia.design/` |
 | Dribbble 案例（单页链接，具体设计稿） | 转译 | 兜底 | 网页（单案例参考） | → 灵感库聚合 | `https://dribbble.com/` |
 
-> **本文件只存共通定义**（资源是什么、怎么用、来源在哪）。本机是否安装、装在哪 = 机器状态（DSH 无 skill-router：手动维护台账 `~/resources/design-references.md`，并同步 design_lookup 工具的数据 `plugins/design-router/data/registry.json`——registry.md 改动后需用 `node plugins/design-router/scripts/build-registry.mjs` 重生成，或手动同步）。风格桶字段以 `data/registry.json` 为准（design_route/design_diversity 读取），本表同步维护。
-
 ## C 约束模板（环节 2：规则/令牌，回答"我们怎么做"）
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
@@ -109,7 +116,7 @@
 | Kami 约束骨架（十条不变量 + 设计令牌） | 规则 | 主 | 通用排版（所有场景常驻） | → Kami 轻量版 README → 十条不变量心法手动应用 | 本地目录 `~/Desktop/Design/kami-design-principles/`（README.md + design-tokens.css，自 kami 技能 references/design.md 提取） |
 | Kami 完整设计规范 | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） | skill 仓库 `https://github.com/tw93/Kami`（规范在 `references/design.md`） |
 | Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 | 本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼） |
-| 海报构图词典（32 构图词条：焦点/几何/动势/分割/网格/图文/破格；速查表按内容量×情绪选主构图；A 侧转 CSS 约束、B 侧转图像配方） | 转译 | 主 | 海报（B1 环节 1/2/4）/ 杂志（B2 环节 2）/ 网页 hero（A1/A2 环节 2） | → 主构图1+辅助1+破格≤1 手动画组织 | skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书）。**A3 Mac 桌面应用有意不挂**——构图词典面向"单屏画面组织"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合 |
+| 海报构图词典 · 落地页子集（单屏构图约束：03 三分法 / 05 大留白单点 / 13 Z 型 / 16 左右分屏 / 17 上下分屏 / 25 满版主视觉 / 26 大字主导 / 27 图上叠字 / 02 非对称平衡；页面级结构仍用 Hallmark 宏结构，两层正交：宏结构管页面区块节奏，词典管单屏画面组织） | 转译 | 次 | 网页 / 落地页（hero 与首屏的单屏构图；环节 2 约束转译 + 环节 4 视觉自查）。**A3 Mac 桌面应用有意不挂**——构图词典面向"单屏画面组织"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合 | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
 | DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 网站网页浏览拿 / getdesign.md | refero 网站（见上）；`https://getdesign.md/` |
 | dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens） | 直引 | 次 | APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账） | → refero 网站网页浏览拿 DESIGN.md / getdesign.md | 本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt` |
 | design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm） |
@@ -120,7 +127,7 @@
 | logo-generator WebGL 动态背景规格 | 规则 | 兜底 | 网页动态背景 / C2 动效 | → GitHub 直读 → 本地兜底 | 源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md` |
 | hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…） | 规则 | 次 | 网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集） | → skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底） | `https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`） |
 | hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项） | 规则 | 次 | 网页 / 通用（按 genre 信号加载对应文件） | → skill 本地文件直读（软依赖，未安装则跳过） | `https://github.com/nutlope/hallmark`（`references/genres/*.md`） |
-| interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`） |
+| interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集（pi/DSH 同源）`https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`） |
 
 ## E 执行工具（环节 3：能动手的技能）
 
@@ -153,7 +160,7 @@
 | design-qa-checklist（UI QA 清单） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 | skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`） |
 | 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
 | logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
-| hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 DSH 的 design_audit 工具合并执行） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
+| hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 design_audit 合并执行，pi/DSH 同源） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
 
 ---
 
@@ -181,4 +188,4 @@
 | openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合）；仅登记 |
 | frontend-design（anthropics） | 🔶 待评估（E·Mac 执行缺格候选） |
 | motion（motiondivision/motion） | ⛔ 不装（JS 库非 skill，与 motion-dev-animations 同型）；仅登记 |
-| dembrandt CLI | ✅ 已装（全局 npm v0.30.0，候选验证升级工具：真浏览器渲染 vs defuddle 文本抽取，非同型；pi 上 v0.28.0 实测 linear.app 验证通过） |
+| dembrandt CLI | ✅ 已装（全局 npm v0.30.0，候选验证升级工具：真浏览器渲染 vs hallmark_study_fetch（pi）/ defuddle（DSH），非同型；pi 上 v0.28.0 时 2026-08-24 实测 linear.app 验证通过） |

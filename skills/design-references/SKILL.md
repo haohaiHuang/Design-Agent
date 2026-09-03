@@ -1,15 +1,29 @@
 ---
 name: design-references
-description: 设计任务路由技能。第一层识别场景分支（A产品类：APP/网页/Mac应用 → 可嵌入产品开发流程；B内容类：海报/杂志封面插图/PPT → 一次性交付；C通用类：组件素材/动效/文档排版 → 轻量即查即走），第二层在分支内走五环节（0意图/1调研/2约束/3产出/4校验），按分支调用不同技能与参考。不跑全流程——只执行当前环节动作，信息不全先问询（≤3问），产出环节交付物并给下一步。核心原则：能引用真实资源就不凭空发挥。触发词：设计参考、风格库、design reference、用 XX 的风格、做个 APP/网页/海报/落地页、UI 设计、排版、配色、参考 beautifului/refero/uiverse。
+description: 设计任务路由技能。第一层判定任务所处阶段（从零新建 / 有方向要落地 / 产物已存在要审计迭代 / 有参考对象要萃取 / 组件级微调），第二层再落场景分支（A产品：APP/网页/Mac；B内容：海报/杂志/PPT；C通用：组件/动效/排版），第三层路由到五环节中当前阶段需要的那一个环节（0意图/1调研/2约束/3产出/4校验），禁止无谓前滚全流程。产物已存在时的视觉审计/迭代（"这页面很丑/很怪/不协调"）直接路由环节 4 快速通道（读 references/ui-quickfix.md），不从环节 0 重走。核心原则：能引用真实资源就不凭空发挥。触发词：设计参考、风格库、design reference、用 XX 的风格、做个 APP/网页/海报/落地页、UI 设计、排版、配色、参考 beautifului/refero/uiverse、这页面很丑/不好看/不协调/很怪、帮我检查下这页面设计、截图迭代。
 ---
 
-# Design References — 场景分支路由
+# Design References — 阶段/场景路由
 
-**调用顺序：场景识别 → 分支判定（A/B/C）→ 分支内环节执行。**
+**调用顺序：阶段判定（任务在流程哪个点）→ 场景分支（A/B/C）→ 路由到需要的那一个环节。**
 
 > 资源明细见 `~/resources/design-references.md`（台账，每条带三维标注）；三维索引见 `references/registry.md`；环节操作细节见 `references/workflow.md`。
 
-## 第一层：场景分支
+## 第一层：阶段判定（先判任务在流程哪个点，不无谓前滚）
+
+```
+设计需求
+├─ 从零新建（无方向/无产物/要重样）→ 完整流程 0→4（如无明确风格需求，重调研）
+├─ 有方向要落地（指定了风格/参考/已有 brief）→ 从环节 2/3 切入
+├─ 产物已存在要审计迭代（"这页面很丑/很怪/不协调/帮我看看"）→ 环节 4 快速通道 ★
+│     └─ 视觉迭代直接走 references/ui-quickfix.md（方向锁+grep sibling），不走 0/1/2/3
+├─ 有参考对象（"看看这个网站/截图风格"）→ hallmark study / 萃取，不进设计流程
+└─ 组件级微调（单按钮/单卡片/顺手改个色）→ 轻量：grep sibling + 复用 token，不触发流程
+```
+
+**判不出阶段 → 按产物是否已存在兜底：已有产物→环节 4；无产物→完整流程。** 性质不明问一次（≤3 问）。
+
+## 第二层：场景分支（决定产出形态与工具链）
 
 ```
 设计任务
@@ -102,9 +116,17 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **优先级规则（铁律 7）**：**用户精选资产 > 外部参考**。环节 1 调研时，用户积累的参考库（`~/resources/design-references.md` 台账 + registry.md）是候选池主源，外部搜索（web_search）是兜底；退化链一律先本地资产后外部搜索。
 
-**反同质化规则（铁律 8）**：环节 1 的 2-3 个候选**必须来自 ≥2 个不同风格桶**（minimal 极简现代 / editorial 编辑杂志 / darktech 暗色科技 / bold 撞色大胆 / warmpaper 暖纸人文 / liquid 液态动效 / dataviz 数据可视化 / retro 复古档案），来源资源两两不同；refero 等真实产品库只能贡献 1 个候选。候选产出后必调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示；FAIL 回炉。桶定位用 `design_route`（需求特征 → 推荐桶组合，含桶健康状态与差质降权标注），查资源用 `design_lookup`（输出标注 [桶 X] 与质量等级）。
+**反同质化规则（铁律 8）**：环节 1 的 2-3 个候选**必须来自 ≥2 个不同风格桶**（minimal 极简现代 / editorial 编辑杂志 / darktech 暗色科技 / bold 撞色大胆 / warmpaper 暖纸人文 / liquid 液态动效 / dataviz 数据可视化 / retro 复古档案，桶定义见 registry.md），来源资源两两不同；refero 等真实产品库只能贡献 1 个候选。候选产出后必调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示；FAIL 回炉。桶定位用 `design_route`（需求特征 → 推荐桶组合，含桶健康状态与差质降权标注），查资源用 `design_lookup`（输出标注 [桶 X] 与质量等级）。
 
-**质量与维护规则（铁律 9）**：参考来源质量由**客观信号**后验决定（提取成功率/未验证比例/回炉率/可达性），**禁止以用户审美选择打分**。任务收尾调 `design_quality report` 记录（本地 `~/.dsh/design-router-quality.json`，不入 git）；环节 1 消费降权（lookup 差质沉底 / route 代表排除差质源）。参考网站增删改走 registry.md 维护协议，删站后查桶健康（🔴 空桶自动走查询指引兜底）。
+**质量与维护规则（铁律 9）**：参考来源质量由**客观信号**后验决定（提取成功率/未验证比例/回炉率/可达性），**禁止以用户审美选择打分**。任务收尾调 `design_quality report` 记录（本地 `~/.pi/design-router-quality.json`（pi）/ `~/.dsh/design-router-quality.json`（DSH），不入 git）；环节 1 消费降权（lookup 差质沉底 / route 代表排除差质源）。参考网站增删改走 registry.md 维护协议，删站后查桶健康（🔴 空桶自动走查询指引兜底）。
+
+**加载预算（铁律 10，防上下文烧穿）**：参考文件预算**分层**——各层独立计数，不是单一总账：
+- **本 skill（design-references）自己的 references/：每环节 ≤3 个文件**（主层级 1-2 个 + 当前需要的 1 个；禁止一次读完全部 references/）
+- **hallmark：走它自己的按需规则，独立子预算**——环节 1 读宏结构/theme 索引（不读全部 theme 详情）；环节 3 读 1 个 genre 文件 + 命中的组件原型（5-7 个封顶，这是 hallmark 的子预算，不计入上面 ≤3）；环节 4 读 slop-test。**禁止**预读 component-cookbook 全文、全部 21 theme、全部 genre（hallmark 自述这是它最大的 token 浪费点）
+- **执行技能（kami/huashu 等）：各自按需**，只读当前环节直接要用的文件
+- **design_lookup/design_route 输出优先**：能由工具返回的资源清单/桶组合不重复读 registry.md 全文
+- 参考文件命中即用即弃：约束转译进环节 2 约束集后，源文件不再保留在上下文中
+- 超限信号：若**本 skill 层**已读 >8 个文件而任务未到环节 2，先停——问自己"哪些是当前环节必须的"，丢弃其余再继续
 
 ```
 [分支] × [环节] → 查 registry.md 对应格子：
@@ -129,13 +151,7 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 
 **选择裁决**：用户显式指令 > 参考驱动（真实产品优先）> Hallmark 形态/气质库 > catalog 静默兜底（仅用户 go ahead 时）。去 AI 味是**两段式**：anti-patterns 进环节 2 约束（前置防线），slop-test 在环节 4 验收（后置闸门）。
 
-**加载预算（铁律 10，防上下文烧穿）**：参考文件预算**分层**——各层独立计数，不是单一总账：
-- **本 skill（design-references）自己的 references/：每环节 ≤3 个文件**（主层级 1-2 个 + 当前需要的 1 个；禁止一次读完全部 references/）
-- **hallmark：走它自己的按需规则，独立子预算**——环节 1 读宏结构/theme 索引（不读全部 theme 详情）；环节 3 读 1 个 genre 文件 + 命中的组件原型（5-7 个封顶，这是 hallmark 的子预算，不计入上面 ≤3）；环节 4 读 slop-test。**禁止**预读 component-cookbook 全文、全部 21 theme、全部 genre（hallmark 自述这是它最大的 token 浪费点）
-- **执行技能（kami/huashu 等）：各自按需**，只读当前环节直接要用的文件
-- **design_lookup/design_route 输出优先**：能由工具返回的资源清单/桶组合不重复读 registry.md 全文
-- 参考文件命中即用即弃：约束转译进环节 2 约束集后，源文件不再保留在上下文中
-- 超限信号：若**本 skill 层**已读 >8 个文件而任务未到环节 2，先停——问自己"哪些是当前环节必须的"，丢弃其余再继续
+**pi 平台配套**：`design-router` extension（my-pi-skills `extensions/design-router/`）提供确定性工具——`design_research`（环节 1 确定性调研退化链）/ `design_route`（需求特征 → 风格桶组合，环节 1 反同质化第一步）/ `design_lookup`（统一候选池查询，差质沉底）/ `design_diversity`（3 候选差异度机器校验）/ `design_quality`（质量信号记录/查询，环节 4 收尾写）/ `design_audit`（机器层校验）/ `design_contrast`（对比度）/ `hallmark_study_fetch`（URL→DNA），并在设计任务时注入本协同说明 + hallmark 完整规则。候选验证升级路径：全局 CLI `dembrandt`（npm，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 硬步骤②）。
 
 **DSH 平台配套**：`design-router` 插件（my-agent 预设挂载，源码在本仓库 `plugins/design-router/`）提供确定性工具——`design_lookup`（registry 三维索引查询，输出标注风格桶+质量等级，差质沉底）/ `design_route`（需求特征 → 推荐风格桶组合，含桶健康与差质降权，环节 1 反同质化）/ `design_diversity`（3 候选差异度机器校验）/ `design_quality`（质量信号记录/查询，任务收尾写，环节 1 读）/ `design_audit`（机器层校验，环节 4 必用）/ `design_contrast`（对比度）。原 pi 版另有 `design_research`（确定性调研）与 `hallmark_study_fetch`（URL→DNA 快验）未移植——DSH 分别用「本地台账 grep + refero 探测 + web_search」与「dembrandt / defuddle」退化链替代。候选验证升级路径：全局 CLI `dembrandt`（URL→设计 token，真浏览器渲染精确 token + 规范 DESIGN.md，见 workflow.md 环节 1 步骤 8）。
 
@@ -144,5 +160,6 @@ description: 设计任务路由技能。第一层识别场景分支（A产品类
 - 资源明细台账：`~/resources/design-references.md`（A-G 浏览视图 + 每条三维标注）
 - 资源三维索引：`references/registry.md`（角色 × 形态 × 层级 + 退化链）
 - 环节操作手册：`references/workflow.md`
+- 视觉迭代/审计快速通道：`references/ui-quickfix.md`（环节 4 用；方向锁五维 + grep sibling 复用 + native exception + 中文 gut-feel 路由，源自 Waza /ui 方法论归位）
 - 构图词典：`references/poster-compositions.md`（32 构图词条 × 内容量/情绪速查，B 海报写提示词、A 网页转 CSS 约束）
-- 深度方法论：`refero Styles 网站`（https://styles.refero.design/，取真实产品设计系统；SPA 需浏览器——DSH 无浏览器浏览工具，用 web_search 探测或 dembrandt 验证升级）
+- 深度方法论：`refero Styles 网站`（https://styles.refero.design/，取真实产品设计系统；SPA 需浏览器——pi 平台用 ego-browser，DSH 用 web_search 探测或 dembrandt 验证升级）

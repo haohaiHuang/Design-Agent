@@ -1,6 +1,7 @@
 # 环节操作手册 — 五环节动作序列 × 资源调用 × 退化链
 
 > 配合 SKILL.md 路由使用。每环节：目标 → 动作序列 → 资源调用（主→次→兜底）→ 产物格式 → 退化链。
+> 方法论来源：事实验证门（环节0 5b）/ 品牌资产门（环节1 1a）/ 候选“看得见”+并排展示（环节1 9a）提炼自 huashu-design（~/.agents/skills/huashu-design）与 baoyu-design（~/.agents/skills/baoyu-design）——两 skill 不装 Pi，方法论以规则形式归位本文件。
 > 铁律 1：参考必须转译成约束（环节 2），不"看一眼"就产出。
 > 铁律 2：信息不全先问询（≤3 问），禁止跳过环节 0。
 > 铁律 3：**每个环节产出必须先展示给用户确认，确认后才进下一环节。禁止连续产出多份设计稿再让用户一起看。**
@@ -9,9 +10,18 @@
 
 ---
 
-## 工具层 · OpenPencil CLI（软依赖，可选增强）
+## 工具层 · OpenPencil CLI（设计文件工具箱，软依赖）
 
-**前置**：需安装 `npm install -g @open-pencil/cli` 才能启用本层；**未安装时跳过本层全部命令**，流程不受影响（软依赖）。职责：**操作 .fig/.pen 设计文件**——参考为设计文件时直读精确 token（源数据证据等级最高），产物为设计文件时机器校验。只在产物/参考为设计文件时接入，不改变五环节骨架；各环节接入点命令见 pi 版 skill（my-pi-skills `skills/design-references/references/workflow.md` 工具层），DSH 版不再展开——未装 openpencil 的用法一律走退化链：参考 .fig → Figma 家族技能/人工核对；产物 .fig → 导出 PNG 人工核对。
+**前置：需安装 CLI 才能启用本层**——`npm install -g @open-pencil/cli`（当前 v0.14.0），装完 `openpencil --version` 验证；未安装时跳过本层全部命令，流程不受影响（本层为软依赖）。职责：**操作 .fig/.pen 设计文件的事实层**——决策永远在五环节，OpenPencil 只提供文件级数据（源数据直读，证据等级最高）。只在产物/参考为设计文件时接入，不改变五环节骨架。
+
+| 环节 | 接入点 | 命令 |
+| --- | --- | --- |
+| 1 调研 | 参考为 .fig/.pen 时，替代/增强 URL 抓取，直读精确 token | `openpencil analyze colors/typography/spacing` · `openpencil variables` |
+| 2 约束 | 参考文件 token 直接导出为约束来源 | `openpencil variables --json` |
+| 3 产出 | HTML↔.fig 转换桥 + 批量建组件 | `openpencil export -f jsx --style tailwind` · `openpencil import` · `openpencil eval` |
+| 4 校验 | .fig 产物机器校验（design_audit 只管 HTML/CSS） | `openpencil lint` · `openpencil analyze colors/spacing` · `openpencil export -f png --thumbnail` |
+
+**已知 bug（v0.14.0，勿误判为用法错误）**：`import` 依赖 Bun 运行时在纯 Node 下必报 `Bun is not defined`（上游 issue #575，修复 PR #576 已合待发版）；`query` XPath 报 `evaluateXPathToNodes is not a function`。替代：import 用 `openpencil eval` 建节点或等发版；query 用 `openpencil find --type/--name` 组合替代。其余命令（info/tree/find/node/pages/lint/analyze/export png/svg/html/fig/eval/variables/formats/documents/selection）实测可用。桌面端运行时省略文件参数即连实时画布（Live 模式）。
 
 ---
 
@@ -33,6 +43,7 @@
 3. **冲突扫描**：盘点时检查资产是否违反已知显式规则（no-emoji/no-gradient/用户明确要求等）→ 违反则列为冲突项展示，用户裁决后执行（铁律 4）
 4. 按分支问询缺口（见 SKILL.md 问询协议），已推断的跳过
 5. **风格方向问询（关键，开放指令必做）**：用户未指定风格时（如“做个 XX”“升级一下”），必须问一次：“你参考库里有没有想用的风格方向？”（≤3 问额度内，优先级最高）——先从 `~/resources/design-references.md` 台账 + `references/registry.md` 按场景分支筛候选给用户挑，禁止直接外部搜索定方向。
+5b. **事实验证门（涉及具体产品/技术/版本时必做，优先级凌驾问询）**：需求里出现具体产品名/品牌/版本号/规格/发布状态（如“大疆 Pocket 4 发布动画”“某 SDK v3 特性页”）→ **开工前先搜证，禁止凭训练语料断言**。触发句式：“我记得 X 还没发布”“X 大概在…”“据我所知 X 是…”（内心冒出这些 = 停下去搜）。做法：调确定性搜索验证存在性/发布状态/最新版本/关键规格 → 结果写进 Brief 的「事实验证」节（不靠记忆）→ 搜不到或模糊则问用户。成本：搜 10 秒 << 返工 2 小时（反例：凭记忆断言“未发布”做了概念稿，实已发布且官方物料俱在）。**本门先于问询**——事实错了，问什么都是歪的。
 6. 输出 Brief：格式 / 渠道 / 受众 / 目标 / 硬约束
 7. **形态核对**：确认产物形态（Mac 应用 → 模拟窗口；网页 → 页面；海报 → 画布）——形态错误是最低级却最常见的错误
 
@@ -56,9 +67,10 @@
 **动作序列**：
 
 1. **盘点已有资产**（承接环节 0）：项目已有设计系统 → 它就是主参考，外部参考只做增强；无系统才从零调研
-1b. **需求路由（反同质化第一步，必做）**：先调 `design_route <需求特征关键词>` 拿推荐风格桶组合（主桶必查 + 次桶按需）。需求特征 = 品类/气质/内容类型（如"SaaS 落地页"→ 主桶 minimal，次桶 darktech/editorial）。拿不准关键词时直接传需求原文，工具返回全部 8 桶由你挑。
-2. **硬调研步骤（DSH：用 `design_lookup <branch> <stage>` 查注册表 + 本地台账 grep + refero 探测 + web_search）**：先跑确定性调研取候选池——本地台账（`~/resources/design-references.md` 按关键词 grep）→ refero 网站（web_search 探测 `styles.refero.design` 同品类） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
-3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在调研输出的真实候选基础上，补 Hallmark 组合候选：
+1a. **品牌资产门（设计里将出现可识别产品/品牌时必做，先于风格调研）**：任务要在交付物中呈现真实可识别的产品/品牌（对比/榜单/评测 deck、产品发布视觉、设计里点名某品牌/产品）→ **它的官方 logo/产品图/UI 截屏是必需资产，不是“有就用没有拉倒”**。核心理念：**资产 > 规范**——logo/产品图比品牌色值更能让品牌被认出来；只抽品牌色就开做 = 漏了最大识别度。做法：逐列将出现的品牌名 → 取官方 logo（svgl API → simpleicons → Google favicon 三级兑底）→ 产品图走官网/press kit → 下载后 base64 内嵌或本地路径（交付是单文件 HTML 时必须 base64，否则挪目录全员裂图）→ 固化为品牌资产清单供环节 2 消费。清单里有一个没取到 = 停下来补；实在取不到才退诚实占位并明说“X 的 logo 待补”。⚠️ 普通主题名（“咖啡/鹦鹉/健身”）不算品牌——别去找“咖啡的 logo”空转。
+1b. **需求路由（反同质化第一步，必做）**：先调 `design_route <需求特征关键词>` 拿推荐风格桶组合（主桶必查 + 次桶按需）。需求特征 = 品类/气质/内容类型（如“SaaS 落地页”→ 主桶 minimal，次桶 darktech/editorial）。拿不准关键词时直接传需求原文，工具返回全部 8 桶由你挑。
+2. **硬调研步骤（pi：必须调用 `design_research <branch> <query>`；DSH：用 `design_lookup <branch> <stage>` 查注册表 + 本地台账 grep + refero 探测 + web_search；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
+3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在确定性调研输出的真实候选基础上，补 Hallmark 组合候选：
    - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
    - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
    - 每个候选标注：`形态分 × 气质分 × 行业分 × 防重分`（四维见下方分级表）+ **来源桶 + 来源资源**（design_route 定位、design_lookup 标注）。
@@ -75,16 +87,17 @@
    - Spacing / Radius / Shadow → 具体数值档位
    - Do / Don't → 全清单逐条记录
    缺一个 section 就不算调研完，补完才进候选展示
-4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：已装 openpencil 则直读精确 token（`analyze colors/typography/spacing`/`variables`/`info`，命令见 pi 版工具层）；未装走 Figma 家族技能或人工核对。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。
-5. 分支 A：**探测 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——DSH 无 ego-browser；用 web_search 查该站/该品类的 DESIGN.md 或走 dembrandt 验证升级）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
+4b. **参考为 .fig/.pen 文件时（源数据直读，最高证据等级）**：不用抓 URL，直接 `openpencil analyze colors/typography/spacing <file>` 取精确色板（含使用频次）/字体栈/间距档位，`openpencil variables <file>` 取已定义 token，`openpencil info` 取字体清单。结果等价于 DESIGN.md 的 Colors/Typography/Spacing 三 section 且数值精确到 hex。未装 openpencil → Figma 家族技能或人工核对。
+5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测或 dembrandt 验证升级；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
-8. **候选验证（DSH 硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读（openpencil，未装走 Figma 家族/人工核对）> `dembrandt <url> --design-md --save-output`（已装 v0.30.0，真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）→ `defuddle parse <url> --md` 文本抽取（已装）→ web_search → 人工核对）**：
-   - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ openpencil 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）；未装 openpencil → Figma 家族技能或人工核对
-   - **候选是 URL** → dembrandt 渲染取精确 token（首选）；dembrandt 不可用时 defuddle 抽取文本结构信号
+8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
+   - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ 直接 `openpencil analyze/variables/info` 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）
+   - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
    验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
 9. **展示给用户选（强制）**：用户选定方向后，才能进环节 2。禁止自行拍板。开放指令（用户未指定风格）时此步为硬门槛，候选必须来自用户参考库优先。
-9b. **候选可视化询问（DSH 增强，每次展示候选后必问）**：候选仅凭文字难感知差异时，主动询问用户
+9a. **候选要“看得见”，不是文字描述（关键升级）**：展示的候选**必须是能感知的真实视觉**，不是 token 草稿文字——用户只凭文字无法判断风格差异（“选择无效”：用户没看见就选，选的是臆测）。最低要求：候选带**可感知的视觉证据**（参考图/截图/色板条/字体样本）。条件允许时（用户同意 + 有 HTML 产出能力）：为每个候选做一版**真实视觉 demo**——同页并排（一个文件内 3 个 artboard/灰模，可切换对比）优于 3 个散文件；动画/视频类候选用方向板（关键帧静帧 ×1-2 + 色板条 + 一句气质定位），不是文字。
+9b. **候选可视化询问（每次展示候选后必问）**：候选仅凭文字难感知差异时，主动询问用户
     「要不要先为 2-3 个候选各做一版 HTML 快速可视化 demo（灰模/占位级，按各候选 token 草稿的
     色/字/距呈现，几分钟内完成，只为辅助选择）？」同意 → 先做 demo 展示，看完再选；拒绝/直接选 → 跳过。
     demo 是辅助选择的手段，不是最终交付物——选中方向后进环节 2 定约束，完整实现仍在环节 3 按约束集做。
@@ -138,7 +151,7 @@
 | B | Zine 风格库（本地） | 构图词典（poster-compositions.md，内容量×情绪选主构图）+ orange-line-illustration | web_search |
 | C | 不跑本环节 | — | — |
 
-**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（Figma 家族技能 / 人工核对）** → refero Styles 网站（web_search 探测）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
+**退化链**（用户精选资产永远在外部随机之前）：用户参考库（`~/resources/design-references.md` + registry.md）→ **本地 .fig/.pen 设计稿（openpencil 直读，证据等级最高）** → refero Styles 网站（网页浏览——pi / web_search 探测——DSH）→ Beautiful UI / Aceternity / minimal.gallery → web_search → 禁止凭空发挥（告知用户无真实参考可查）。
 
 ---
 
@@ -164,7 +177,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时已装 openpencil 则直接导出其 token 集合转译为约束（C 数据·次·软依赖，命令见 pi 版；未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装 v0.30.0）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 pi 版 inject-map.md craft 约束 Animation 条目，本次修订同步；机器子集 EM-* 已进环节 4 audit）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装 v0.30.0）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
@@ -189,7 +202,7 @@
 
 | 分支 | 执行工具 |
 | --- | --- |
-| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效）/ **openpencil（软依赖，已装时可用作 HTML↔.fig 转换/批量建组件，命令见 pi 版；未装跳过）** |
+| A | kami（排版）/ huashu-design（HTML 高保真）/ Figma 家族 / motion（动效）/ **openpencil（软依赖，已装时：HTML 产物要变 .fig → `openpencil import`；.fig 产物要交前端 → `openpencil export -f jsx --style tailwind` / `-f html`；批量建组件/排 auto-layout → `openpencil eval`；未装跳过）** |
 | B1 海报 | gpt-image-2（图像）+ kami（排版） |
 | B2 杂志 | gpt-image-2（插图）+ kami（版式网格） |
 | B3 PPT | guizang-ppt-skill |
@@ -203,6 +216,8 @@
 
 ## 环节 4 · 校验 → 达标/回炉
 
+**入口判定**：任务以"产物已存在要审计/迭代"进入（"这页面很丑/很怪/不协调/帮我看看/截图迭代"）→ 直接走本环节，**不读环节 0/1/2 内容**；视觉迭代规则优先读 `references/ui-quickfix.md`（方向锁五维 + grep sibling 复用 + native exception + Aesthetic Review），机器扫描照常跑 design_audit。
+
 **目标**：对照约束集自检，不达标**回环节 2 改约束**（不打补丁）。
 
 **动作序列**：
@@ -213,7 +228,14 @@
    - 字重扫描：grep font-weight，禁 700/600/450（除非约束允许）
    - 圆角扫描：grep border-radius，核对与约束的档位一致
    - 渐变/阴影扫描：grep gradient/box-shadow，核对约束允许范围
-1b. **产物为 .fig/.pen 时（design_audit 只管 HTML/CSS，设计文件走 openpencil）**：已装 openpencil 则机器校验（`lint`/`analyze colors --threshold 5`/`analyze spacing --grid 8`/`analyze clusters`/`export -f png --thumbnail`，命令见 pi 版工具层）——覆盖命名/auto-layout/硬编码色/无障碍对比度/色板一致性/间距网格/组件化程度/视觉评审截图；任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决。**未装 openpencil → 导出 PNG + Figma 家族技能或人工核对**。
+1b. **产物为 .fig/.pen 时（design_audit 只管 HTML/CSS，设计文件走 openpencil）**：
+   - `openpencil lint <file>` → 命名/auto-layout/硬编码色/无障碍对比度（机器判定）
+   - `openpencil analyze colors <file> --threshold 5` → 色板一致性（偏离约束 token 的颜色逐一解释）
+   - `openpencil analyze spacing <file> --grid 8` → 间距是否对齐网格
+   - `openpencil analyze clusters <file>` → 组件化程度（该抽没抽的重复）
+   - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
+   - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
+   - **未装 openpencil → 导出 PNG + Figma 家族技能或人工核对**
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
 3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
@@ -221,7 +243,7 @@
 6. 任一不达标 → 明确写"回环节 2：改哪条约束"，不静默打补丁
 7. **自检结果展示给用户**（扫描输出 + 对照表），让用户看到每项的依据
 8. **质量信号记录（环节 4 完成后、收尾前，必做）**：对本任务用到的参考来源逐个调 `design_quality report`，按客观信号定档：
-   - dembrandt/defuddle 验证成功且一次通过 → `良`（多次累积升 `优`）
+   - dembrandt / hallmark_study_fetch（pi）/ defuddle（DSH）验证成功且一次通过 → `良`（多次累积升 `优`）
    - 提取部分失败/候选标注"未验证" → `中`
    - 环节 4 FAIL 且回炉 2 次仍不过 → `差`
    - 网站不可达/404 → `差`
@@ -236,10 +258,10 @@
 FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规则}
 ```
 
-**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/ **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
+**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/** 视觉迭代/审美投诉任务优先读 ui-quickfix.md（V 规则·次·源自 Waza /ui，产物已存在时的方向锁 + grep sibling + native exception + Aesthetic Review）** / **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
 
 **四段校验分层（每层管的东西不同，全跑）**：
-1. **机器层**：`design_audit <target>`（my-agent 预设挂载的 DSH 工具：合并 hallmark 机器子集 + interfaces CS-* 8 条 + 环节 4 扫描 + 继承链对比度 + **动效 EM-* 子集**）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）。动效 EM-*（grep 可查）：EM-1 `transition: all` / EM-2 入场 `scale(0)` / EM-3 UI 上 `ease-in` / EM-4 刻意动画用内置 `ease-out` / EM-5 UI 时长 >300ms 无理由 / EM-6 keyframes 用于 toast/toggle 等快速触发 / EM-7 动 width/height/margin/padding/top/left / EM-8 缺 `prefers-reduced-motion` / EM-9 hover 无 `(hover:hover) and (pointer:fine)` 门控 / EM-10 锚定弹层 `transform-origin: center`；来源 emilkowalski/skills（github.com/emilkowalski/skills，STANDARDS.md）。**机器实现映射**：EM-2/EM-3/EM-5 为 design_audit 独立 gate；EM-1 由 gate 10 覆盖、EM-7 由 gate 14 覆盖、EM-8 由 gate 27 覆盖（同语义不重复输出）；EM-4/6/9/10 为 grep 自查
+1. **机器层**：`design_audit`（pi 的 design-router extension / DSH 的 my-agent 预设插件，同源工具）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）+ **动效 EM-* 子集**（grep 可查：EM-1 `transition: all` / EM-2 入场 `scale(0)` / EM-3 UI 上 `ease-in` / EM-4 刻意动画用内置 `ease-out` / EM-5 UI 时长 >300ms 无理由 / EM-6 keyframes 用于 toast/toggle 等快速触发 / EM-7 动 width/height/margin/padding/top/left / EM-8 缺 `prefers-reduced-motion` / EM-9 hover 无 `(hover:hover) and (pointer:fine)` 门控 / EM-10 锚定弹层 `transform-origin: center`；来源 emilkowalski/skills STANDARDS.md，需精确值直引时读 ~/Desktop/DSH/Chat/Design-Agent/… 或 github.com/emilkowalski/skills）。**机器实现映射**：EM-2/EM-3/EM-5 为 design_audit 独立 gate；EM-1 由 gate 10 覆盖、EM-7 由 gate 14 覆盖、EM-8 由 gate 27 覆盖（同语义不重复输出）；EM-4/6/9/10 为 grep 自查
 2. **品牌层**：Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）
 3. **视觉层**：hallmark slop-test 58 gates 全量（V 规则·次·软依赖——机器子集已由第 1 层跑，视觉/上下文类由模型按 slop-test.md 自查：gate 6/8/28/29/31/32/35/36/44/45/52-54/56/57）+ **动效视觉自查**（EM-11 频率档匹配——高频区是否仍有动画 / EM-12 目的能否命名——说不出目的即删 / EM-13 crossfade 是否干净（脏则 blur(2px)<20px 遮盖）/ EM-14 stagger 30–80ms 节奏 / EM-15 退出路径与进入对称 / EM-16 慢放验证——2–5× 或 DevTools 动画检查器看缓动/原点/同步）；A 分支 hero/首屏可加构图 11 项自查（poster-compositions.md，与 gates 去重：焦点/主次比例/留白帮助阅读）
 4. **UX 层**：design-qa-checklist（导航/状态/反馈可用性）
@@ -252,8 +274,7 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 
 **环节 4 达标即视为设计完成，进入收尾**，不再向下滑入开发：
 
-- **交付物**：设计产物（HTML 原型/demo/幻灯片/信息图/动画）+ **设计规范文档 `designs/DECISION.md`**。
-  归档到项目 designs/ 等子目录。
+- **交付物**：设计产物（HTML 原型/demo/幻灯片/信息图/动画）+ **设计规范文档 `designs/DECISION.md`**。归档到项目 designs/ 等子目录。
 - **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，四段结构：
   ```
   # DECISION.md — 设计决策与页面规范
@@ -263,9 +284,6 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
   ## 4. 校验结果（环节 4）    design_audit 输出 + Kami 三查对照 + PASS/FAIL
   ```
   规范供开发交接直接用，候选理由供追溯；该文档即开发交接包的主体。
-- **默认不进入开发**：设计完成 ≠ 开始开发。除非用户**显式**要求（"开始开发/实现上线/继续做下去"），
-  否则本流程止于设计交付——不写生产代码、不搭后端、不做工程化。
-- **转开发的条件与方式**：用户要求开发时，`designs/DECISION.md` 作为开发交接包（含设计文件清单），
-  建议交给开发 Agent/流程执行；不默认自己动手写生产代码。
-- **收尾动作**：确认交付物齐全归档（designs/）+ DECISION.md 已生成 → 极简总结
-  （做了什么、caveats、下一步可选方向，含"如需开发可转交"）。
+- **默认不进入开发**：设计完成 ≠ 开始开发。除非用户**显式**要求（"开始开发/实现上线/继续做下去"），否则本流程止于设计交付——不写生产代码、不搭后端、不做工程化。
+- **转开发的条件与方式**：用户要求开发时，`designs/DECISION.md` 作为开发交接包（含设计文件清单），建议交给开发 Agent/流程执行；不默认自己动手写生产代码。
+- **收尾动作**：确认交付物齐全归档（designs/）+ DECISION.md 已生成 → 极简总结（做了什么、caveats、下一步可选方向，含"如需开发可转交"）。

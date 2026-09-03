@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-28",
+  "generated": "2026-09-03",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -9,7 +9,7 @@
       "level": "主",
       "scenarios": "APP / 网页 / Mac",
       "fallback": "→ 用户参考库候选池（台账+registry）→ web_search",
-      "source": "网站 `https://styles.refero.design/`（SPA，需浏览器——DSH 用 web_search 探测 + dembrandt 验证升级，或人工）",
+      "source": "网站 `https://styles.refero.design/`（SPA，需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测 + dembrandt 验证升级，或人工）",
       "slug": "refero-design",
       "bucket": "minimal",
       "quality": "未评估"
@@ -24,6 +24,18 @@
       "source": "本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary`",
       "slug": "zine-style-library",
       "bucket": "retro",
+      "quality": "未评估"
+    },
+    {
+      "name": "海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "海报（构图候选池：按内容量×情绪选主构图）",
+      "fallback": "→ 本地文件直读（无退化）",
+      "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
+      "slug": "poster-compositions",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -43,8 +55,8 @@
       "role": "R",
       "form": "工具",
       "level": "主",
-      "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / defuddle 抽取不足时）",
-      "fallback": "→ defuddle（文本抽取，零依赖）→ web_search / 人工核对",
+      "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时）",
+      "fallback": "→ hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对",
       "source": "npm 全局 `dembrandt`（已装 v0.30.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
       "slug": "dembrandt",
       "bucket": null,
@@ -543,13 +555,13 @@
       "quality": "未评估"
     },
     {
-      "name": "海报构图词典（32 构图词条：焦点/几何/动势/分割/网格/图文/破格；速查表按内容量×情绪选主构图；A 侧转 CSS 约束、B 侧转图像配方）",
+      "name": "海报构图词典 · 落地页子集（单屏构图约束：03 三分法 / 05 大留白单点 / 13 Z 型 / 16 左右分屏 / 17 上下分屏 / 25 满版主视觉 / 26 大字主导 / 27 图上叠字 / 02 非对称平衡；页面级结构仍用 Hallmark 宏结构，两层正交：宏结构管页面区块节奏，词典管单屏画面组织）",
       "role": "C",
       "form": "转译",
-      "level": "主",
-      "scenarios": "海报（B1 环节 1/2/4）/ 杂志（B2 环节 2）/ 网页 hero（A1/A2 环节 2）",
-      "fallback": "→ 主构图1+辅助1+破格≤1 手动画组织",
-      "source": "skill 文件 `references/poster-compositions.md`（来源：Adrian Punk《AI 做海报、HTML 构图手册》上/下册，X Articles 2026-08；二手合成源，精确引用回查原书）。**A3 Mac 桌面应用有意不挂**——构图词典面向\"单屏画面组织\"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合",
+      "level": "次",
+      "scenarios": "网页 / 落地页（hero 与首屏的单屏构图；环节 2 约束转译 + 环节 4 视觉自查）。**A3 Mac 桌面应用有意不挂**——构图词典面向\"单屏画面组织\"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合",
+      "fallback": "→ 本地文件直读（无退化）",
+      "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
       "slug": "poster-compositions",
       "bucket": null,
       "quality": "未评估"
@@ -681,7 +693,7 @@
       "level": "次",
       "scenarios": "网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖）",
       "fallback": "→ 官网直读（静态文档） → 人工应用",
-      "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
+      "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集（pi/DSH 同源）`https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
       "slug": "interfaces-cheat-sheet",
       "bucket": null,
       "quality": "未评估"
@@ -955,9 +967,9 @@
       "role": "V",
       "form": "规则",
       "level": "次",
-      "scenarios": "网页 / 通用（产出后校验；机器可判定子集已由 DSH 的 design_audit 工具合并执行）",
+      "scenarios": "网页 / 通用（产出后校验；机器可判定子集已由 design_audit 合并执行，pi/DSH 同源）",
       "fallback": "→ skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底）",
-      "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 DSH 版见 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
+      "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
       "slug": "hallmark-slop-test",
       "bucket": null,
       "quality": "未评估"
