@@ -70,6 +70,16 @@
 1a. **品牌资产门（设计里将出现可识别产品/品牌时必做，先于风格调研）**：任务要在交付物中呈现真实可识别的产品/品牌（对比/榜单/评测 deck、产品发布视觉、设计里点名某品牌/产品）→ **它的官方 logo/产品图/UI 截屏是必需资产，不是“有就用没有拉倒”**。核心理念：**资产 > 规范**——logo/产品图比品牌色值更能让品牌被认出来；只抽品牌色就开做 = 漏了最大识别度。做法：逐列将出现的品牌名 → 取官方 logo（svgl API → simpleicons → Google favicon 三级兑底）→ 产品图走官网/press kit → 下载后 base64 内嵌或本地路径（交付是单文件 HTML 时必须 base64，否则挪目录全员裂图）→ 固化为品牌资产清单供环节 2 消费。清单里有一个没取到 = 停下来补；实在取不到才退诚实占位并明说“X 的 logo 待补”。⚠️ 普通主题名（“咖啡/鹦鹉/健身”）不算品牌——别去找“咖啡的 logo”空转。
 1b. **需求路由（反同质化第一步，必做）**：先调 `design_route <需求特征关键词>` 拿推荐风格桶组合（主桶必查 + 次桶按需）。需求特征 = 品类/气质/内容类型（如“SaaS 落地页”→ 主桶 minimal，次桶 darktech/editorial）。拿不准关键词时直接传需求原文，工具返回全部 8 桶由你挑。
 2. **硬调研步骤（pi：必须调用 `design_research <branch> <query>`；DSH：用 `design_lookup <branch> <stage>` 查注册表 + 本地台账 grep + refero 探测 + web_search；其他平台：等效确定性调研）**：先跑确定性调研取候选池——本地台账 → refero 网站（网页浏览） → web 搜索，每层带**证据来源**。**禁止仅凭模型内建知识直接选风格**——候选必须来自调研输出并标注证据；所有外部层失败才允许声明"无真实参考可查"并按 Kami 骨架执行。
+2b. **概念发散模式（补位路径，仅两情况触发；源自 Anshu ideation system）**：
+   - **触发条件**：① `design_route` 桶健康度差（🔴/🟡 无主桶可查）或候选池全差质；② 用户显式要“跳出常规/别来常见的/要独特”且常规候选被否。其他情况不走，直接硬调研。
+   - **原理**：概念只是“探针”，不是候选——模型发散出的抽象气质（如“工业控制面板”）零证据等级，**必须锚定到真实参照后才算数**。它解决的是“台账/搜索覆盖不到的创造空间”，不破坏“禁止仅凭内建知识选风格”铁律（锚定失败的概念不参与选型）。
+   - **动作序列**：
+     ① **发散**（带防 AI 味约束，禁止空泛概念/两个抽象词硬拼/不可视觉化词）：`I want a bold, unique design language for my product. List as many ideas as you can, short, high-level, go broad not deep. Each idea must be visualizable — name the palette/texture/structure it implies — and searchable via concrete visual features.`（中文：帮我发散一套大胆独特的设计语言，尽可能多列，简短宏观；每条必须可视觉化——能说清它暗示的配色/质感/结构——且能转成可搜索的视觉特征词）→ 20-30 个概念卡
+     ② **人选 1-2 个**（强制，禁止 AI 自选）
+     ③ **锚定（关键关卡）**：把选中概念翻译成视觉特征查询 → 走 `design_research` 退化链（本地台账 → refero → web 搜索）找真实执行该概念或气质相近的站点；气质相近算“半锚定”，需标注近似。
+     ④ **锚定成功** → 候选按常规走（验证 → 四维标注 → design_diversity → 展示）；**锚定失败（搜不到）→ 概念淘汰或标注“纯概念实验”降权，不参与正式选型**
+   - **发散产物不是候选，是“搜索意图”**：模型不闭环，人在“挑概念”和“审锚定结果”两道把关。
+   - 概念锚定成功后，与常规候选同池（可跨桶），design_diversity 照跑。
 3. **统一候选池（优先于一切外部搜索；真实产品 + Hallmark 形态/气质库同池）**：在确定性调研输出的真实候选基础上，补 Hallmark 组合候选：
    - **真实产品参考**：`~/resources/design-references.md`（台账）+ `references/registry.md` 按场景筛 2-3 个；用户指定风格则直引对应资源。**用户精选资产永远在外部随机搜索结果之前。**
    - **Hallmark 形态/气质库**（软依赖，已装 hallmark 时可用）：21 宏结构 = **形态**维度（页面形状：Bento/Stat-Led/Manifesto…）；4 genre + 21 theme = **气质**维度（editorial/modern-minimal/atmospheric/playful + 具体配色字体）。作为预打包的"形态+气质"实例进同池。
@@ -228,6 +238,7 @@
    - 字重扫描：grep font-weight，禁 700/600/450（除非约束允许）
    - 圆角扫描：grep border-radius，核对与约束的档位一致
    - 渐变/阴影扫描：grep gradient/box-shadow，核对约束允许范围
+   - design_audit 已合并 kill-ai-slop 转译子集 **KS-***（cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔含中文）——warn 级命中 = 疑似，需人工 Triage：品牌/编辑语境合法则豁免（源码标注 deslop-ignore 思路），真 slop 则回环节 2 改约束
 1b. **产物为 .fig/.pen 时（design_audit 只管 HTML/CSS，设计文件走 openpencil）**：
    - `openpencil lint <file>` → 命名/auto-layout/硬编码色/无障碍对比度（机器判定）
    - `openpencil analyze colors <file> --threshold 5` → 色板一致性（偏离约束 token 的颜色逐一解释）
@@ -239,7 +250,20 @@
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
 3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
-5. 成品视觉评审（huashu 5 维；无头浏览器渲染截图 + 视觉模型复核）
+5. **成品视觉评审——默认用独立 critic 子代理，不用产出者自评（关键纪律，源自 Anshu critic loop）**：产出者自评不客观（它看自己的代码/rationale 会自我辩护），且产出者与评审同分布 → 自评只是“自查语法”，不是品味判断。评审动作：无头浏览器/截图工具渲染成品（多视口：桌面+移动+关键状态）→ **另起独立 critic 子代理（pi：调 `design-critic` agent；关键前提：critic 模型能力 ≥ 执行模型且支持视觉直读，否则审的是文字转述、能力降级）**（全新上下文、不携带约束集推导过程）→ 只喂截图路径 + {方向锁产物} + 环节 1 选定的真实参考/范例图当 moodboard（critic 不知晓产品 PRD，防止“功能正确性”污染审美判断）→ 按四维输出：方向保真 / 执行质量（对照工作室线）/ AI 味残留 / 克制度 → 10 分制独立打分。critic 提示词内嵌见下方「critic 评审提示词」；**critic prompt 里不写入通过线/验收线**（知道分数线 = 分数朝线虚胖，LLM 会迎合隐含目标），通过线只存在于你的验收决定里。视觉层 58 gates 照跑（机器子集层 1 已覆盖），critic 管 gates 管不了的“整体气质”判断。（无子代理能力时退化：huashu 5 维自查 + 无头浏览器截图 + 视觉模型复核，并明示这是自评降级）
+
+**critic 评审提示词（换行处即变量位置；中文见括号）**：
+
+```text
+You are an independent design critic. The chosen direction: {阶段3方向产物}.
+Moodboard (baseline, NOT a copy target): {环节1选定的真实参考截图/范例图}
+Screenshots to review: {桌面+移动+关键状态截图}
+
+Judge on: 1) direction fidelity — did it stay true to the chosen direction or quietly safer-ize? 2) execution against a top studio bar — composition, hierarchy, type, color, restraint; 3) AI-tell residue; 4) restraint — what could be removed without losing the direction.
+Score /10 and list the biggest 3 gaps. Do not suggest changing the direction.
+
+（你是独立设计评审。既定方向：{阶段3方向产物}；参考情绪板（基线非照抄）：{环节1真实参考}；待审截图：{多视口}；判四维：方向保真/执行质量/被 AI 味残留/克制度；给 10 分制 + 最大 3 差距；不要建议换方向）
+```
 6. 任一不达标 → 明确写"回环节 2：改哪条约束"，不静默打补丁
 7. **自检结果展示给用户**（扫描输出 + 对照表），让用户看到每项的依据
 8. **质量信号记录（环节 4 完成后、收尾前，必做）**：对本任务用到的参考来源逐个调 `design_quality report`，按客观信号定档：
@@ -249,6 +273,27 @@
    - 网站不可达/404 → `差`
    - **禁止以用户审美选择定档**（偏好主观）；只依据机器可验证信号
    - 记录后，下次环节 1 该来源自动降权（lookup 沉底 / route 排除代表）
+9. **减法 pass（Deliver，环节 4 达标后、收尾前，推荐跑；源自 Anshu “AI 爱加不爱减”）**：克制是“不像 AI”的最大标志，打磨 AI 设计的大部分功夫在删。减法分两类管法不同：
+   - **Type A（约束执行类）**：违反已定规则的元素（粉光/随机高亮/渐变冒充视觉——必然不在约束集/token 里）。**机器抓**：design_audit（DR-A1/DR-A2 + 约束扫描）+ 色值白名单。到这一步才人肉删 = 上游环节 2/3 漏了，正确动作是回环节 2 改约束，不是在此打补丁。
+   - **Type B（判断类）**：合规但仍多余的元素（如“图片已传达信息，标签仍存在”）。**没有任何规范能预先写出**，只能人定清单；每条删除必须带理由（服务哪条约束 / 服务哪个内容必要性——两者皆无 = 不允许删）。
+   - **跑偏防护（双向）**：减过头 = 把 Define 刚注入的个性资产（图/3D/视频/标志性字体）当噪音删掉——AI 用克制之名行平庸之实；减错 = 删掉承载方向气质的元素。防法：DESIGN.md/约束集管合规（Type A），**方向锁管不跑偏（Type B 删除理由必须含“不破坏 {阶段3方向产物}”）**。
+   - **减法 prompt（换行处即变量；中文见括号）**：
+
+```text
+Look over this design and ask yourself what really needs to be there.
+For every element you propose to remove, state the reason: which constraint it
+violates, or which content necessity it fails to serve. No reason = keep it.
+- Remove gradients, glows, and unnecessary containers
+- Remove random colors and highlights on text
+- Remove labels and empty space where images already communicate the info
+- Prefer native components over custom buttons and text fields
+- Simplify the layout into an image-centric grid
+- Aim for a truly minimalist aesthetic
+Do NOT remove elements that carry the chosen direction's personality
+({阶段3方向产物}) unless they serve no content purpose.
+
+（审视这个设计，问什么才是真正必须存在的；每个要删的元素说明理由——违反哪条约束或没服务哪个内容必要性，说不出理由就保留；去掉渐变/发光/多余容器、随机高亮、图片已传达的冗余标签、自定义控件换原生；但禁止删承载 {阶段3方向产物} 个性的资产，除非它们不服务任何内容目的）
+```
 
 **产物格式**：
 

@@ -20,13 +20,13 @@
 
 | 桶 | 视觉特征 | 代表资源 | 查询指引（桶内无 registry 资源时） |
 | --- | --- | --- | --- |
-| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、VoltAgent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts | — |
+| **minimal** 极简现代 | 干净留白/几何/现代无衬线 | refero、VoltAgent、Beautiful UI、Aceternity、21st.dev、minimal.gallery、vibeprompts、Watermelon UI | — |
 | **editorial** 编辑杂志 | 网格/衬线/印刷感/克制 | orange-line-illustration | kami 编辑向；zine 编辑族 |
-| **darktech** 暗色科技 | 深底/霓虹/终端/仪表盘 | —（hallmark 主题） | hallmark cobalt/terminal 主题；refero 搜暗色工具类产品 |
+| **darktech** 暗色科技 | 深底/霓虹/终端/仪表盘 | Linear、Ghostty（+hallmark 主题） | hallmark cobalt/terminal 主题；refero 搜暗色工具类产品 |
 | **bold** 撞色大胆 | 高饱和/波普/趣味 | Uiverse | hallmark carnival/playful 主题 |
 | **warmpaper** 暖纸人文 | 暖底/书卷气/克制排版 | kami-skeleton、kami-spec | hallmark lumen/atmospheric 主题；本地 kami-design-principles |
-| **liquid** 液态动效 | 流体/粘性/微交互 | liquid-gooey、transitions-dev | — |
-| **dataviz** 数据可视化 | 图表/规格表/信息密度 | —（hallmark 宏结构） | hallmark stat-led/spec-sheet 宏结构；refero 搜数据分析产品 |
+| **liquid** 液态动效 | 流体/粘性/微交互 | liquid-gooey、transitions-dev、beUI | — |
+| **dataviz** 数据可视化 | 图表/规格表/信息密度 | SaasUI Dashboard、BoardUI、Dash UI（+hallmark 宏结构） | hallmark stat-led/spec-sheet 宏结构；refero 搜数据分析产品 |
 | **retro** 复古档案 | 像素/拼贴/档案感 | zine-style-library、zine-family-recipes | zine 复古族（本地） |
 
 **需求路由表**（`design_route` 内建，需求特征关键词 → 主/次桶）：
@@ -78,6 +78,7 @@
 | orange-line-illustration（纽约客风编辑插画风格） | 转译 | 次 | 海报 / 杂志 | → 技能本地文件 | skill 仓库 `https://github.com/orange2ai/orange-line-illustration.git` |
 | Lucide（图标库·首选） | 直引 | 兜底 | 通用 | → CDN 直引（无退化） | `https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg` |
 | Heroicons（图标库·补充） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg` |
+| Reicon（图标库·补充·多框架/双字重/MCP） | 直引 | 兜底 | 通用 | → CDN 直引（无退化）→ MCP 搜索 | `https://reicon.dev/`；CDN `https://unpkg.com/reicon/cdn/reicon.js`；npm `reicon-react`/`reicon-mcp`（MCP 搜索） |
 | Google Fonts（字体源） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://fonts.google.com/` |
 | Hero Patterns（SVG 背景纹理） | 直引 | 兜底 | 通用 | → 官网复制 | `https://heropatterns.com/` |
 | CSS 渐变工具 | 直引 | 兜底 | 通用 | → 官网 | `https://cssgradient.io/`（或同类） |
@@ -108,6 +109,13 @@
 | loadmo.re（移动端网页设计归档） | 转译 | 兜底 | 移动端网页 | → web_search | `https://loadmo.re/` |
 | UiPedia（设计资源/工具导航） | 转译 | 兜底 | 通用（找设计工具/资源时） | → web_search | `https://www.uipedia.design/` |
 | Dribbble 案例（单页链接，具体设计稿） | 转译 | 兜底 | 网页（单案例参考） | → 灵感库聚合 | `https://dribbble.com/` |
+| Watermelon UI（开源 React UI 平台：动效组件/区块/Showcases/模板；含 llms.txt/sitemap/OpenAPI/MCP 机器可读入口） | 转译 | 兜底 | 网页（React 组件/区块库；agent 友好机器接口） | → 官网浏览 → web_search | `https://ui.watermelon.sh/`；MCP `https://mcp.watermelon.sh/`；仓库 `https://github.com/WatermelonCorp/watermelon-platform` |
+| beUI（React/Next 动效组件库：Framer Motion + shadcn 分发，spring 动效组件/动态岛/磁吸按钮/morphing 弹窗/弹幕 Tab 等） | 转译 | 次 | 网页动效（spring 动效组件；可用 `shadcn add @beui/*` 直接装） | → 官网浏览 → web_search | `https://beui.dev/` |
+| BoardUI（React 仪表盘设计系统：72 组件/17 数据图表/8 模板/400+ token；专攻 agentic interface + TanStack Table + React Aria） | 转译 | 次 | 网页（dashboard/数据密集/agentic 界面） | → 官网浏览 → web_search | `https://www.boardui.com/`（商业项目，含 BoardUI Pro 付费档） |
+| Linear（高端极简暗色设计系统：近黑 #010102 + 表面阶梯 #0f1011→#191a1b + hairline，单色薰衣草蓝 #5e6ad2，专有 Linear Display/Mono 负字距；Google DESIGN.md spec） | 转译 | 次 | 网页 / APP（暗色高端 SaaS/软件工具；darktech 桶高端极简标杆） | → shadcn DESIGN.md 直读 → web_search | `https://www.shadcn.io/design/linear`（来源 linear.app） |
+| Ghostty（终端暗色：真实开发者终端，GPU 渲染，monospace；Warp 同型） | 转译 | 次 | 网页 / 桌面（终端/开发者工具暗色；darktech 桶终端气质） | → 官网浏览 → web_search | `https://ghostty.org/`（⚠️ SPA 抓取失败，属性级借用，未验证） |
+| SaasUI Dashboard 模式库（131 个真实 SaaS 产品 dashboard 截图 / 74 家：Linear/Mixpanel/PostHog/Sentry/HubSpot/Amplitude 等；dataviz 真实产品视觉候选） | 转译 | 次 | 网页（dashboard/数据密集/真实产品参考） | → 官网浏览 → web_search | `https://www.saasui.design/pattern/dashboard` |
+| Dash UI（多框架 dashboard 设计系统：React/Svelte/Web Components，dark-first 蓝 accent 高数据密度，含 tokens/AGENTS.md/visual-regression 测试；破 React 单一绑定） | 转译 | 次 | 网页（dashboard 设计系统；dataviz 范式+约束两用） | → GitHub 直读 → 官网浏览 | `https://github.com/webbertakken/dash-ui` |
 
 ## C 约束模板（环节 2：规则/令牌，回答"我们怎么做"）
 
@@ -128,6 +136,7 @@
 | hallmark anti-patterns 约束集（反 AI 生成禁忌：默认字体/渐变文字/emoji 图标/编造指标/假 chrome/标题斜体/transition-all/重绘 UI chrome…） | 规则 | 次 | 网页 / 通用（去 AI 味**前置约束**，环节 2 常驻，产出前转译进约束集） | → skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底） | `https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`） |
 | hallmark genre 允许/禁止清单（editorial / modern-minimal / atmospheric / playful 各自的允许项与禁止项） | 规则 | 次 | 网页 / 通用（按 genre 信号加载对应文件） | → skill 本地文件直读（软依赖，未安装则跳过） | `https://github.com/nutlope/hallmark`（`references/genres/*.md`） |
 | interfaces cheat-sheet 约束集（数值/配方级 craft：只用 woff2 / 语义 token 分层（禁按外观命名/跨角色复用）/ 按钮按压 0.95-0.98 / 图标 cross-fade / hit-area 24-44-40 / hover 包 @media (hover:hover) / text-wrap balance+pretty / 逻辑属性 / 智能标点 / 文案动词开头+每流程一词 / 对比度按实际渲染背景） | 规则 | 次 | 网页 / 通用（细节级 craft，环节 2 转译；机器子集已由 design_audit 的 CS-* 检查覆盖） | → 官网直读（静态文档） → 人工应用 | 官网 `https://interfaces.dev/cheat-sheet`；机器子集（pi/DSH 同源）`https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`） |
+| Fluid Functionalism（动效设计哲学/约束：动效服务于功能目的「motion is information, not decoration」，spring 三分级/近场 hover/字体权重过渡/可访问性/Radix-Base UI） | 规则 | 次 | 网页动效（动效原则/纪律——不贡献视觉「候选方向」，只定「为什么动/怎么动」；C2 环节 2 约束） | → 官网直读（静态文档） → 人工应用转译进约束集 | `https://www.fluidfunctionalism.com/` |
 
 ## E 执行工具（环节 3：能动手的技能）
 
@@ -161,6 +170,7 @@
 | 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
 | logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
 | hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 design_audit 合并执行，pi/DSH 同源） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
+| kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译） | 规则 | 次 | 网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免） | → 无（机器直接执行）→ 模型按环节 4 Triage 确认 | `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释） |
 
 ---
 

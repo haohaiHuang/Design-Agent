@@ -14,10 +14,16 @@ A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](ht
 
 | Component | Role |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (5 read-only tools + 1 local-log writer, zero external runtime deps) |
-| [`presets/my-agent/`](presets/my-agent/) | DSH agent preset (`agent.cordis.yml` + `preset.yml`): five-phase persona with per-stage confirmation gates |
-| [`skills/design-references/`](skills/design-references/) | Scenario-branch routing skill (A product / B content / C general × five phases), DSH-adapted |
+| [`plugins/design-router/`](plugins/design-router/) | Deterministic-tool Cordis plugin (6 read-only tools + 1 local-log writer, zero external runtime deps) |
+| [`presets/my-agent/`](presets/my-agent/) | DSH agent preset (`agent.cordis.yml` + `preset.yml`): three-layer routing persona (stage → branch → phase) with per-phase confirmation gates |
+| [`skills/design-references/`](skills/design-references/) | Stage/branch routing skill (stage triage → A product / B content / C general → five phases), DSH-adapted |
 | [`skills/hallmark/`](skills/hallmark/) | Anti-AI-slop execution skill (MIT upstream copy from [nutlope/hallmark](https://github.com/nutlope/hallmark); `site/` theme tokens & examples bundled in-skill, self-contained) |
+
+> **DSH version requirement: `0.1.5-rc.1` or later.** The persona plugin schema changed in
+> 0.1.5 (`text` → `prefix` + `suffix`); a preset still using `text:` fails to mount with
+> `$.prefix missing required value`. This repo's preset is on the 0.1.5 schema and also uses
+> two rows introduced in 0.1.5: `present` (`dsh-tool-present`, deliverable declaration) and
+> `command-goal` (`/goal` command).
 
 ## plugins/design-router — deterministic tools
 
@@ -51,15 +57,30 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 ```
 plugins/design-router/
 ├── index.mjs          # Plugin entry: registers 6 tools (5 read-only + 1 local-log writer)
-├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/types
+├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/kill-slop/assets/types
+│   └── kill-slop.test.mjs  # KS-* regression test (node checks/kill-slop.test.mjs)
 └── data/
-    └── registry.json  # Data form of registry.md (79 resources × 9 branch routes)
+    └── registry.json  # Data form of registry.md (91 resources × 9 branch routes)
 ```
+
+### Machine-gate coverage
+
+`design_audit` runs seven checker modules and returns a gate-numbered punch list:
+
+| Family | Gates | Source |
+| --- | --- | --- |
+| Hallmark slop | 1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51 | hallmark `slop-test.md` (machine subset) |
+| interfaces CS-* | CS-1…CS-8 | interfaces.dev cheat-sheet |
+| Motion EM-* | EM-2/3/5 (EM-1/7/8 map to gates 10/14/27) | emilkowalski/skills |
+| kill-ai-slop KS-* | KS-03/04/05/08/14 | kill-ai-slop transcription |
+| Asset layer DR-A* | DR-A1/DR-A2 | Anshu asset-layer gates (brand logo/image presence) |
+| design-references phase 4 | DR-4 (font-weight / radius off-scale) | design-references workflow.md |
 
 ### Maintenance
 
 - `registry.md` is the **source of truth** (`~/.agents/skills/design-references/references/registry.md`); after editing it, run `node plugins/design-router/scripts/build-registry.mjs` to regenerate `data/registry.json` (+ `data/manifest.json` version metadata). **Never hand-edit registry.json.**
-- Checker logic follows upstream `extensions/design-router/checks/` (TS→MJS port); after upstream updates, run `node plugins/design-router/scripts/check-checks-sync.mjs /path/to/my-pi-skills/extensions/design-router/checks` to verify gate coverage (threshold details still need manual porting review)
+- Checker logic follows upstream `extensions/design-router/checks/` (TS→MJS port); after upstream updates, run `node plugins/design-router/scripts/check-checks-sync.mjs /path/to/my-pi-skills/extensions/design-router/checks` to verify gate coverage — **then diff the checker constants by hand**: gate-number parity does not catch detail drift (e.g. an expanded default-font list). The KS regression test catches that class of drift.
+- After any checker change: `node index.test.mjs` and `node checks/kill-slop.test.mjs`.
 
 ## One-shot reproduction (fresh machine)
 

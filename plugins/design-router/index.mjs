@@ -25,6 +25,8 @@ import { runA11yChecks } from "./checks/a11y.mjs";
 import { runCopyChecks } from "./checks/copy.mjs";
 import { runContrastChecks } from "./checks/contrast.mjs";
 import { runCheatChecks } from "./checks/cheat.mjs";
+import { runKillSlopChecks } from "./checks/kill-slop.mjs";
+import { runAssetChecks } from "./checks/assets.mjs";
 
 const name = "design-router";
 const inject = ["tools"];
@@ -477,13 +479,15 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_audit",
     description:
-      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + 动效 EM-* 子集（EM-2 入场 scale(0) / EM-3 UI 用 ease-in / EM-5 时长>300ms；EM-1 由 gate 10、EM-7 由 gate 14、EM-8 由 gate 27 覆盖）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
+      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + 动效 EM-* 子集（EM-2 入场 scale(0) / EM-3 UI 用 ease-in / EM-5 时长>300ms；EM-1 由 gate 10、EM-7 由 gate 14、EM-8 由 gate 27 覆盖）+ kill-ai-slop KS-* 子集（KS-03 cozy 暖洗色 / KS-04 默认语义彩虹 / KS-05 单色状态框 / KS-08 衬线乱入 UI / KS-14 AI 文案腔）+ 资产层 DR-A1/DR-A2（品牌 logo/图片资产缺失与占位）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
     parameters: {
       target: { type: "string", required: true, description: "文件或目录路径（目录会递归收集 html/css/js/tsx/vue 等）" },
     },
     async execute(args) {
       const { files, paths, error } = readTargetFiles(args.target);
       if (error) return error;
+      // 资产层检查需要目标的绝对路径（用于在磁盘上核对引用的资产是否存在）
+      const targetAbs = resolve(args.target);
       const findings = [
         ...runTypographyChecks(files),
         ...runLayoutChecks(files),
@@ -491,6 +495,8 @@ function apply(ctx) {
         ...runCopyChecks(files),
         ...runContrastChecks(files),
         ...runCheatChecks(files),
+        ...runKillSlopChecks(files),
+        ...runAssetChecks(files, targetAbs),
       ];
       const isPage = files.some((f) => f.kind === "html");
       const text = formatFindings(findings, isPage);

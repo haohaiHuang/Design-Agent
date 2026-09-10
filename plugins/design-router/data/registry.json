@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-03",
+  "generated": "2026-09-10",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -155,6 +155,18 @@
       "fallback": "→ CDN 直引",
       "source": "`https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg`",
       "slug": "heroicons",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "Reicon（图标库·补充·多框架/双字重/MCP）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "通用",
+      "fallback": "→ CDN 直引（无退化）→ MCP 搜索",
+      "source": "`https://reicon.dev/`；CDN `https://unpkg.com/reicon/cdn/reicon.js`；npm `reicon-react`/`reicon-mcp`（MCP 搜索）",
+      "slug": "reicon",
       "bucket": null,
       "quality": "未评估"
     },
@@ -519,6 +531,90 @@
       "quality": "未评估"
     },
     {
+      "name": "Watermelon UI（开源 React UI 平台：动效组件/区块/Showcases/模板；含 llms.txt/sitemap/OpenAPI/MCP 机器可读入口）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "网页（React 组件/区块库；agent 友好机器接口）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "`https://ui.watermelon.sh/`；MCP `https://mcp.watermelon.sh/`；仓库 `https://github.com/WatermelonCorp/watermelon-platform`",
+      "slug": "watermelon-ui",
+      "bucket": "minimal",
+      "quality": "未评估"
+    },
+    {
+      "name": "beUI（React/Next 动效组件库：Framer Motion + shadcn 分发，spring 动效组件/动态岛/磁吸按钮/morphing 弹窗/弹幕 Tab 等）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页动效（spring 动效组件；可用 `shadcn add @beui/*` 直接装）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "`https://beui.dev/`",
+      "slug": "beui",
+      "bucket": "liquid",
+      "quality": "未评估"
+    },
+    {
+      "name": "BoardUI（React 仪表盘设计系统：72 组件/17 数据图表/8 模板/400+ token；专攻 agentic interface + TanStack Table + React Aria）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页（dashboard/数据密集/agentic 界面）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "`https://www.boardui.com/`（商业项目，含 BoardUI Pro 付费档）",
+      "slug": "boardui",
+      "bucket": "dataviz",
+      "quality": "未评估"
+    },
+    {
+      "name": "Linear（高端极简暗色设计系统：近黑 #010102 + 表面阶梯 #0f1011→#191a1b + hairline，单色薰衣草蓝 #5e6ad2，专有 Linear Display/Mono 负字距；Google DESIGN.md spec）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / APP（暗色高端 SaaS/软件工具；darktech 桶高端极简标杆）",
+      "fallback": "→ shadcn DESIGN.md 直读 → web_search",
+      "source": "`https://www.shadcn.io/design/linear`（来源 linear.app）",
+      "slug": "linear-dark",
+      "bucket": "darktech",
+      "quality": "未评估"
+    },
+    {
+      "name": "Ghostty（终端暗色：真实开发者终端，GPU 渲染，monospace；Warp 同型）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页 / 桌面（终端/开发者工具暗色；darktech 桶终端气质）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "`https://ghostty.org/`（⚠️ SPA 抓取失败，属性级借用，未验证）",
+      "slug": "ghostty",
+      "bucket": "darktech",
+      "quality": "未评估"
+    },
+    {
+      "name": "SaasUI Dashboard 模式库（131 个真实 SaaS 产品 dashboard 截图 / 74 家：Linear/Mixpanel/PostHog/Sentry/HubSpot/Amplitude 等；dataviz 真实产品视觉候选）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页（dashboard/数据密集/真实产品参考）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "`https://www.saasui.design/pattern/dashboard`",
+      "slug": "saasui-dashboard",
+      "bucket": "dataviz",
+      "quality": "未评估"
+    },
+    {
+      "name": "Dash UI（多框架 dashboard 设计系统：React/Svelte/Web Components，dark-first 蓝 accent 高数据密度，含 tokens/AGENTS.md/visual-regression 测试；破 React 单一绑定）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页（dashboard 设计系统；dataviz 范式+约束两用）",
+      "fallback": "→ GitHub 直读 → 官网浏览",
+      "source": "`https://github.com/webbertakken/dash-ui`",
+      "slug": "dash-ui",
+      "bucket": "dataviz",
+      "quality": "未评估"
+    },
+    {
       "name": "Kami 约束骨架（十条不变量 + 设计令牌）",
       "role": "C",
       "form": "规则",
@@ -695,6 +791,18 @@
       "fallback": "→ 官网直读（静态文档） → 人工应用",
       "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集（pi/DSH 同源）`https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
       "slug": "interfaces-cheat-sheet",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "Fluid Functionalism（动效设计哲学/约束：动效服务于功能目的「motion is information, not decoration」，spring 三分级/近场 hover/字体权重过渡/可访问性/Radix-Base UI）",
+      "role": "C",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页动效（动效原则/纪律——不贡献视觉「候选方向」，只定「为什么动/怎么动」；C2 环节 2 约束）",
+      "fallback": "→ 官网直读（静态文档） → 人工应用转译进约束集",
+      "source": "`https://www.fluidfunctionalism.com/`",
+      "slug": "fluid-functionalism",
       "bucket": null,
       "quality": "未评估"
     },
@@ -973,6 +1081,18 @@
       "slug": "hallmark-slop-test",
       "bucket": null,
       "quality": "未评估"
+    },
+    {
+      "name": "kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译）",
+      "role": "V",
+      "form": "规则",
+      "level": "次",
+      "scenarios": "网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免）",
+      "fallback": "→ 无（机器直接执行）→ 模型按环节 4 Triage 确认",
+      "source": "`https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释）",
+      "slug": "kill-ai-slop",
+      "bucket": null,
+      "quality": "未评估"
     }
   ],
   "routes": {
@@ -1016,6 +1136,11 @@
         "aceternity",
         "21st-dev",
         "dembrandt",
+        "boardui",
+        "watermelon-ui",
+        "linear-dark",
+        "saasui-dashboard",
+        "dash-ui",
         "recent-design",
         "awwwards",
         "siteinspire",
@@ -1127,7 +1252,13 @@
         "cta-gallery",
         "navbar-gallery",
         "supahero",
-        "designspells"
+        "designspells",
+        "reicon",
+        "beui",
+        "boardui",
+        "watermelon-ui",
+        "saasui-dashboard",
+        "dash-ui"
       ],
       "2": [
         "kami-skeleton"
@@ -1144,9 +1275,13 @@
       "1": [
         "transitions-dev",
         "liquid-gooey",
-        "threeui"
+        "threeui",
+        "beui"
       ],
-      "2": [],
+      "2": [
+        "fluid-functionalism",
+        "interfaces-cheat-sheet"
+      ],
       "3": [
         "motion-lib",
         "motion-dev-animations",

@@ -6,7 +6,7 @@
  */
 import { loc, grepLines } from "./types.mjs";
 
-const DEFAULT_FONTS = /\b(Inter|Roboto|Open Sans|Poppins|Lato|Arial|Helvetica|Times New Roman)\b/i;
+const DEFAULT_FONTS = /\b(Inter|Roboto|Open Sans|Poppins|Lato|Arial|Helvetica|Times New Roman|Space Grotesk|Manrope|Plus Jakarta Sans|Geist|Sora|DM Sans)\b/i;
 
 export function runTypographyChecks(files) {
   const findings = [];

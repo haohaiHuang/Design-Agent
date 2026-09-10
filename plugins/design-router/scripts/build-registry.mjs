@@ -41,6 +41,17 @@ const SLUG_BY_KEYWORD = [
   ["vibeprompts", "vibeprompts.dev"],
   ["dembrandt-extract", "dembrandt 萃取产物"],
   ["dembrandt", "dembrandt（URL→设计 token"],
+  // my-pi-skills 2026-09 新增（组件/仪表盘/暗色高端/图标/反 slop）
+  ["reicon", "Reicon"],
+  ["kill-ai-slop", "kill-ai-slop 反 AI slop"],
+  ["watermelon-ui", "Watermelon UI"],
+  ["beui", "beUI"],
+  ["boardui", "BoardUI"],
+  ["saasui-dashboard", "SaasUI Dashboard"],
+  ["dash-ui", "Dash UI"],
+  ["linear-dark", "Linear（高端极简"],
+  ["ghostty", "Ghostty"],
+  ["fluid-functionalism", "Fluid Functionalism"],
   // DSH 书签导入（2026-08-28）
   ["recent-design", "Recent Design"],
   ["awwwards", "Awwwards"],
@@ -131,6 +142,14 @@ const BUCKET_BY_KEYWORD = [
   // retro 复古档案
   ["retro", "Zine 风格库"],
   ["retro", "Zine 风格族配方"],
+  // my-pi-skills 2026-09 新增（补 darktech/dataviz 桶）
+  ["minimal", "Watermelon UI"],
+  ["liquid", "beUI"],
+  ["dataviz", "BoardUI"],
+  ["dataviz", "SaasUI"],
+  ["dataviz", "Dash UI"],
+  ["darktech", "Linear"],
+  ["darktech", "Ghostty"],
   // DSH 书签导入
   ["minimal", "Recent Design"],
   ["minimal", "Awwwards"],
@@ -308,6 +327,11 @@ const ROUTES = {
       "aceternity",
       "21st-dev",
       "dembrandt",
+      "boardui",
+      "watermelon-ui",
+      "linear-dark",
+      "saasui-dashboard",
+      "dash-ui",
       "recent-design",
       "awwwards",
       "siteinspire",
@@ -419,7 +443,13 @@ const ROUTES = {
       "cta-gallery",
       "navbar-gallery",
       "supahero",
-      "designspells"
+      "designspells",
+      "reicon",
+      "beui",
+      "boardui",
+      "watermelon-ui",
+      "saasui-dashboard",
+      "dash-ui"
     ],
     "2": [
       "kami-skeleton"
@@ -436,9 +466,13 @@ const ROUTES = {
     "1": [
       "transitions-dev",
       "liquid-gooey",
-      "threeui"
+      "threeui",
+      "beui"
     ],
-    "2": [],
+    "2": [
+      "fluid-functionalism",
+      "interfaces-cheat-sheet"
+    ],
     "3": [
       "motion-lib",
       "motion-dev-animations",

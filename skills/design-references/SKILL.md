@@ -118,6 +118,10 @@ description: 设计任务路由技能。第一层判定任务所处阶段（从�
 
 **反同质化规则（铁律 8）**：环节 1 的 2-3 个候选**必须来自 ≥2 个不同风格桶**（minimal 极简现代 / editorial 编辑杂志 / darktech 暗色科技 / bold 撞色大胆 / warmpaper 暖纸人文 / liquid 液态动效 / dataviz 数据可视化 / retro 复古档案，桶定义见 registry.md），来源资源两两不同；refero 等真实产品库只能贡献 1 个候选。候选产出后必调 `design_diversity` 机器校验差异度（色相/字体/来源），PASS 才展示；FAIL 回炉。桶定位用 `design_route`（需求特征 → 推荐桶组合，含桶健康状态与差质降权标注），查资源用 `design_lookup`（输出标注 [桶 X] 与质量等级）。
 
+**概念发散补位规则（铁律 8b，源自 Anshu ideation system）**：仅当 `design_route` 桶健康度差（🔴/🟡）或用户显式要“跳出常规”且常规候选被否时，环节 1 可走**概念发散模式**——模型先发散抽象气质概念（探针，非候选）→ 人选 1-2 个 → **锚定**到真实参照（design_research 退化链找执行该概念或气质相近的真实站点，近似需标注）→ 锚定成功才进常规候选管线（验证/四维/design_diversity），锚定失败则淘汰或标“纯概念实验”降权，**禁止未锚定的概念参与选型**。细节与提示词见 workflow.md 环节 1 步骤 2b。
+
+**独立评审与克制规则（铁律 11，源自 Anshu critic loop）**：环节 4 的成品视觉评审**默认用独立 critic 子代理**（全新上下文、只喂截图 + 方向锁产物 + 环节 1 真实参考当 moodboard；critic prompt 不写通过线），产出者自评只是自查语法不是品味判断；无子代理能力时降级为 huashu 5 维自评并明示。环节 4 达标后收尾前可选跑**减法 pass（Deliver）**：Type A（违反约束的元素）机器抓（design_audit DR-A1/DR-A2 + 约束扫描），Type B（合规但冗余，如“图片已传达还加标签”）只能人定清单且每条带理由，禁止无理由删承载方向个性的资产。critic 提示词与减法清单见 workflow.md 环节 4 步骤 5。
+
 **质量与维护规则（铁律 9）**：参考来源质量由**客观信号**后验决定（提取成功率/未验证比例/回炉率/可达性），**禁止以用户审美选择打分**。任务收尾调 `design_quality report` 记录（本地 `~/.pi/design-router-quality.json`（pi）/ `~/.dsh/design-router-quality.json`（DSH），不入 git）；环节 1 消费降权（lookup 差质沉底 / route 代表排除差质源）。参考网站增删改走 registry.md 维护协议，删站后查桶健康（🔴 空桶自动走查询指引兜底）。
 
 **加载预算（铁律 10，防上下文烧穿）**：参考文件预算**分层**——各层独立计数，不是单一总账：

@@ -14,10 +14,15 @@
 
 | 组件 | 作用 |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（5 个只读 + 1 个本地日志写入，零外部运行时依赖） |
-| [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：五环节 persona + 每环节确认门禁 |
-| [`skills/design-references/`](skills/design-references/) | 场景分支路由技能（A 产品/B 内容/C 通用 × 五环节），DSH 适配版 |
+| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（6 个只读 + 1 个本地日志写入，零外部运行时依赖） |
+| [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：三层路由 persona（阶段判定 → 场景分支 → 环节）+ 每环节确认门禁 |
+| [`skills/design-references/`](skills/design-references/) | 阶段/场景路由技能（阶段判定 → A 产品/B 内容/C 通用 → 五环节），DSH 适配版 |
 | [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
+
+> **DSH 版本要求：`0.1.5-rc.1` 或更高。** 0.1.5 改了 persona 插件的 config schema
+> （`text` → `prefix` + `suffix`），仍用 `text:` 的预设会挂载失败并报
+> `$.prefix missing required value`。本仓库预设已用 0.1.5 schema，并启用了 0.1.5 新增的
+> 两行：`present`（`dsh-tool-present` 交付物声明）与 `command-goal`（`/goal` 命令）。
 
 ## plugins/design-router — 确定性工具
 
@@ -55,9 +60,9 @@
 ```
 plugins/design-router/
 ├── index.mjs          # 插件入口：注册 6 个工具（5 只读 + 1 本地日志写入，其余不碰文件）
-├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/types
+├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/kill-slop/assets/types
 └── data/
-    └── registry.json  # registry.md 的数据化产物（79 资源 × 9 分支路由）
+    └── registry.json  # registry.md 的数据化产物（91 资源 × 9 分支路由）
 ```
 
 ### 维护
