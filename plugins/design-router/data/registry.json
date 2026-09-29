@@ -1,5 +1,5 @@
 {
-  "generated": "22ab4157ed14",
+  "generated": "524ac50ea211",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -932,8 +932,8 @@
       "form": "规则",
       "level": "次",
       "scenarios": "网页动效（动效原则/纪律——不贡献视觉「候选方向」，只定「为什么动/怎么动」；C2 环节 2 约束）",
-      "fallback": "→ 官网直读（静态文档） → 人工应用转译进约束集",
-      "source": "`https://www.fluidfunctionalism.com/`",
+      "fallback": "→ GitHub 直读（`STANDARDS.md`） → 官网直读（静态文档） → 人工应用转译进约束集",
+      "source": "源 `https://github.com/emilkowalski/skills`（`skills/review-animations/STANDARDS.md`：频率表/缓动决策序/时长表/物理感，EM-* 机器子集真源）；官网 `https://www.fluidfunctionalism.com/`",
       "slug": "fluid-functionalism",
       "bucket": null,
       "quality": "未评估"
@@ -1461,13 +1461,15 @@
     }
   },
   "logoExtra": {
-    "2": [
-      "logo-design-patterns",
+    "1": [
       "logggos",
       "logo-archive",
       "logoinspo",
       "logosystem",
       "logobook"
+    ],
+    "2": [
+      "logo-design-patterns"
     ],
     "4": [
       "logo-quality-floor"
@@ -1479,7 +1481,8 @@
       "hallmark-genre-bans"
     ],
     "4": [
-      "hallmark-slop-test"
+      "hallmark-slop-test",
+      "kill-ai-slop"
     ]
   },
   "cheatExtra": {

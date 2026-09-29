@@ -289,9 +289,11 @@ function apply(ctx) {
       if (stage < 1 || stage > 4) {
         return "stage 需为 1-4（0 意图澄清无资源调用）";
       }
+      // 只合并通用质量清单（hallmark / cheat）；logoExtra 是任务相关池，绝不在此按 stage 无条件拼入，
+      // 否则它会泄漏进全部 9 个分支的那一环节（design_lookup 签名里没有任务参数，判不了）。
+      // ponytail: 收窄而非按任务分流——logo 任务由 design_route 专项段供源，环节 1 硬步骤① 已保证先调它。
       const slugs = [
         ...(registry.routes[branch][stage] || []),
-        ...(registry.logoExtra[stage] || []),
         ...(registry.hallmarkExtra?.[stage] || []),
         ...(registry.cheatExtra?.[stage] || []),
       ];
@@ -387,14 +389,21 @@ function apply(ctx) {
         for (const b of route.primary) lines.push(bucketLine(b));
         lines.push("", "### 次桶（按需，增强候选多样性）");
         for (const b of route.secondary) lines.push(bucketLine(b));
-        // extra 专项资源（如 logo 任务：logoExtra 环节 2 的资源）
+        // 任务相关池只在本入口（design_route，按 routing.extra 判任务）消费：读全部键，按该资源服务的环节标注。
+        // 不取子集——取子集（曾只读键 2）会让其它键的成员变成「登记后无人调用」，logo-quality-floor 就曾因此失可达。
         if (route.extra === "logo") {
-          const logoSlugs = registry.logoExtra?.["2"] || [];
-          const logoHits = logoSlugs.flatMap((s) => registry.resources.filter((r) => r.slug === s));
+          const logoHits = Object.entries(registry.logoExtra)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .flatMap(([stage, slugs]) =>
+              slugs.flatMap((slug) => {
+                const r = registry.resources.find((x) => x.slug === slug);
+                return r ? [{ r, stage }] : [];
+              }),
+            );
           if (logoHits.length) {
             lines.push("", "### 专项资源（logo 任务必查）");
-            for (const r of logoHits) {
-              lines.push(`- **${r.name}**（${r.form}·${r.level}） ${r.source}`);
+            for (const { r, stage } of logoHits) {
+              lines.push(`- **${r.name}**（${r.form}·${r.level}·环节 ${stage}） ${r.source}`);
             }
           }
         }

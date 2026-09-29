@@ -12,6 +12,9 @@
 | `receipt-phase2-upstream-manifest-fingerprint-2026-09-29.md` | `回执-Phase2-上游-…md` | 上游侧 Phase 2 回执（全文原样归档） |
 | `receipt-phase4-upstream-manifest-fingerprint-2026-09-29.md` | `回执-Phase4-上游-…md` | 上游侧 Phase 4 回执（全文原样归档） |
 | `receipt-phase5-reconciliation-2026-09-29.md` | `回执-Phase5-收尾-双端对账-2026-09-29.md` | 上游侧 Phase 5 双端对账回执：契约锚点全绿、路由 7 格分叉分类、`logoExtra` 漏挂裁定与修复、Phase 6 待办清单 |
+| `extra-pools-and-mount-checks-slice-2026-09-29.md` | `EXTRA池键序与校验漏挂-双端工作切片-2026-09-29.md` | Phase 6 切片：EXTRA 池键语义（D1）、漏挂补挂（D2/D3）、V 类挂载不变量（D4）；含被撤回的「三池必须一致」契约 |
+| `receipt-phase6-upstream-extra-pools-2026-09-29.md` | `回执-Phase6-上游-EXTRA池键序与校验漏挂-2026-09-29.md` | 上游 Phase 6 回执：任务相关池移出 `design_lookup`（D1 修根因）、`kill-ai-slop` 补挂、新增 `checks/pool-scope.test.mjs` 端到端断言 |
+| `receipt-phase7-upstream-source-rot-and-guards-2026-09-29.md` | `回执-Phase7-上游-pi侧收口-2026-09-29.md` | 上游 Phase 7 回执：emil 动效真源路径修正（**动了共享件** registry.md/workflow.md）、树指纹垃圾类补全、登记过期检测、下限判据分工说明 |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
@@ -36,14 +39,27 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 期望输出：`✅ 全部 checks 与 pi 版 gate 覆盖一致。` + 各副本同一 `sha256:…` + `✅ N 处技能副本内容一致。`
 
-**当前基线（2026-09-29）**
+**当前基线（每次变更后更新此表；历史见下方沿革）**
 
 | 量 | 值 |
 | --- | --- |
-| 技能树指纹 | `sha256:b188827d92fc0094`（9 处副本一致） |
-| `registry.md` 文件指纹 | `sha256:8b6d51e422e56cdce415e377beb5e1b524782e5681f6188353d52c65d08c73aa` |
-| `registryGenerated` | 上游 `cfbd65fc5e50` / DSH `22ab4157ed14`（不同属预期） |
+| 技能树指纹 | `sha256:800b810967d6b9ad`（9 处副本一致） |
+| `registry.md` 文件指纹 | `sha256:bd0b1bac614833bcedebca7c50171de491941115609422cda1ff1f907a230d70` |
+| `workflow.md` 文件指纹 | `sha256:86ff81bbb11e56fe2c5f0f7d96ff56aceff4f8e767a40b5074d82bbd198b06b4` |
+| `registryGenerated` | 上游 `428f9d917785` / DSH `524ac50ea211`（不同属预期） |
 | 资源条目 | 两侧均 **103** |
+| EXTRA 池 | 各自主张（**非契约**）；2026-09-29 两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
+
+**基线沿革**
+
+| 时点 | 技能树指纹 | `registry.md` | 上游 / DSH `registryGenerated` | 触发原因 |
+| --- | --- | --- | --- | --- |
+| Phase 1–4 | `b188827d92fc0094` | `8b6d51e4…` | `93517affeae9` / `22ab4157ed14` | 技能树指纹上线；指纹覆盖全字段 |
+| Phase 5 | `b188827d92fc0094` | `8b6d51e4…` | `cfbd65fc5e50` / `22ab4157ed14` | 上游补齐 `logoExtra` 5 个 logo 源 |
+| **Phase 6** | `b188827d92fc0094` | `8b6d51e4…` | `0204dbab6441` / `524ac50ea211` | 任务相关池移出 `design_lookup`（D1/D2/D4） |
+| **Phase 7** | **`800b810967d6b9ad`** | **`bd0b1bac614833bc…`** | **`428f9d917785`** / `524ac50ea211` | 上游修正 emil 动效真源路径（共享件变更）+ 树指纹垃圾类补全 |
+
+> 归档的切片/回执里的基线值属**当时**证据，不再逐个改写；以此表为当前权威值。
 
 ## 流程约定（两仓改动怎么走）
 

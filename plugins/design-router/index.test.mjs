@@ -268,6 +268,58 @@ input{ background:var(--paper); border:1px solid var(--bs) }
   }
 });
 
+// ---- Phase 6 D4 + 池作用域：任务相关池不得泄漏进 design_lookup，且池内每项都要有人消费 ----
+
+test("回归 D4：V（校验标准）类资源不得零挂载", async () => {
+  const reg = JSON.parse(readFileSync(join(here, "data", "registry.json"), "utf8"));
+  const mounted = new Set([
+    ...Object.values(reg.routes).flatMap((st) => Object.values(st).flat()),
+    ...Object.values(reg.logoExtra || {}).flat(),
+    ...Object.values(reg.hallmarkExtra || {}).flat(),
+    ...Object.values(reg.cheatExtra || {}).flat(),
+  ]);
+  const zero = reg.resources.filter((r) => r.role === "V" && !mounted.has(r.slug)).map((r) => r.slug);
+  assert.deepEqual(zero, [], `V 类资源不得零挂载（校验方法不能登记后无人调用）：${zero.join(", ")}`);
+});
+
+test("回归 Phase6-池作用域：logoExtra 只在 design_route 消费，36 格 design_lookup 零泄漏", async () => {
+  const { design_route, design_lookup } = tools();
+  const reg = JSON.parse(readFileSync(join(here, "data", "registry.json"), "utf8"));
+  const nameOf = (slug) => reg.resources.find((r) => r.slug === slug)?.name ?? `（缺 slug：${slug}）`;
+  const poolNames = Object.values(reg.logoExtra).flat().map(nameOf);
+
+  // ① 键语义：1 调研源 / 2 转译原则 / 4 验收底线
+  assert.deepEqual(Object.keys(reg.logoExtra), ["1", "2", "4"], "logoExtra 键应为 1/2/4");
+  assert.deepEqual(reg.logoExtra["1"], ["logggos", "logo-archive", "logoinspo", "logosystem", "logobook"], "键 1 应为 5 个 R 调研源");
+
+  // ② 正面：logo 任务从 design_route 拿得到**池内每一项**（取子集会让成员失可达）
+  const logo = await design_route.execute({ query: "logo 设计" });
+  assert.match(logo, /专项资源（logo 任务必查）/, "design_route(logo) 应含专项资源段");
+  const missing = poolNames.filter((n) => !logo.includes(n));
+  assert.deepEqual(missing, [], `专项段应列出池内全部 ${poolNames.length} 项，缺：${missing.join(", ")}`);
+
+  // ③ 反面：任务相关池绝不进 design_lookup（9 分支 × 4 环节 = 36 格）
+  const leaks = [];
+  for (const b of ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"]) {
+    for (const st of [1, 2, 3, 4]) {
+      const out = await design_lookup.execute({ branch: b, stage: st });
+      for (const n of poolNames) if (out.includes(n)) leaks.push(`${b}·${st}←${n}`);
+    }
+  }
+  assert.deepEqual(leaks, [], `design_lookup 36 格不得含任务相关池：${leaks.join(" | ")}`);
+
+  // ④ 别过度修正：通用质量清单仍按环节合并；D2 环节 4 校验清单成对
+  const lk2 = await design_lookup.execute({ branch: "A2", stage: 2 });
+  assert.ok(lk2.includes(nameOf("hallmark-anti-patterns")), "环节 2 仍应合并 hallmarkExtra");
+  assert.ok(lk2.includes(nameOf("interfaces-cheat-sheet")), "环节 2 仍应合并 cheatExtra");
+  const lk4 = await design_lookup.execute({ branch: "A2", stage: 4 });
+  assert.ok(lk4.includes(nameOf("kill-ai-slop")) && lk4.includes(nameOf("hallmark-slop-test")), "环节 4 校验清单应成对");
+
+  // ⑤ 有意排除要有守门：logo-background-styles 只在 B1·2（海报），不进 logo 池
+  assert.ok(!logo.includes(nameOf("logo-background-styles")), "logo-background-styles 应有意排除出 logo 池");
+  assert.ok((reg.routes.B1?.["2"] || []).includes("logo-background-styles"), "logo-background-styles 应仍在 B1·2");
+});
+
 test("design_route：SaaS 需求命中路由表并返回主桶", async () => {
   const { design_route } = tools();
   const out = await design_route.execute({ query: "SaaS 落地页" });

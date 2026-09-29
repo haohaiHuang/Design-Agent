@@ -536,10 +536,24 @@ const ROUTES = {
 };
 
 // logo 场景跨分支附加（环节 2/4 必读）
-const LOGO_EXTRA = {"2":["logo-design-patterns","logggos","logo-archive","logoinspo","logosystem","logobook"],"4":["logo-quality-floor"]};
+// logo 场景跨分支附加 —— 任务相关池，只由 design_route 的 logo 专项段消费（design_lookup 不合并它）。
+// 键 = 该资源服务的环节（与 registry.md「环节」列一致）：1 调研源 / 2 转译原则 / 4 验收底线。
+// 专项段读**全部键**（不取子集）——取子集会让其它键的成员登记后无人调用；键与内容不符则会复现
+// 「环节 1 取不到调研源」的假象 —— 两件都发生过，见 Phase 6 切片 §1 D1 + 回执 C1。
+const LOGO_EXTRA = {
+  1: ["logggos", "logo-archive", "logoinspo", "logosystem", "logobook"],
+  2: ["logo-design-patterns"],
+  // 排除登记（有意不挂，非漏挂）：logo-background-styles（registry.md 转译·次，场景含"logo showcase 背景"）
+  // 是海报/展示图背景模板，属 B1 海报环节 2；塞进 logo 池会把海报模板当 logo 约束。改挂载前先读这句。
+  4: ["logo-quality-floor"],
+};
 
 // hallmark 去 AI 味跨分支附加（环节 2 前置约束 / 环节 4 验收，软依赖）
-const HALLMARK_EXTRA = {"2":["hallmark-anti-patterns","hallmark-genre-bans"],"4":["hallmark-slop-test"]};
+const HALLMARK_EXTRA = {
+  2: ["hallmark-anti-patterns", "hallmark-genre-bans"],
+  // kill-ai-slop（V·次）与 hallmark-slop-test（V·次）同段同级同场景，前者曾零挂载 → 补齐（Phase 6 D2）
+  4: ["hallmark-slop-test", "kill-ai-slop"],
+};
 
 // interfaces cheat-sheet 细节 craft 跨分支附加（环节 2 转译）
 const CHEAT_EXTRA = {"2":["interfaces-cheat-sheet"]};
