@@ -10,21 +10,6 @@
 
 ---
 
-## 工具层 · OpenPencil CLI（设计文件工具箱，软依赖）
-
-**前置：需安装 CLI 才能启用本层**——`npm install -g @open-pencil/cli`（当前 v0.14.0），装完 `openpencil --version` 验证；未安装时跳过本层全部命令，流程不受影响（本层为软依赖）。职责：**操作 .fig/.pen 设计文件的事实层**——决策永远在五环节，OpenPencil 只提供文件级数据（源数据直读，证据等级最高）。只在产物/参考为设计文件时接入，不改变五环节骨架。
-
-| 环节 | 接入点 | 命令 |
-| --- | --- | --- |
-| 1 调研 | 参考为 .fig/.pen 时，替代/增强 URL 抓取，直读精确 token | `openpencil analyze colors/typography/spacing` · `openpencil variables` |
-| 2 约束 | 参考文件 token 直接导出为约束来源 | `openpencil variables --json` |
-| 3 产出 | HTML↔.fig 转换桥 + 批量建组件 | `openpencil export -f jsx --style tailwind` · `openpencil import` · `openpencil eval` |
-| 4 校验 | .fig 产物机器校验（design_audit 只管 HTML/CSS） | `openpencil lint` · `openpencil analyze colors/spacing` · `openpencil export -f png --thumbnail` |
-
-**已知 bug（v0.14.0，勿误判为用法错误）**：`import` 依赖 Bun 运行时在纯 Node 下必报 `Bun is not defined`（上游 issue #575，修复 PR #576 已合待发版）；`query` XPath 报 `evaluateXPathToNodes is not a function`。替代：import 用 `openpencil eval` 建节点或等发版；query 用 `openpencil find --type/--name` 组合替代。其余命令（info/tree/find/node/pages/lint/analyze/export png/svg/html/fig/eval/variables/formats/documents/selection）实测可用。桌面端运行时省略文件参数即连实时画布（Live 模式）。
-
----
-
 ## 环节 0 · 意图澄清 → Brief
 
 **目标**：把一句话需求变成可执行的四要素 Brief。
@@ -192,7 +177,7 @@
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装 v0.30.0）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
+**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖；**安装与已知 bug 见 registry E 表 openpencil 行**，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装，版本自检 `dembrandt --version`）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
 
 **退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 

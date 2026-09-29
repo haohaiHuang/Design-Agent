@@ -149,7 +149,7 @@
       | `0.assets` 资产盘点 | 项目现有设计系统/token/品牌资产/规则文件 | `assets.md`（继承清单 + 冲突项） | read/grep | 有冲突时用户裁决 |
       | `0.brief` 意图澄清 | 需求 + facts + assets | `brief.md`（场景/格式/受众/目标/硬约束/形态） | 问询 ≤3 问 | 用户确认 |
       | `1.route` 需求路由 | brief / 需求原文 | `route.md`（主桶+次桶） | `design_route` | 自动 |
-      | `1.extract` 参考萃取 | URL / .fig / 截图 | `tokens-<名>.md` | `dembrandt`/`defuddle` | 自动 |
+      | `1.extract` 参考萃取 | URL / .fig / 截图 | `tokens-<名>.md` | `dembrandt`/`defuddle`/`openpencil`（.fig/.pen 源数据直读，未装走人工核对） | 自动 |
       | `1.diverge` 候选发散 | route + tokens | `candidates.md` + `candidate-*.html` | `design_lookup`+`design_diversity` | 用户选定 |
       | `2.constrain` 约束转译 | 选定候选 / tokens | `constraints.md`（≤10 条带来源） | 可执行+可校验自检 | 用户确认 |
       | `3.build` 实现产出 | constraints | `<名>.html` | `/* 约束N */` 注释齐全 | 自动 |

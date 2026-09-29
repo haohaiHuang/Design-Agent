@@ -41,6 +41,7 @@ const SLUG_BY_KEYWORD = [
   ["vibeprompts", "vibeprompts.dev"],
   ["dembrandt-extract", "dembrandt 萃取产物"],
   ["dembrandt", "dembrandt（URL→设计 token"],
+  ["openpencil", "OpenPencil"],
   // my-pi-skills 2026-09 新增（组件/仪表盘/暗色高端/图标/反 slop）
   ["reicon", "Reicon"],
   ["kill-ai-slop", "kill-ai-slop 反 AI slop"],
@@ -301,7 +302,8 @@ const ROUTES = {
       "lapa-ninja",
       "muzli",
       "inspora",
-      "mobbin"
+      "mobbin",
+      "openpencil"
     ],
     "2": [
       "kami-skeleton",
@@ -346,7 +348,8 @@ const ROUTES = {
       "supahero",
       "designspells",
       "threeui",
-      "loadmore"
+      "loadmore",
+      "openpencil"
     ],
     "2": [
       "kami-skeleton",
@@ -368,7 +371,8 @@ const ROUTES = {
     "1": [
       "refero-design",
       "voltagent",
-      "dembrandt"
+      "dembrandt",
+      "openpencil"
     ],
     "2": [
       "kami-skeleton",

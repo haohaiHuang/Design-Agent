@@ -57,6 +57,8 @@
 | **删** | 移除资源 + 清 routes/logoExtra/quality 引用 + 台账 | **跑 `design_route` 查桶健康**——该桶变空/变弱时按空桶规则处理 |
 | **改** | 改来源/层级/桶归属 + 更新台账 | 桶归属变了 → 重跑 `design_route` 确认路由；来源变了 → 重置 quality 为未评估 |
 
+**版本号写入规范（防腐烂）**：不写死第三方 CLI 的当前版本——统一写「已装，版本自检 `<cmd> --version`」。确需记录版本时，必须绑日期并标「当时」作历史证据，不得读作当前状态。
+
 改 registry.md 后重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json；禁止手改 registry.json。
 
 ---
@@ -69,7 +71,7 @@
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
 | 海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单） | 转译 | 次 | 海报（构图候选池：按内容量×情绪选主构图） | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
-| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（已装 v0.30.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
+| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
 | Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search | `https://ui.aceternity.com/` |
 | 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 | `https://21st.dev/` |
@@ -158,6 +160,7 @@
 | theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics） | 工具 | 兜底 | 通用 | → 手动应用 | `https://github.com/anthropics/skills` |
 | OpenAI imagegen（官方图像） | 工具 | 兜底 | 海报 / 杂志 | → gpt-image-2 | `https://github.com/openai/skills`（skills/imagegen/） |
 | OpenMotion（AI 动效导演工具：描述→可编辑场景计划→canvas+timeline→导出视频/WebM/HTML；免费，兼容 Claude Code/Codex 订阅） | 工具 | 次 | 视频动效（品牌片/产品视频/logo 动效/说明片） | → hyperframes（HTML 渲染） → 手动视频工具 | 官网 `https://openmotion.design/`（macOS/Windows） |
+| OpenPencil CLI（设计文件工具箱：直读 .fig/.pen 源数据——色板含使用频次/字体栈/间距/组件/页面结构；HTML↔fig 转换桥；软依赖，低频高价值——仅参考或产物为设计文件时接入） | 工具 | 次 | APP / 网页 / Mac（环节 1 参考为 .fig/.pen 时源数据直读，证据等级最高；环节 2 token 导出为约束；环节 3 HTML↔fig 转换；环节 4 .fig 产物机器校验——design_audit 只管 HTML/CSS） | → Figma 家族 / 人工核对（未装时） | `npm install -g @open-pencil/cli`；版本自检 `openpencil --version`。**实测（2026-09-29，当时 v0.15.1；版本变动请复测，勿套用旧结论）**：可用 = info / tree / find / node / pages / lint / analyze colors-typography-spacing-clusters / variables / export png-svg-html-fig / **import（HTML→fig 已修）** / eval；**不可用** = `export -f png --thumbnail`（共享导出路径未支持）、`query`（XPath `evaluateXPathToNodes is not a function`，用 `find --type/--name` 替代）；桌面端省略文件参数即连实时画布（Live 模式） |
 
 ## V 校验标准（环节 4：检查清单）
 
@@ -198,4 +201,5 @@
 | openai imagegen | ⛔ 不装（与 gpt-image-2 同型重合）；仅登记 |
 | frontend-design（anthropics） | 🔶 待评估（E·Mac 执行缺格候选） |
 | motion（motiondivision/motion） | ⛔ 不装（JS 库非 skill，与 motion-dev-animations 同型）；仅登记 |
-| dembrandt CLI | ✅ 已装（全局 npm v0.30.0，候选验证升级工具：真浏览器渲染 vs hallmark_study_fetch（pi）/ defuddle（DSH），非同型；pi 上 v0.28.0 时 2026-08-24 实测 linear.app 验证通过） |
+| dembrandt CLI | ✅ 已装（全局 npm；版本自检 `dembrandt --version`；候选验证升级工具：真浏览器渲染 vs hallmark_study_fetch（pi）/ defuddle（DSH），非同型；2026-08-24 实测 linear.app 验证通过（当时 v0.28.0）） |
+| openpencil CLI | ✅ 已装（源数据直读工具，与 URL 抓取型参考（refero / dembrandt / hallmark_study_fetch）非同型——读的是设计文件本身；**低频高价值**：仅参考/产物为 .fig/.pen 时接入，不进常驻流程，命令与可用性见 E 表 openpencil 行） |
