@@ -591,8 +591,12 @@
         backgroundMode: one-shot
         maxDepth: provider-managed
 
-    - id: workflow-worker-thread
-      name: '@deepseek-ai/dsh-workflow-worker-thread'
+    # DSH 0.2.0：`@deepseek-ai/dsh-workflow-worker-thread` 已被移除，替代品是
+    # `@deepseek-ai/dsh-workflow-ptc`（同为 workflow 的 spawn provider）。
+    # 引用已移除的包会让整条预设**挂载失败**——在 0.2.0 桌面端表现为「预设从列表里消失」
+    # （registry 把失败的预设标记为 broken，UI 不显示）。保留旧 id 会导致同样后果。
+    - id: workflow-ptc
+      name: '@deepseek-ai/dsh-workflow-ptc'
       config:
         provider: spawn
 

@@ -68,6 +68,41 @@ Two things that change with the inline format:
 
 > The legacy directory `~/.dsh/.agent-presets/my-agent/` can be kept as a reference; 0.2.0 ignores it.
 
+### Troubleshooting: the preset still does not appear in the picker
+
+A preset whose rows fail to mount is registered as **broken** and the picker hides it — the usual cause is a
+row naming a package that **the running DSH version no longer ships**. That is exactly what happened on the
+0.1.5 → 0.2.0 jump:
+
+| 0.1.5 row | 0.2.0 replacement |
+| --- | --- |
+| `@deepseek-ai/dsh-workflow-worker-thread` | `@deepseek-ai/dsh-workflow-ptc` (same `provider: spawn` role) |
+
+One dead reference is enough to take the whole preset off the list. To check a preset against the installed
+app (this build lives in `app.asar`, so read it through Electron's own runtime):
+
+```bash
+APP="/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness"
+ASAR="/Applications/DeepSeek Harness.app/Contents/Resources/app.asar"
+# 1) 列出该版本实际带的包
+ELECTRON_RUN_AS_NODE=1 "$APP" -e "console.log(require('fs').readdirSync('$ASAR/dsh/node_modules/@deepseek-ai').join('\n'))" \
+  | sort > /tmp/dsh-pkgs.txt
+# 2) 抽出预设引用的包名并比对
+grep -oE "name: '@deepseek-ai/[a-z0-9/-]*'" presets/my-agent/agent.cordis.yml \
+  | grep -oE "@deepseek-ai/[a-z0-9/-]*" | sed 's|@deepseek-ai/||' | sort -u | grep -v / > /tmp/preset-pkgs.txt
+comm -23 /tmp/preset-pkgs.txt /tmp/dsh-pkgs.txt     # 输出即"本版本没有的包"
+```
+
+Two further checks that catch the other failure modes:
+
+```bash
+# A) 组合是否真的包含你的预设（把 desktop profile 复制成非保留名就能 dump）
+cp -R ~/.dsh/profiles/desktop ~/.dsh/profiles/dtest
+dsh --profile dtest --dump-config | grep -n preset-design-agent   # 之后记得 rm -rf dtest
+# B) 逐行 config 是否符合本版本 schema（捕获 0.1.5 persona text→prefix 那类漂移）
+dsh --profile web --dump-config-schema > /tmp/schema.json         # 再用 jsonschema 校验 plugins 列表
+```
+
 ## plugins/design-router — deterministic tools
 
 Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensions/design-router` (pi extension → DSH Cordis plugin). Mounted by the `my-agent` preset via a **relative-path row** in `agent.cordis.yml` (the preset's `plugins/` is a relative symlink to the repo-root `plugins/`, expanded by `cp -RL` on install — no absolute paths needed):

@@ -51,6 +51,37 @@ node docs/migrate-preset-0.2.0.mjs \
 
 > 旧的目录 `~/.dsh/.agent-presets/my-agent/` 可留作参考；0.2.0 已忽略它。
 
+### 排障：预设装了却仍不在列表里
+
+**预设任一插件行挂载失败，registry 会把它标记为 `broken`，UI 直接不显示**——最常见的原因是某一行
+引用了**当前 DSH 版本已不再提供**的包。0.1.5 → 0.2.0 就踩了这个：
+
+| 0.1.5 的行 | 0.2.0 的替代 |
+| --- | --- |
+| `@deepseek-ai/dsh-workflow-worker-thread` | `@deepseek-ai/dsh-workflow-ptc`（同为 `provider: spawn`） |
+
+**一个死引用就足以让整条预设从列表消失。** 排查（桌面端实现在 `app.asar` 里，用 Electron 自带运行时读）：
+
+```bash
+APP="/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness"
+ASAR="/Applications/DeepSeek Harness.app/Contents/Resources/app.asar"
+# 1) 该版本实际带了哪些包
+ELECTRON_RUN_AS_NODE=1 "$APP" -e "console.log(require('fs').readdirSync('$ASAR/dsh/node_modules/@deepseek-ai').join('\n'))" | sort > /tmp/dsh-pkgs.txt
+# 2) 预设引用了哪些包，比对（输出即"本版本没有的包"）
+grep -oE "name: '@deepseek-ai/[a-z0-9/-]*'" presets/my-agent/agent.cordis.yml | grep -oE "@deepseek-ai/[a-z0-9/-]*" | sed 's|@deepseek-ai/||' | sort -u | grep -v / > /tmp/preset-pkgs.txt
+comm -23 /tmp/preset-pkgs.txt /tmp/dsh-pkgs.txt
+```
+
+另外两项检查（覆盖其他失败模式）：
+
+```bash
+# A) 组合里到底有没有你的预设（把 desktop profile 复制成非保留名即可 dump）
+cp -R ~/.dsh/profiles/desktop ~/.dsh/profiles/dtest
+dsh --profile dtest --dump-config | grep -n preset-design-agent   # 用完 rm -rf dtest
+# B) 逐行 config 是否符合本版本 schema（抓 0.1.5 persona text→prefix 那类漂移）
+dsh --profile web --dump-config-schema > /tmp/schema.json         # 再用 jsonschema 校验 plugins 列表
+```
+
 ## plugins/design-router — 确定性工具
 
 移植自 [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) 的
