@@ -1725,3 +1725,14 @@ project/designs/                                    → 仍为空目录（素材
 | F6 | `design_audit` 支持行内豁免标记（如 `slop-ignore: 理由`），给"引用证据/现状复现"块一个正式出口 | 3-2/3-3/3-4 反复出现：刻意展示的缺陷被 gate 30/38a/46/10/DR-4 命中（剥离注释只解决注释内的，解决不了可见正文里的反例） |
 | F7 | 新增非文本对比度检查（WCAG 1.4.11）：控件边界、图标、focus ring 与背景的对比度 | `design_contrast` 只查文字配对；3-2/5-3 两轮都靠人肉才发现 1.10–1.19:1 的控件边界 |
 | 既存 | 上游 `checks/run-tests.mjs` 与 `integration.test.mjs` 用 Bun 专有 `import.meta.dir`，Node 下不可跑 | 本机无 bun；本轮改用自建 harness 做功能核对（13/13） |
+
+## 批 5 · 提交与推送（完成）
+
+| 仓库 | 提交 | 内容 | 推送 |
+| --- | --- | --- | --- |
+| `Design-Agent`（DSH 侧） | `8f448f8` | 技能 3 文件 + 插件 7 文件 + 本报告；+516 / −38 | ✅ `72ffb71..8f448f8` |
+| `my-pi-skills`（上游） | `a0d960d` | 技能 3 文件 + `extensions/design-router` 6 文件；+228 / −38 | ✅ `37065a4..a0d960d` |
+
+- 上游暂存时**只 include 了我改的 9 个文件**；仓库里作者原有的 `README.md` / `README.zh.md` 未提交改动**保持原样、未被带入提交**（推送后仍在工作区）。
+- 推上游前已把两个仓库的改动清单与规模列给用户确认，收到"推上游"的明确答复后才执行。
+- 顺带观察：上游上一个提交是 `37065a4 fix(vision): 去掉能力断言改读运行时；vision-cli 修 baseUrl 遮蔽 + 死条目告警` —— 与本轮批 2 的环境修复（软链 `~/.local/bin/vision-cli` 到 `/opt/homebrew/bin`）方向一致，两条叠加后 `vision` 工具在本机已可用。
