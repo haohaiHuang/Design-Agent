@@ -22,6 +22,9 @@ const SLUG_BY_KEYWORD = [
   // R 调研源
   ["refero-design", "refero Styles 网站"],
   ["zine-style-library", "Zine 风格库"],
+  // 「落地页子集」必须排在前面：两条 registry.md 行的名字都含「海报构图词典」，
+  // 匹配首个生效（break），不特化就会与下面那条撞成同一 slug。
+  ["poster-compositions-landing", "海报构图词典 · 落地页子集"],
   ["poster-compositions", "海报构图词典"],
   ["voltagent", "VoltAgent"],
   ["beautiful-ui", "Beautiful UI"],
@@ -44,6 +47,13 @@ const SLUG_BY_KEYWORD = [
   ["openpencil", "OpenPencil"],
   // my-pi-skills 2026-09 新增（组件/仪表盘/暗色高端/图标/反 slop）
   ["reicon", "Reicon"],
+  // 2026-09-29 新增（个人书签盘点：图片/插画/图标聚合/中文字体/组件对照）
+  ["iconify", "Iconify"],
+  ["iconpark", "IconPark"],
+  ["source-han", "思源黑体"],
+  ["lxgw-wenkai", "霞鹜文楷"],
+  ["undraw", "unDraw"],
+  ["component-gallery", "The Component Gallery"],
   ["kill-ai-slop", "kill-ai-slop 反 AI slop"],
   ["watermelon-ui", "Watermelon UI"],
   ["beui", "beUI"],
@@ -350,6 +360,9 @@ const ROUTES = {
       "threeui",
       "loadmore",
       "openpencil"
+    ,
+      "undraw",
+      "component-gallery",
     ],
     "2": [
       "kami-skeleton",
@@ -411,6 +424,9 @@ const ROUTES = {
     "1": [
       "zine-style-library",
       "orange-line-illustration"
+    ,
+      "undraw",
+      "lxgw-wenkai",
     ],
     "2": [
       "zine-family-recipes",
@@ -454,6 +470,13 @@ const ROUTES = {
       "watermelon-ui",
       "saasui-dashboard",
       "dash-ui"
+    ,
+      "undraw",
+      "iconify",
+      "iconpark",
+      "source-han",
+      "lxgw-wenkai",
+      "component-gallery",
     ],
     "2": [
       "kami-skeleton"

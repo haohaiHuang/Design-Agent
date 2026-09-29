@@ -70,21 +70,27 @@
 | refero Styles 网站（真实产品设计系统，150K+ 屏幕，网页浏览） | 转译 | 主 | APP / 网页 / Mac | → 用户参考库候选池（台账+registry）→ web_search | 网站 `https://styles.refero.design/`（SPA，需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测 + dembrandt 验证升级，或人工） |
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
 | 海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单） | 转译 | 次 | 海报（构图候选池：按内容量×情绪选主构图） | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
-| VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → getdesign.md 官网 | `https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/` |
+| VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → 仓库直读 | `https://github.com/VoltAgent/awesome-claude-design` |
 | dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
-| Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://www.beautifului.ai/` |
+| Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://beautifului.dev/`（原 `.ai` 域名已失效） |
 | Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search | `https://ui.aceternity.com/` |
 | 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 | `https://21st.dev/` |
+| The Component Gallery（**60 组件 × 95 设计系统 × 2,671 例**的横向对照库） | 转译 | 次 | 通用（组件级任务：先看「同一个组件各家怎么做」再定约束） | → 官网浏览 → web_search | 官网 `https://component.gallery/` |
 | minimal.gallery（极简网页灵感） | 转译 | 兜底 | 网页 | → web_search | `https://minimal.gallery/` |
 | Uiverse Galaxy（组件/按钮素材） | 直引 | 兜底 | 网页 | → 本地克隆 grep | `https://uiverse.io/` |
 | orange-line-illustration（纽约客风编辑插画风格） | 转译 | 次 | 海报 / 杂志 | → 技能本地文件 | skill 仓库 `https://github.com/orange2ai/orange-line-illustration.git` |
+| unDraw（开源插画库：可改主色的 SVG；**免费商用且无需署名**） | 直引 | 次 | 网页 / 杂志插图（落地页特性图、空状态图） | → Storyset（免费用**须署名**）→ 人工绘制 / 诚实占位 | 官网 `https://undraw.co/`；授权 `https://undraw.co/license`（**禁** ML 训练 / 整包再分发 / 做同类集成） |
 | Lucide（图标库·首选） | 直引 | 兜底 | 通用 | → CDN 直引（无退化） | `https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg` |
 | Heroicons（图标库·补充） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg` |
 | Reicon（图标库·补充·多框架/双字重/MCP） | 直引 | 兜底 | 通用 | → CDN 直引（无退化）→ MCP 搜索 | `https://reicon.dev/`；CDN `https://unpkg.com/reicon/cdn/reicon.js`；npm `reicon-react`/`reicon-mcp`（MCP 搜索） |
+| Iconify（图标聚合层：一套语法 + 一个 API 覆盖主流开源图标集，**30 万+ 图标**；框架 MIT） | 直引 | 次 | 通用（需要「任意图标集统一调用」时；比逐库引入省事） | → 单库直引（Lucide / Heroicons / Reicon） | 官网 `https://iconify.design/`；API `https://api.iconify.design/`；框架仓库 `https://github.com/iconify/iconify`（MIT） |
+| IconPark（字节跳动图标库：**Apache-2.0**，可调粗细/风格，国内可用） | 直引 | 兜底 | 通用（国内项目 / 需要统一线宽时） | → 官网复制 → Iconify（兜底） | 官网 `https://iconpark.oceanengine.com/`；仓库 `https://github.com/bytedance/IconPark`（Apache-2.0） |
 | Google Fonts（字体源） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://fonts.google.com/` |
+| 思源黑体 / 思源宋体（Adobe Source Han：**SIL OFL 1.1**，中文正文/标题最稳的开源字族） | 直引 | 次 | 通用（**中文字族必须显式引入**时首选 —— 见 workflow.md 环节 3 的 CJK 实测规矩） | → 霞鹜文楷（人文向）→ 系统字体栈（气质不可控） | 仓库 `https://github.com/adobe-fonts/source-han-sans`（LICENSE.txt = SIL OFL 1.1）；宋体 `https://github.com/adobe-fonts/source-han-serif` |
+| 霞鹜文楷 LXGW WenKai（**OFL-1.1**，基于 FONTWORKS Klee One 衍生：楷体、人文向） | 直引 | 兜底 | 通用 / 海报 / 杂志（楷体标题、书卷气） | → 思源宋体 → 系统楷体（气质不可控） | 仓库 `https://github.com/lxgw/LxgwWenKai`（OFL-1.1） |
 | Hero Patterns（SVG 背景纹理） | 直引 | 兜底 | 通用 | → 官网复制 | `https://heropatterns.com/` |
 | CSS 渐变工具 | 直引 | 兜底 | 通用 | → 官网 | `https://cssgradient.io/`（或同类） |
-| DESIGN.md 格式规范（Google spec） | 直引 | 次 | 通用 | → 官网 | `https://getdesign.md/`；参考实现 `https://github.com/google-labs-code/design.md` |
+| DESIGN.md 格式规范（Google spec） | 直引 | 次 | 通用 | → 仓库直读 | 参考实现 `https://github.com/google-labs-code/design.md`（原聚合站 `getdesign.md` 域名已失效：HTTPS 不可用、HTTP 302 到裸 IP，勿再引用） |
 | Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾） | 转译 | 次 | 网页动效（液态/粘性/果冻效果） | → 官网 demo 浏览 → web_search | 官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries` |
 | transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…） | 转译 | 次 | 网页动效（UI 过渡/微交互） | → 官网复制 → web_search | `https://transitions.dev/`（含 agent skill 集成） |
 | vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav） | 转译 | 兜底 | 网页（Tailwind 区块，与 Aceternity/21st.dev 同型） | → 官网浏览 → web_search | `https://vibeprompts.dev/` |
@@ -127,8 +133,8 @@
 | Kami 完整设计规范 | 规则 | 主 | 文档 / 网页 | → 本地文件直读（无退化） | skill 仓库 `https://github.com/tw93/Kami`（规范在 `references/design.md`） |
 | Zine 风格族配方（从风格库提炼的色板/质感/排版规律） | 转译 | 主 | 海报 / 杂志 | → style-families.md 直读 | 本地 `~/Desktop/Design/zine-style-references/style-families.md`（⚠️ 该文件是提炼资产，可能未生成——需要时从上游 52 skill README 提炼） |
 | 海报构图词典 · 落地页子集（单屏构图约束：03 三分法 / 05 大留白单点 / 13 Z 型 / 16 左右分屏 / 17 上下分屏 / 25 满版主视觉 / 26 大字主导 / 27 图上叠字 / 02 非对称平衡；页面级结构仍用 Hallmark 宏结构，两层正交：宏结构管页面区块节奏，词典管单屏画面组织） | 转译 | 次 | 网页 / 落地页（hero 与首屏的单屏构图；环节 2 约束转译 + 环节 4 视觉自查）。**A3 Mac 桌面应用有意不挂**——构图词典面向"单屏画面组织"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合 | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
-| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 网站网页浏览拿 / getdesign.md | refero 网站（见上）；`https://getdesign.md/` |
-| dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens） | 直引 | 次 | APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账） | → refero 网站网页浏览拿 DESIGN.md / getdesign.md | 本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt` |
+| DESIGN.md（选定参考的设计系统文件） | 直引 | 主 | APP / 网页 / Mac | → refero 网站网页浏览拿 → 仓库直读（VoltAgent 合集） | refero 网站（见上）；`https://github.com/VoltAgent/awesome-claude-design` |
+| dembrandt 萃取产物（`--design-md` → google-labs 规范 DESIGN.md；`--dtcg` → W3C DTCG tokens） | 直引 | 次 | APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账） | → refero 网站网页浏览拿 DESIGN.md → 仓库直读（VoltAgent 合集） | 本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt` |
 | design-md-skill（Google spec 生成器） | 工具 | 主 | APP / 网页 / Mac（约束生成） | → 手动写约束集（遵循 workflow.md 格式） | skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm） |
 | huashu-design 设计哲学（20 条，含反 AI slop） | 规则 | 次 | 网页 / 通用 | → 技能本地文件 | skill 仓库 `https://github.com/alchaincyf/huashu-design` |
 | brand-guidelines / theme-factory（anthropics） | 规则 | 兜底 | 通用 | → 手动应用品牌准则 | `https://github.com/anthropics/skills` |
@@ -160,7 +166,7 @@
 | theme-factory / brand-guidelines / canvas-design / algorithmic-art（anthropics） | 工具 | 兜底 | 通用 | → 手动应用 | `https://github.com/anthropics/skills` |
 | OpenAI imagegen（官方图像） | 工具 | 兜底 | 海报 / 杂志 | → gpt-image-2 | `https://github.com/openai/skills`（skills/imagegen/） |
 | OpenMotion（AI 动效导演工具：描述→可编辑场景计划→canvas+timeline→导出视频/WebM/HTML；免费，兼容 Claude Code/Codex 订阅） | 工具 | 次 | 视频动效（品牌片/产品视频/logo 动效/说明片） | → hyperframes（HTML 渲染） → 手动视频工具 | 官网 `https://openmotion.design/`（macOS/Windows） |
-| OpenPencil CLI（设计文件工具箱：直读 .fig/.pen 源数据——色板含使用频次/字体栈/间距/组件/页面结构；HTML↔fig 转换桥；软依赖，低频高价值——仅参考或产物为设计文件时接入） | 工具 | 次 | APP / 网页 / Mac（环节 1 参考为 .fig/.pen 时源数据直读，证据等级最高；环节 2 token 导出为约束；环节 3 HTML↔fig 转换；环节 4 .fig 产物机器校验——design_audit 只管 HTML/CSS） | → Figma 家族 / 人工核对（未装时） | `npm install -g @open-pencil/cli`；版本自检 `openpencil --version`。**实测（2026-09-29，当时 v0.15.1；版本变动请复测，勿套用旧结论）**：可用 = info / tree / find / node / pages / lint / analyze colors-typography-spacing-clusters / variables / export png-svg-html-fig / **import（HTML→fig 已修）** / eval；**不可用** = `export -f png --thumbnail`（共享导出路径未支持）、`query`（XPath `evaluateXPathToNodes is not a function`，用 `find --type/--name` 替代）；桌面端省略文件参数即连实时画布（Live 模式） |
+| OpenPencil CLI（设计文件工具箱：直读 .fig/.pen 源数据——色板含使用频次/字体栈/间距/组件/页面结构；HTML↔fig 转换桥；软依赖，低频高价值——仅参考或产物为设计文件时接入） | 工具 | 次 | APP / 网页 / Mac（环节 1 参考为 .fig/.pen 时源数据直读，证据等级最高；环节 2 token 导出为约束；环节 3 HTML↔fig 转换；环节 4 .fig 产物机器校验——design_audit 只管 HTML/CSS） | → Figma 家族 / 人工核对（未装时） | 官网 `https://openpencil.dev`；仓库 `https://github.com/open-pencil/open-pencil`（MIT，开源 Figma 替代）；`npm install -g @open-pencil/cli`；版本自检 `openpencil --version`。**实测（2026-09-29，当时 v0.15.1；版本变动请复测，勿套用旧结论）**：可用 = info / tree / find / node / pages / lint / analyze colors-typography-spacing-clusters / variables / export png-svg-html-fig / **import（HTML→fig 已修）** / eval；**不可用** = `export -f png --thumbnail`（共享导出路径未支持）、`query`（XPath `evaluateXPathToNodes is not a function`，用 `find --type/--name` 替代）；桌面端省略文件参数即连实时画布（Live 模式） |
 
 ## V 校验标准（环节 4：检查清单）
 
@@ -173,7 +179,7 @@
 | 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
 | logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
 | hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 design_audit 合并执行，pi/DSH 同源） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
-| kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译） | 规则 | 次 | 网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免） | → 无（机器直接执行）→ 模型按环节 4 Triage 确认 | `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释） |
+| kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译） | 规则 | 次 | 网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免） | → 无（机器直接执行）→ 模型按环节 4 Triage 确认 | 官网 `https://killaislop.com/`（含多语言 slop 图鉴）；仓库 `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释） |
 
 ---
 
