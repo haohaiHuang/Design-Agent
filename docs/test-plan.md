@@ -15,6 +15,17 @@
    脚本会打印初始文件哈希，并提示测试结束后如何核验"原项目文件未被改动"。
 
 2. **新建会话**，Agent 预设选「**设计 Agent**」（不是默认预设——否则测的是别的 agent）。
+   > ⚠️ **DSH 0.2.0+（桌面端）必读**：0.2.0 移除了预设目录扫描（`agent-preset-registry` 的 config
+   > 只有 `default`/`selectedDefault`，没有 roots），放在 `~/.dsh/.agent-presets/` 的自定义预设
+   > **不会出现在列表里**。必须先装进 profile 的 patch 层：
+   > ```bash
+   > node docs/migrate-preset-0.2.0.mjs \
+   >   --src presets/my-agent/agent.cordis.yml \
+   >   --plugin "$PWD/plugins/design-router/index.mjs" \
+   >   --append ~/.dsh/profiles/desktop/cordis.patch.yml
+   > ```
+   > 然后**完全退出并重开**桌面端。详见 [README「DSH 0.2.0+」](README.md)。
+   > （0.1.x CLI/web 仍用目录机制，无需此步。）
 
 3. **工作目录设为测试目录** `~/Desktop/design-test`（或它下面的 project/）。
    建议先用这份测试素材而非你的真实项目；等组 1（边界）全过之后，再拿真实项目复测组 1。
