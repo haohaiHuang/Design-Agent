@@ -1,6 +1,7 @@
 # Design-Agent 真机测试结果
 
 > 清单：[`test-plan.md`](test-plan.md)（18 例 / 6 组）
+> ⚠️ **素材与产物归档已于 2026-09-29 清理**（详见文末「产物归档」说明）；文中 `~/Desktop/design-test*` 路径已失效。
 > 被测版本：预设安装自仓库 `a4b62e1`，DSH `0.1.5-rc.3`
 > 测试日期：2026-09-23
 > 素材：`bash docs/test-fixtures/make-fixtures.sh` → `~/Desktop/design-test`（初始哈希 `.initial-hashes.txt`）
@@ -1107,38 +1108,11 @@ agent 的诊断是"原型**丢了**"而不是"还没做"。这比清单预想的
 
 ### 产物归档（工作区之外，保留证据）
 
-- `~/Desktop/design-test-b-archive/2-1-designs/` — 登录页：`DECISION.md` / `reference-login.html` /
-  `reference-login-states.html` / `reference-theme.css` / `shots/` / `target.md`
-- `~/Desktop/design-test-b-archive/2-2-designs/` — 结算页：`DECISION-checkout.md` / `DECISION.md` /
-  `reference-checkout.html` / `reference-login*.html` / `reference-theme.css` / `shots/` / `target.md`
-- `~/Desktop/design-test-b-archive/2-3-designs/` — 按钮：`target.md` / `assets.md` / `constraints.md` /
-  `reference-button.html` / `DECISION.md` / `shots/`
-- `~/Desktop/design-test-b-archive/2-4-designs/` — 配色：`demo-index.html` / `demo-a-linear.html` /
-  `demo-b-kami.html` / `demo-c-cobalt.html` / `reference-linear.html` / `DECISION.md` / `tools/build-demos.py`
-- `~/Desktop/design-test-b-archive/3-1-designs/` — 落地页：`方向锁.md` / `修改方向.md` / `DECISION.md` /
-  `reference-landing.html` / 10 张 `shot-*.png`（含那张失真的 `shot-landing-mobile.png`）
-- `~/Desktop/design-test-b-archive/3-2-designs/` — 四页统一：`target.md` / `assets.md` / `critique.md` /
-  `DECISION.md` / `reference-pages.html`（五屏单文件） / `.assets/` / `.shots/`
-- `~/Desktop/design-test-b-archive/5-3-designs/` — 输入缺重跑：`DECISION.md`(30 KB，§1–§6) /
-  `reference-system.html`(44 KB)；`5-3-shots/` — 它散在工作区根的 `.shots/`（15 个文件）
-- `~/Desktop/design-test-b-archive/5-1-designs/` — 续跑结果：`DECISION.md`(52 KB) / `评审结论.md` /
-  `REVIEW-BRIEF.md` / `reference-system.html`(44 KB) / `shots/`(6 脚本 + 12 PNG + `render-report.json`)
-- `~/Desktop/design-test-b-archive/4-4-designs/` — 无产物（纯事实核查，`designs/` 为空）
-- `~/Desktop/design-test-b-archive/4-3-designs/` — 约束集（含未请求的参考原型）：`DECISION.md`（§3.2 十条带来源） /
-  `reference-system.html`（40 KB 演示页，含页面片段）
-- `~/Desktop/design-test-b-archive/4-2-designs/` — Linear 萃取：`tokens-linear.md`（11 节） /
-  `DECISION.md`（N/A 模板） / `linear-raw/`（CSS 原文、HTML 存档、dembrandt JSON/报告/截图、首屏 PNG）
-- `~/Desktop/design-test-b-archive/4-1-designs/` — AI 味审计：`audit-landing.md`（唯一产物）
-- `~/Desktop/design-test-b-archive/3-6-designs/` — 咖啡官网（从零新建）：`assets.md` / `brief.md` /
-  `candidates.md` / `constraints.md` / `DECISION.md` / `gleaner-coffee-home.html` / `screenshots/`
-- `~/Desktop/design-test-b-archive/3-5-designs/` — 灵感站转译：`assets.md` / `tokens-ian-feed.md` /
-  `demo-A-feature-grid.html` / `demo-B-screenshot-flow.html` / `reference-landing.html` /
-  `critique-round2.md` / `constraints.md` / `DECISION.md`
-- `~/Desktop/design-test-b-archive/3-4-designs/` — Linear 参照：`tokens-linear.md` / `critique-report.md` /
-  `constraints.md` / `DECISION.md` / `reference/`（4 页 + `styles.css` + 自托管 `fonts/`） / `shots/`
-- `~/Desktop/design-test-b-archive/3-3-designs/` — 四页升级：`target.md` / `assets.md` / `candidates.md` /
-  `candidate-{A-linear,B-kami,C-geist}.html` / `constraints.md` / `DECISION.md` /
-  `reference-{landing,dashboard,checkout,member}.html` / `reference-theme.css` / `_preview/`
+> **归档已删除（2026-09-29，用户要求）**：测试素材 `~/Desktop/design-test`、`~/Desktop/design-test-b`
+> 与产物归档 `~/Desktop/design-test-b-archive/`（57 MB / 432 文件 / 29 套）**已按用户要求清理**，
+> 过程记录（会话日志）由用户自行归档。因此本报告中所有 `~/Desktop/design-test*` 路径均已失效——
+> 报告保留当时的判定、量化数据与复算过程，但**原始产物不再可现场核对**。
+> 如需重跑：用 `docs/test-fixtures/make-fixtures.sh` 重新生成素材即可复现全部用例。
 
 **组 2 结论**：2-1 ✓、2-2 ✓（证据弱一档，跑在旧会话）、2-3 ✓、2-4 ✓ → 4/4 过，
 满足「组 2/3 各至少 3 例过」的判据；组 2 本身未发现新缺陷，唯一的纪律问题是用户侧会话隔离（2-2）。
