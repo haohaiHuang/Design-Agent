@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-10",
+  "generated": "524ac50ea211",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -44,8 +44,8 @@
       "form": "直引",
       "level": "次",
       "scenarios": "网页 / Mac",
-      "fallback": "→ getdesign.md 官网",
-      "source": "`https://github.com/VoltAgent/awesome-claude-design`；`https://getdesign.md/`",
+      "fallback": "→ 仓库直读",
+      "source": "`https://github.com/VoltAgent/awesome-claude-design`",
       "slug": "voltagent",
       "bucket": "minimal",
       "quality": "未评估"
@@ -57,7 +57,7 @@
       "level": "主",
       "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时）",
       "fallback": "→ hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对",
-      "source": "npm 全局 `dembrandt`（已装 v0.30.0，MIT）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
+      "source": "npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
       "slug": "dembrandt",
       "bucket": null,
       "quality": "未评估"
@@ -69,7 +69,7 @@
       "level": "次",
       "scenarios": "APP",
       "fallback": "→ 官网浏览 → web_search",
-      "source": "`https://www.beautifului.ai/`",
+      "source": "`https://beautifului.dev/`（原 `.ai` 域名已失效）",
       "slug": "beautiful-ui",
       "bucket": "minimal",
       "quality": "未评估"
@@ -96,6 +96,18 @@
       "source": "`https://21st.dev/`",
       "slug": "21st-dev",
       "bucket": "minimal",
+      "quality": "未评估"
+    },
+    {
+      "name": "The Component Gallery（**60 组件 × 95 设计系统 × 2,671 例**的横向对照库）",
+      "role": "R",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "通用（组件级任务：先看「同一个组件各家怎么做」再定约束）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "官网 `https://component.gallery/`",
+      "slug": "component-gallery",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -135,6 +147,42 @@
       "quality": "未评估"
     },
     {
+      "name": "unDraw（开源插画库：可改主色的 SVG；**免费商用且无需署名**）",
+      "role": "R",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "网页 / 杂志插图（落地页特性图、空状态图）",
+      "fallback": "→ Storyset（免费用**须署名**）→ 人工绘制 / 诚实占位",
+      "source": "官网 `https://undraw.co/`；授权 `https://undraw.co/license`（**禁** ML 训练 / 整包再分发 / 做同类集成）",
+      "slug": "undraw",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "Unsplash（免费照片库：**可商用、无需署名**）",
+      "role": "R",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "网页 / 海报 / 杂志（实景照片）",
+      "fallback": "→ Pexels → 诚实占位（灰块 + 说明）",
+      "source": "官网 `https://unsplash.com/`；授权 `https://unsplash.com/license`（已核实：免费商用、无需署名；**禁**未做显著修改即转售、禁用它拼同类/竞争服务）",
+      "slug": "unsplash",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "Pexels（免费照片/视频库：中文界面，**可商用、无需署名**）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "网页 / 海报 / 杂志",
+      "fallback": "→ 诚实占位",
+      "source": "官网 `https://www.pexels.com/`；授权 `https://www.pexels.com/license/`（已核实：可免费用与修改；**禁**让可识别人物出现在负面/冒犯语境、禁转售未修改副本、禁暗示代言、禁在同类素材平台再分发、禁作商标/商号）",
+      "slug": "pexels",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "Lucide（图标库·首选）",
       "role": "R",
       "form": "直引",
@@ -171,6 +219,42 @@
       "quality": "未评估"
     },
     {
+      "name": "Iconify（图标聚合层：一套语法 + 一个 API 覆盖主流开源图标集，**30 万+ 图标**；框架 MIT）",
+      "role": "R",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "通用（需要「任意图标集统一调用」时；比逐库引入省事）",
+      "fallback": "→ 单库直引（Lucide / Heroicons / Reicon）",
+      "source": "官网 `https://iconify.design/`；API `https://api.iconify.design/`；框架仓库 `https://github.com/iconify/iconify`（MIT）",
+      "slug": "iconify",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "IconPark（字节跳动图标库：**Apache-2.0**，可调粗细/风格，国内可用）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "通用（国内项目 / 需要统一线宽时）",
+      "fallback": "→ 官网复制 → Iconify（兜底）",
+      "source": "官网 `https://iconpark.oceanengine.com/`；仓库 `https://github.com/bytedance/IconPark`（Apache-2.0）",
+      "slug": "iconpark",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "SVG Repo（**50 万+** 开源 SVG 图标/矢量搜索）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "通用（要搜\"某个具体图形\"时）",
+      "fallback": "→ Iconify（成套图标）→ Lucide",
+      "source": "官网 `https://www.svgrepo.com/`；授权 `https://www.svgrepo.com/page/licensing/`（已核实：默认 \"SVG Repo License\" 免署名可 remix，**禁**以类似本站的方式再分发/转售；**站内条目逐条授权不同，用时按图标页标注核对**）",
+      "slug": "svgrepo",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "Google Fonts（字体源）",
       "role": "R",
       "form": "直引",
@@ -179,6 +263,30 @@
       "fallback": "→ CDN 直引",
       "source": "`https://fonts.google.com/`",
       "slug": "google-fonts",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "思源黑体 / 思源宋体（Adobe Source Han：**SIL OFL 1.1**，中文正文/标题最稳的开源字族）",
+      "role": "R",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "通用（**中文字族必须显式引入**时首选 —— 见 workflow.md 环节 3 的 CJK 实测规矩）",
+      "fallback": "→ 霞鹜文楷（人文向）→ 系统字体栈（气质不可控）",
+      "source": "仓库 `https://github.com/adobe-fonts/source-han-sans`（LICENSE.txt = SIL OFL 1.1）；宋体 `https://github.com/adobe-fonts/source-han-serif`",
+      "slug": "source-han",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "霞鹜文楷 LXGW WenKai（**OFL-1.1**，基于 FONTWORKS Klee One 衍生：楷体、人文向）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "通用 / 海报 / 杂志（楷体标题、书卷气）",
+      "fallback": "→ 思源宋体 → 系统楷体（气质不可控）",
+      "source": "仓库 `https://github.com/lxgw/LxgwWenKai`（OFL-1.1）",
+      "slug": "lxgw-wenkai",
       "bucket": null,
       "quality": "未评估"
     },
@@ -207,13 +315,25 @@
       "quality": "未评估"
     },
     {
+      "name": "Coolors（调色板生成器：**免费档可用**，含配色方案库与对比度检查；Pro 付费）",
+      "role": "R",
+      "form": "工具",
+      "level": "兜底",
+      "scenarios": "通用（环节 2 定色板时的探索工具）",
+      "fallback": "→ 官网直接用 → 手写 `oklch()`/`hsl()` 令牌",
+      "source": "官网 `https://coolors.co/`（已核实免费档功能：生成 5 色板 / 1 万+ 现成配色 / 存 10 个色板；Pro 解锁 AI 与无限存档）",
+      "slug": "coolors",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "DESIGN.md 格式规范（Google spec）",
       "role": "R",
       "form": "直引",
       "level": "次",
       "scenarios": "通用",
-      "fallback": "→ 官网",
-      "source": "`https://getdesign.md/`；参考实现 `https://github.com/google-labs-code/design.md`",
+      "fallback": "→ 仓库直读",
+      "source": "参考实现 `https://github.com/google-labs-code/design.md`（原聚合站 `getdesign.md` 域名已失效：HTTPS 不可用、HTTP 302 到裸 IP，勿再引用）",
       "slug": "design-md-spec",
       "bucket": null,
       "quality": "未评估"
@@ -240,6 +360,18 @@
       "source": "`https://transitions.dev/`（含 agent skill 集成）",
       "slug": "transitions-dev",
       "bucket": "liquid",
+      "quality": "未评估"
+    },
+    {
+      "name": "Codrops（前端创意出版物：教程 + 可跑 demo，偏动效/交互/WebGL）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "网页动效 / 通用（找\"这个效果怎么做\"的思路与实现）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "官网 `https://tympanus.net/codrops/`（2009 年至今；已核实为教程+demo 出版物）",
+      "slug": "codrops",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -298,7 +430,7 @@
       "scenarios": "网页 / 落地页",
       "fallback": "→ web_search",
       "source": "`https://land-book.com/`",
-      "slug": "land-book",
+      "slug": "landbook",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -310,7 +442,7 @@
       "scenarios": "网页 / 单页",
       "fallback": "→ web_search",
       "source": "`https://onepagelove.com/inspiration`",
-      "slug": "onepagelove",
+      "slug": "one-page-love",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -418,7 +550,7 @@
       "scenarios": "网页 / 页脚组件",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.footer.design/`",
-      "slug": "footer-design",
+      "slug": "footer-gallery",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -478,7 +610,7 @@
       "scenarios": "网页 / 微交互细节",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://designspells.com/`",
-      "slug": "designspells",
+      "slug": "design-spells",
       "bucket": "liquid",
       "quality": "未评估"
     },
@@ -526,7 +658,7 @@
       "scenarios": "网页（单案例参考）",
       "fallback": "→ 灵感库聚合",
       "source": "`https://dribbble.com/`",
-      "slug": "dribbble-shot",
+      "slug": "dribbble",
       "bucket": null,
       "quality": "未评估"
     },
@@ -658,7 +790,7 @@
       "scenarios": "网页 / 落地页（hero 与首屏的单屏构图；环节 2 约束转译 + 环节 4 视觉自查）。**A3 Mac 桌面应用有意不挂**——构图词典面向\"单屏画面组织\"（海报/网页首屏），Mac 应用是窗口内多面板布局，属 Hallmark 宏结构管辖，两者不重合",
       "fallback": "→ 本地文件直读（无退化）",
       "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
-      "slug": "poster-compositions",
+      "slug": "poster-compositions-landing",
       "bucket": null,
       "quality": "未评估"
     },
@@ -668,8 +800,8 @@
       "form": "直引",
       "level": "主",
       "scenarios": "APP / 网页 / Mac",
-      "fallback": "→ refero 网站网页浏览拿 / getdesign.md",
-      "source": "refero 网站（见上）；`https://getdesign.md/`",
+      "fallback": "→ refero 网站网页浏览拿 → 仓库直读（VoltAgent 合集）",
+      "source": "refero 网站（见上）；`https://github.com/VoltAgent/awesome-claude-design`",
       "slug": "design-md",
       "bucket": null,
       "quality": "未评估"
@@ -680,7 +812,7 @@
       "form": "直引",
       "level": "次",
       "scenarios": "APP / 网页 / Mac（选定候选验证后的约束素材，等同 refero 网站 DESIGN.md，可回填参考台账）",
-      "fallback": "→ refero 网站网页浏览拿 DESIGN.md / getdesign.md",
+      "fallback": "→ refero 网站网页浏览拿 DESIGN.md → 仓库直读（VoltAgent 合集）",
       "source": "本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt`",
       "slug": "dembrandt-extract",
       "bucket": null,
@@ -800,8 +932,8 @@
       "form": "规则",
       "level": "次",
       "scenarios": "网页动效（动效原则/纪律——不贡献视觉「候选方向」，只定「为什么动/怎么动」；C2 环节 2 约束）",
-      "fallback": "→ 官网直读（静态文档） → 人工应用转译进约束集",
-      "source": "`https://www.fluidfunctionalism.com/`",
+      "fallback": "→ GitHub 直读（`STANDARDS.md`） → 官网直读（静态文档） → 人工应用转译进约束集",
+      "source": "源 `https://github.com/emilkowalski/skills`（`skills/review-animations/STANDARDS.md`：频率表/缓动决策序/时长表/物理感，EM-* 机器子集真源）；官网 `https://www.fluidfunctionalism.com/`",
       "slug": "fluid-functionalism",
       "bucket": null,
       "quality": "未评估"
@@ -999,6 +1131,18 @@
       "quality": "未评估"
     },
     {
+      "name": "OpenPencil CLI（设计文件工具箱：直读 .fig/.pen 源数据——色板含使用频次/字体栈/间距/组件/页面结构；HTML↔fig 转换桥；软依赖，低频高价值——仅参考或产物为设计文件时接入）",
+      "role": "E",
+      "form": "工具",
+      "level": "次",
+      "scenarios": "APP / 网页 / Mac（环节 1 参考为 .fig/.pen 时源数据直读，证据等级最高；环节 2 token 导出为约束；环节 3 HTML↔fig 转换；环节 4 .fig 产物机器校验——design_audit 只管 HTML/CSS）",
+      "fallback": "→ Figma 家族 / 人工核对（未装时）",
+      "source": "官网 `https://openpencil.dev`；仓库 `https://github.com/open-pencil/open-pencil`（MIT，开源 Figma 替代）；`npm install -g @open-pencil/cli`；版本自检 `openpencil --version`。**实测（2026-09-29，当时 v0.15.1；版本变动请复测，勿套用旧结论）**：可用 = info / tree / find / node / pages / lint / analyze colors-typography-spacing-clusters / variables / export png-svg-html-fig / **import（HTML→fig 已修）** / eval；**不可用** = `export -f png --thumbnail`（共享导出路径未支持）、`query`（XPath `evaluateXPathToNodes is not a function`，用 `find --type/--name` 替代）；桌面端省略文件参数即连实时画布（Live 模式）",
+      "slug": "openpencil",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）",
       "role": "V",
       "form": "规则",
@@ -1089,7 +1233,7 @@
       "level": "次",
       "scenarios": "网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免）",
       "fallback": "→ 无（机器直接执行）→ 模型按环节 4 Triage 确认",
-      "source": "`https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释）",
+      "source": "官网 `https://killaislop.com/`（含多语言 slop 图鉴）；仓库 `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释）",
       "slug": "kill-ai-slop",
       "bucket": null,
       "quality": "未评估"
@@ -1105,18 +1249,20 @@
         "recent-design",
         "awwwards",
         "siteinspire",
-        "land-book",
-        "onepagelove",
+        "landbook",
+        "one-page-love",
         "lapa-ninja",
         "muzli",
         "inspora",
-        "mobbin"
+        "mobbin",
+        "openpencil",
+        "design-research-methods"
       ],
       "2": [
         "kami-skeleton",
         "refero-design",
         "design-md-skill",
-        "poster-compositions"
+        "design-md"
       ],
       "3": [
         "kami-skill",
@@ -1141,27 +1287,19 @@
         "linear-dark",
         "saasui-dashboard",
         "dash-ui",
-        "recent-design",
-        "awwwards",
-        "siteinspire",
-        "land-book",
-        "onepagelove",
-        "lapa-ninja",
-        "muzli",
-        "inspora",
-        "footer-design",
-        "cta-gallery",
-        "navbar-gallery",
-        "supahero",
-        "designspells",
-        "threeui",
-        "loadmore"
+        "openpencil",
+        "undraw",
+        "component-gallery",
+        "unsplash",
+        "pexels",
+        "design-research-methods"
       ],
       "2": [
         "kami-skeleton",
         "refero-design",
         "design-md-skill",
-        "poster-compositions"
+        "poster-compositions-landing",
+        "design-md"
       ],
       "3": [
         "huashu-design",
@@ -1177,11 +1315,13 @@
       "1": [
         "refero-design",
         "voltagent",
-        "dembrandt"
+        "dembrandt",
+        "openpencil"
       ],
       "2": [
         "kami-skeleton",
-        "refero-design"
+        "refero-design",
+        "design-md"
       ],
       "3": [
         "frontend-design"
@@ -1195,7 +1335,9 @@
       "1": [
         "zine-style-library",
         "orange-line-illustration",
-        "poster-compositions"
+        "poster-compositions",
+        "unsplash",
+        "pexels"
       ],
       "2": [
         "zine-family-recipes",
@@ -1215,7 +1357,11 @@
     "B2": {
       "1": [
         "zine-style-library",
-        "orange-line-illustration"
+        "orange-line-illustration",
+        "undraw",
+        "lxgw-wenkai",
+        "unsplash",
+        "pexels"
       ],
       "2": [
         "zine-family-recipes",
@@ -1248,17 +1394,28 @@
         "hero-patterns",
         "21st-dev",
         "uiverse",
-        "footer-design",
+        "footer-gallery",
         "cta-gallery",
         "navbar-gallery",
         "supahero",
-        "designspells",
+        "design-spells",
         "reicon",
         "beui",
         "boardui",
         "watermelon-ui",
         "saasui-dashboard",
-        "dash-ui"
+        "dash-ui",
+        "undraw",
+        "iconify",
+        "iconpark",
+        "source-han",
+        "lxgw-wenkai",
+        "component-gallery",
+        "unsplash",
+        "pexels",
+        "svgrepo",
+        "coolors",
+        "codrops"
       ],
       "2": [
         "kami-skeleton"
@@ -1276,7 +1433,8 @@
         "transitions-dev",
         "liquid-gooey",
         "threeui",
-        "beui"
+        "beui",
+        "codrops"
       ],
       "2": [
         "fluid-functionalism",
@@ -1303,13 +1461,15 @@
     }
   },
   "logoExtra": {
-    "2": [
-      "logo-design-patterns",
+    "1": [
       "logggos",
       "logo-archive",
       "logoinspo",
       "logosystem",
       "logobook"
+    ],
+    "2": [
+      "logo-design-patterns"
     ],
     "4": [
       "logo-quality-floor"
@@ -1321,7 +1481,8 @@
       "hallmark-genre-bans"
     ],
     "4": [
-      "hallmark-slop-test"
+      "hallmark-slop-test",
+      "kill-ai-slop"
     ]
   },
   "cheatExtra": {

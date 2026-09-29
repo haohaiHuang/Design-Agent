@@ -4,12 +4,13 @@
  * 覆盖 hallmark gate 1 / 37 / 38a + design-references 环节4 字重扫描。
  * 全部为文本可判定；视觉/上下文类判定不在本模块。
  */
-import { loc, grepLines } from "./types.mjs";
+import { loc, grepLines, collectCssVars, resolveVar } from "./types.mjs";
 
 const DEFAULT_FONTS = /\b(Inter|Roboto|Open Sans|Poppins|Lato|Arial|Helvetica|Times New Roman|Space Grotesk|Manrope|Plus Jakarta Sans|Geist|Sora|DM Sans)\b/i;
 
 export function runTypographyChecks(files) {
   const findings = [];
+  const vars = collectCssVars(files);
 
   for (const f of files) {
     const c = f.content;
@@ -81,7 +82,19 @@ export function runTypographyChecks(files) {
     }
 
     // ---- DR 环节4: 字重扫描（700/600/450 需约束允许，默认告警） ----
-    for (const ln of grepLines(c, /font-weight\s*:\s*(700|600|450)\b/)) {
+    // var(--font-weight-*) 先解析一层：token 引用是约束集要求，不对令牌本身报警；
+    // 解析出 700/600/450 仍报（令牌值才是真值）。
+    for (const ln of grepLines(c, /font-weight\s*:\s*([^;}]+)/i)) {
+      const line = c.split("\n")[ln - 1];
+      const vm = line.match(/font-weight\s*:\s*([^;}]+)/i);
+      if (!vm) continue;
+      let value = vm[1].trim();
+      if (value.includes("var(")) {
+        const resolved = resolveVar(value, vars);
+        if (resolved === null) continue; // 解析不出 → 跳过，不误报
+        value = String(resolved).trim();
+      }
+      if (!/^(700|600|450)\b/.test(value)) continue;
       findings.push({
         gate: "DR-4",
         rule: "font-weight-heavy",

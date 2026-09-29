@@ -1,6 +1,6 @@
 {
   "hallmarkRuleVersion": "1.1.0",
-  "designReferencesSource": "skills/design-references @ 46a5646",
-  "registryGenerated": "2026-09-10",
-  "registryResourceCount": 91
+  "registryGenerated": "524ac50ea211",
+  "designReferencesHash": "sha256:800b810967d6b9ad",
+  "registryResourceCount": 103
 }

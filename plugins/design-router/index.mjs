@@ -23,7 +23,7 @@ import { runTypographyChecks } from "./checks/typography.mjs";
 import { runLayoutChecks } from "./checks/layout.mjs";
 import { runA11yChecks } from "./checks/a11y.mjs";
 import { runCopyChecks } from "./checks/copy.mjs";
-import { runContrastChecks } from "./checks/contrast.mjs";
+import { runContrastChecks, runNonTextContrastChecks } from "./checks/contrast.mjs";
 import { runCheatChecks } from "./checks/cheat.mjs";
 import { runKillSlopChecks } from "./checks/kill-slop.mjs";
 import { runAssetChecks } from "./checks/assets.mjs";
@@ -104,14 +104,61 @@ function collectFiles(target) {
   return out;
 }
 
+/**
+ * 剥离注释后再扫描。
+ *
+ * 为什么需要：注释里写规范说明（如「不编造 50,000+」「删掉 transition: all」）本来是好事，
+ * 但原实现把注释当正文 → 注释写得越规范越被判违规（gate 46 / KS-14 / gate 10 均实测命中过）。
+ * 用等长空格替换注释内容以**保持行号不变**，location 仍准确。
+ *
+ * 只剥 HTML 注释与 CSS 块注释；JS 的 `//` 不剥（会误伤 https:// 这类字符串）。
+ */
+function stripComments(content, kind) {
+  const blank = (s) => s.replace(/[^\n]/g, " ");
+  let out = content;
+  if (kind === "html") {
+    out = out.replace(/<!--[\s\S]*?-->/g, (m) => blank(m));
+  }
+  if (kind === "html" || kind === "css") {
+    // 未闭合的 `/*`（如注释定界符自毁）会一直吃到文件尾——与浏览器行为一致，也顺带暴露该缺陷
+    out = out.replace(/\/\*[\s\S]*?(?:\*\/|$)/g, (m) => blank(m));
+  }
+  return out;
+}
+
+/** 解析 HTML 里 <link rel="stylesheet" href="...">（同目录/相对路径，深度 1），读回内容 */
+function readLinkedCss(absPath, content) {
+  const parts = [];
+  const seen = new Set();
+  for (const m of content.matchAll(/<link\b[^>]*>/gi)) {
+    const tag = m[0];
+    if (!/rel\s*=\s*["']?stylesheet/i.test(tag)) continue;
+    const href = tag.match(/href\s*=\s*["']([^"']+)["']/i);
+    if (!href) continue;
+    const url = href[1].trim();
+    if (/^(https?:)?\/\//i.test(url) || url.startsWith("data:")) continue; // 远程/内联不取
+    const p = resolve(dirname(absPath), url.split(/[?#]/)[0]);
+    if (seen.has(p)) continue;
+    seen.add(p);
+    try {
+      parts.push(stripComments(readFileSync(p, "utf8"), "css"));
+    } catch {
+      // 读不到就跳过：目标目录之外或已删除的外链样式表不参与判定
+    }
+  }
+  return parts.join("\n");
+}
+
 function readAuditFiles(paths) {
   return paths
     .map((p) => {
       try {
-        const content = readFileSync(p, "utf8");
+        const raw = readFileSync(p, "utf8");
         const ext = extname(p).toLowerCase();
         const kind = ext === ".html" || ext === ".htm" ? "html" : ext === ".css" || ext === ".scss" ? "css" : "other";
-        return { path: p, content, kind };
+        const f = { path: p, raw, content: stripComments(raw, kind), kind };
+        if (kind === "html") f.linkedCss = readLinkedCss(p, raw);
+        return f;
       } catch {
         return null;
       }
@@ -134,6 +181,48 @@ function readTargetFiles(target) {
 
 const VISUAL_GATES_NOTE =
   "以下 gates 需视觉/上下文判定，机器无法覆盖，请模型按 hallmark references/slop-test.md 自查：6（hero 居中）、8（结构指纹）、28/29/31（enrichment）、32（diversification knob）、35/36（装饰/基线）、44/45（hero 折叠/无意义装饰）、52-54（响应式 section-head/radio/eyebrow 列）、56（sticky 重叠）、57（studied-DNA 丢弃）。";
+
+/**
+ * 行内豁免标记：`slop-ignore: <理由>` / `deslop-ignore: <理由>`（必须带理由，空理由不算）。
+ *
+ * 用途：产物里**刻意保留**的缺陷需要正式出口——例如"引用证据 / 现状复现 / 正误对照"块里
+ * 故意展示原来的 13px 圆角、渐变按钮、编造指标。剥离注释只解决注释内的说明，
+ * 解决不了可见正文里的反例。标记可写在 CSS 注释、HTML 注释或该行行尾。
+ * 生效范围：① 标记所在行；② 若该行在 `{ ... }` 块内，则整个块。
+ */
+const IGNORE_MARK_RE = /(?:slop|deslop)-ignore\s*:\s*[^\s*\-][^\n]*/i;
+
+function ignoreWindow(text, lineNo) {
+  const lines = text.split("\n");
+  const idx = lineNo - 1;
+  if (idx < 0 || idx >= lines.length) return "";
+  // ① 起点：先向上吃连续注释行（标记常写在被标注规则的正上方），再吃紧邻的块首 `{`
+  let start = idx;
+  let j = idx - 1;
+  while (j >= 0 && /^\s*(\/\*|\*|\/\/|<!--)/.test(lines[j])) { start = j; j--; }
+  if (j >= 0 && /\{/.test(lines[j])) start = j;
+  const hasOpen = lines.slice(start, idx + 1).some((l) => /\{/.test(l));
+  // ② 终点：块内则吃到配对的 `}`（有上限，避免跨文件吞太多）
+  let end = idx;
+  if (hasOpen) {
+    for (let i = idx; i < lines.length && i <= idx + 60; i++) {
+      if (/\}/.test(lines[i])) { end = i; break; }
+    }
+  }
+  return lines.slice(start, end + 1).join("\n");
+}
+
+function applyIgnores(findings, files) {
+  const byPath = new Map(files.map((f) => [f.path, f]));
+  return findings.filter((f) => {
+    const m = /^(.*?)(?::(\d+))?$/.exec(f.location || "");
+    if (!m || !m[2]) return true;                 // 文件级命中不豁免（要豁免请放到具体行）
+    const file = byPath.get(m[1]);
+    if (!file) return true;
+    const text = file.raw ?? file.content;
+    return !IGNORE_MARK_RE.test(ignoreWindow(text, parseInt(m[2], 10)));
+  });
+}
 
 function formatFindings(findings, showVisualNote) {
   if (findings.length === 0) {
@@ -200,9 +289,11 @@ function apply(ctx) {
       if (stage < 1 || stage > 4) {
         return "stage 需为 1-4（0 意图澄清无资源调用）";
       }
+      // 只合并通用质量清单（hallmark / cheat）；logoExtra 是任务相关池，绝不在此按 stage 无条件拼入，
+      // 否则它会泄漏进全部 9 个分支的那一环节（design_lookup 签名里没有任务参数，判不了）。
+      // ponytail: 收窄而非按任务分流——logo 任务由 design_route 专项段供源，环节 1 硬步骤① 已保证先调它。
       const slugs = [
         ...(registry.routes[branch][stage] || []),
-        ...(registry.logoExtra[stage] || []),
         ...(registry.hallmarkExtra?.[stage] || []),
         ...(registry.cheatExtra?.[stage] || []),
       ];
@@ -298,14 +389,21 @@ function apply(ctx) {
         for (const b of route.primary) lines.push(bucketLine(b));
         lines.push("", "### 次桶（按需，增强候选多样性）");
         for (const b of route.secondary) lines.push(bucketLine(b));
-        // extra 专项资源（如 logo 任务：logoExtra 环节 2 的资源）
+        // 任务相关池只在本入口（design_route，按 routing.extra 判任务）消费：读全部键，按该资源服务的环节标注。
+        // 不取子集——取子集（曾只读键 2）会让其它键的成员变成「登记后无人调用」，logo-quality-floor 就曾因此失可达。
         if (route.extra === "logo") {
-          const logoSlugs = registry.logoExtra?.["2"] || [];
-          const logoHits = logoSlugs.flatMap((s) => registry.resources.filter((r) => r.slug === s));
+          const logoHits = Object.entries(registry.logoExtra)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .flatMap(([stage, slugs]) =>
+              slugs.flatMap((slug) => {
+                const r = registry.resources.find((x) => x.slug === slug);
+                return r ? [{ r, stage }] : [];
+              }),
+            );
           if (logoHits.length) {
             lines.push("", "### 专项资源（logo 任务必查）");
-            for (const r of logoHits) {
-              lines.push(`- **${r.name}**（${r.form}·${r.level}） ${r.source}`);
+            for (const { r, stage } of logoHits) {
+              lines.push(`- **${r.name}**（${r.form}·${r.level}·环节 ${stage}） ${r.source}`);
             }
           }
         }
@@ -494,13 +592,17 @@ function apply(ctx) {
         ...runA11yChecks(files),
         ...runCopyChecks(files),
         ...runContrastChecks(files),
+        ...runNonTextContrastChecks(files),
         ...runCheatChecks(files),
         ...runKillSlopChecks(files),
         ...runAssetChecks(files, targetAbs),
       ];
       const isPage = files.some((f) => f.kind === "html");
-      const text = formatFindings(findings, isPage);
-      return `${text}\n\n扫描 ${paths.length} 个文件：${paths.slice(0, 8).join(", ")}${paths.length > 8 ? " …" : ""}`;
+      const kept = applyIgnores(findings, files);
+      const ignored = findings.length - kept.length;
+      const text = formatFindings(kept, isPage);
+      const ignoreNote = ignored ? `\n（另有 ${ignored} 项被 \`slop-ignore\` 标记豁免，已核对该行/块确有理由）` : "";
+      return `${text}${ignoreNote}\n\n扫描 ${paths.length} 个文件：${paths.slice(0, 8).join(", ")}${paths.length > 8 ? " …" : ""}`;
     },
   }));
 

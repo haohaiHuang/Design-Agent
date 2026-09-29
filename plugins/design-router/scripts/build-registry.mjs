@@ -11,17 +11,22 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { skillTreeHash } from "./skill-hash.mjs";
+import { createHash } from "node:crypto";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SRC = join(HERE, "../../../skills/design-references/references/registry.md");
 const OUT = join(HERE, "../data/registry.json");
+const SKILL_DIR = join(HERE, "../../../skills/design-references");
 
 // ---------- 名称 → slug 映射（registry 首列为中文+括号描述，需人工映射） ----------
 const SLUG_BY_KEYWORD = [
   // R 调研源
   ["refero-design", "refero Styles 网站"],
   ["zine-style-library", "Zine 风格库"],
+  // 「落地页子集」必须排在前面：两条 registry.md 行的名字都含「海报构图词典」，
+  // 匹配首个生效（break），不特化就会与下面那条撞成同一 slug。
+  ["poster-compositions-landing", "海报构图词典 · 落地页子集"],
   ["poster-compositions", "海报构图词典"],
   ["voltagent", "VoltAgent"],
   ["beautiful-ui", "Beautiful UI"],
@@ -41,8 +46,21 @@ const SLUG_BY_KEYWORD = [
   ["vibeprompts", "vibeprompts.dev"],
   ["dembrandt-extract", "dembrandt 萃取产物"],
   ["dembrandt", "dembrandt（URL→设计 token"],
+  ["openpencil", "OpenPencil"],
   // my-pi-skills 2026-09 新增（组件/仪表盘/暗色高端/图标/反 slop）
   ["reicon", "Reicon"],
+  // 2026-09-29 新增（个人书签盘点：图片/插画/图标聚合/中文字体/组件对照）
+  ["iconify", "Iconify"],
+  ["iconpark", "IconPark"],
+  ["source-han", "思源黑体"],
+  ["lxgw-wenkai", "霞鹜文楷"],
+  ["undraw", "unDraw"],
+  ["component-gallery", "The Component Gallery"],
+  ["unsplash", "Unsplash"],
+  ["pexels", "Pexels"],
+  ["svgrepo", "SVG Repo"],
+  ["coolors", "Coolors"],
+  ["codrops", "Codrops"],
   ["kill-ai-slop", "kill-ai-slop 反 AI slop"],
   ["watermelon-ui", "Watermelon UI"],
   ["beui", "beUI"],
@@ -56,8 +74,8 @@ const SLUG_BY_KEYWORD = [
   ["recent-design", "Recent Design"],
   ["awwwards", "Awwwards"],
   ["siteinspire", "SiteInspire"],
-  ["land-book", "Landbook"],
-  ["onepagelove", "One Page Love"],
+  ["landbook", "Landbook"],
+  ["one-page-love", "One Page Love"],
   ["lapa-ninja", "Lapa Ninja"],
   ["muzli", "Muzli"],
   ["inspora", "Inspora"],
@@ -66,16 +84,16 @@ const SLUG_BY_KEYWORD = [
   ["logoinspo", "Logoinspo"],
   ["logosystem", "Logosystem"],
   ["logobook", "Logobook"],
-  ["footer-design", "Footer"],
+  ["footer-gallery", "Footer"],
   ["cta-gallery", "CTA.gallery"],
   ["navbar-gallery", "Navbar Gallery"],
   ["supahero", "Supahero"],
   ["threeui", "ThreeUI"],
-  ["designspells", "Design Spells"],
+  ["design-spells", "Design Spells"],
   ["mobbin", "Mobbin"],
   ["loadmore", "loadmo.re"],
   ["uipedia", "UiPedia"],
-  ["dribbble-shot", "Dribbble 案例"],
+  ["dribbble", "Dribbble 案例"],
   // C 约束模板
   ["kami-skeleton", "Kami 约束骨架"],
   ["kami-spec", "Kami 完整设计规范"],
@@ -286,6 +304,11 @@ const QUALITY_LEVELS = {
 
 // ---------- 分支 × 环节 → 资源 slug 路由表（来自 SKILL.md 分支表 + workflow.md 环节调用表） ----------
 // stage: 0 意图 / 1 调研 / 2 约束 / 3 产出 / 4 校验
+// 本仓库 ROUTES 是自有策划短名单（只收「主」+ 需求命中），不追求与上游 my-pi-skills 一致：
+// 两仓库共享的是资源行与 slug（资源目录必须一致），路由各自主张。
+// 历史：2026-08-28 书签批量导入曾把 15 条灵感画廊塞进 A2·1（29 条），导致 design_lookup 过于灵敏；
+// 2026-09-29 按「短名单 = 主 + 需求命中」收敛，此后新增画廊一律先看是否该在 registry.md 升为「主」，
+// 不要直接塞短名单。跨仓回流只回流资源行与通用规则。
 const ROUTES = {
   "A1": {
     "1": [
@@ -296,18 +319,20 @@ const ROUTES = {
       "recent-design",
       "awwwards",
       "siteinspire",
-      "land-book",
-      "onepagelove",
+      "landbook",
+      "one-page-love",
       "lapa-ninja",
       "muzli",
       "inspora",
-      "mobbin"
+      "mobbin",
+      "openpencil",
+      "design-research-methods",
     ],
     "2": [
       "kami-skeleton",
       "refero-design",
       "design-md-skill",
-      "poster-compositions"
+      "design-md",
     ],
     "3": [
       "kami-skill",
@@ -332,27 +357,19 @@ const ROUTES = {
       "linear-dark",
       "saasui-dashboard",
       "dash-ui",
-      "recent-design",
-      "awwwards",
-      "siteinspire",
-      "land-book",
-      "onepagelove",
-      "lapa-ninja",
-      "muzli",
-      "inspora",
-      "footer-design",
-      "cta-gallery",
-      "navbar-gallery",
-      "supahero",
-      "designspells",
-      "threeui",
-      "loadmore"
+      "openpencil",
+      "undraw",
+      "component-gallery",
+      "unsplash",
+      "pexels",
+      "design-research-methods",
     ],
     "2": [
       "kami-skeleton",
       "refero-design",
       "design-md-skill",
-      "poster-compositions"
+      "poster-compositions-landing",
+      "design-md",
     ],
     "3": [
       "huashu-design",
@@ -368,11 +385,13 @@ const ROUTES = {
     "1": [
       "refero-design",
       "voltagent",
-      "dembrandt"
+      "dembrandt",
+      "openpencil"
     ],
     "2": [
       "kami-skeleton",
-      "refero-design"
+      "refero-design",
+      "design-md",
     ],
     "3": [
       "frontend-design"
@@ -387,6 +406,9 @@ const ROUTES = {
       "zine-style-library",
       "orange-line-illustration",
       "poster-compositions"
+    ,
+      "unsplash",
+      "pexels",
     ],
     "2": [
       "zine-family-recipes",
@@ -407,6 +429,11 @@ const ROUTES = {
     "1": [
       "zine-style-library",
       "orange-line-illustration"
+    ,
+      "undraw",
+      "lxgw-wenkai",
+          "unsplash",
+      "pexels",
     ],
     "2": [
       "zine-family-recipes",
@@ -439,17 +466,29 @@ const ROUTES = {
       "hero-patterns",
       "21st-dev",
       "uiverse",
-      "footer-design",
+      "footer-gallery",
       "cta-gallery",
       "navbar-gallery",
       "supahero",
-      "designspells",
+      "design-spells",
       "reicon",
       "beui",
       "boardui",
       "watermelon-ui",
       "saasui-dashboard",
       "dash-ui"
+    ,
+      "undraw",
+      "iconify",
+      "iconpark",
+      "source-han",
+      "lxgw-wenkai",
+      "component-gallery",
+          "unsplash",
+      "pexels",
+      "svgrepo",
+      "coolors",
+      "codrops",
     ],
     "2": [
       "kami-skeleton"
@@ -468,6 +507,8 @@ const ROUTES = {
       "liquid-gooey",
       "threeui",
       "beui"
+    ,
+      "codrops",
     ],
     "2": [
       "fluid-functionalism",
@@ -495,10 +536,24 @@ const ROUTES = {
 };
 
 // logo 场景跨分支附加（环节 2/4 必读）
-const LOGO_EXTRA = {"2":["logo-design-patterns","logggos","logo-archive","logoinspo","logosystem","logobook"],"4":["logo-quality-floor"]};
+// logo 场景跨分支附加 —— 任务相关池，只由 design_route 的 logo 专项段消费（design_lookup 不合并它）。
+// 键 = 该资源服务的环节（与 registry.md「环节」列一致）：1 调研源 / 2 转译原则 / 4 验收底线。
+// 专项段读**全部键**（不取子集）——取子集会让其它键的成员登记后无人调用；键与内容不符则会复现
+// 「环节 1 取不到调研源」的假象 —— 两件都发生过，见 Phase 6 切片 §1 D1 + 回执 C1。
+const LOGO_EXTRA = {
+  1: ["logggos", "logo-archive", "logoinspo", "logosystem", "logobook"],
+  2: ["logo-design-patterns"],
+  // 排除登记（有意不挂，非漏挂）：logo-background-styles（registry.md 转译·次，场景含"logo showcase 背景"）
+  // 是海报/展示图背景模板，属 B1 海报环节 2；塞进 logo 池会把海报模板当 logo 约束。改挂载前先读这句。
+  4: ["logo-quality-floor"],
+};
 
 // hallmark 去 AI 味跨分支附加（环节 2 前置约束 / 环节 4 验收，软依赖）
-const HALLMARK_EXTRA = {"2":["hallmark-anti-patterns","hallmark-genre-bans"],"4":["hallmark-slop-test"]};
+const HALLMARK_EXTRA = {
+  2: ["hallmark-anti-patterns", "hallmark-genre-bans"],
+  // kill-ai-slop（V·次）与 hallmark-slop-test（V·次）同段同级同场景，前者曾零挂载 → 补齐（Phase 6 D2）
+  4: ["hallmark-slop-test", "kill-ai-slop"],
+};
 
 // interfaces cheat-sheet 细节 craft 跨分支附加（环节 2 转译）
 const CHEAT_EXTRA = {"2":["interfaces-cheat-sheet"]};
@@ -595,9 +650,15 @@ function main() {
     }
   }
 
-  // 组装输出
-  const output = {
-    generated: new Date().toISOString().slice(0, 10),
+  // 内容指纹（sha1 前 12 位，非日期）：内容不变则恒定——避免纯重跑因日期/提交产生无意义 diff。
+  // 注意：它是**本仓生成物**的指纹（含 ROUTES），两侧路由有意分叉故**不要求跨仓相等**；
+  // 跨仓对账用 manifest.designReferencesHash（技能树指纹）。
+  //
+  // 覆盖范围 = **除 generated 自身以外的全部输出字段**（output 由本对象展开而来）：
+  // 以前只哈希 5 个字段，source / logoExtra / hallmarkExtra / cheatExtra / qualityLevels
+  // 改动时指纹不变（实测把 LOGO_EXTRA 加一项，registry.json 字节变了而指纹纹丝不动）——
+  // 改成"展开同一对象"后，以后新增字段自动纳入，不会再漏。
+  const fingerprintPayload = {
     source: "skills/design-references/references/registry.md",
     resources,
     routes: ROUTES,
@@ -609,22 +670,24 @@ function main() {
     bucketNotes: BUCKET_NOTES,
     qualityLevels: QUALITY_LEVELS,
   };
+  const resourceFingerprint = createHash("sha1")
+    .update(JSON.stringify(fingerprintPayload))
+    .digest("hex")
+    .slice(0, 12);
+
+  // 组装输出（键序：generated 在前，其余与 fingerprintPayload 完全一致 → 指纹覆盖内容 ≡ 输出内容）
+  const output = { generated: resourceFingerprint, ...fingerprintPayload };
 
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(output, null, 2) + "\n");
 
-  // 版本配套元数据（追溯用）：checks/ 的 gate 号语义跟随 hallmarkRuleVersion；
-  // designReferencesSource 记录 registry.md 来源 commit（非 git 环境回退写死值）。
-  let drCommit = "unknown";
-  try {
-    drCommit = execSync("git rev-parse --short HEAD", { cwd: join(HERE, "../../..") }).toString().trim();
-  } catch {
-    /* 非 git 环境 */
-  }
+  // 版本配套元数据（追溯用）：checks/ 的 gate 号语义跟随 hallmarkRuleVersion。
+  // 不再写 git rev（自指字段：内容提交后必然变旧，需再补一个 chore 提交刷新，且两侧无法对账）；
+  // 改存**技能树内容指纹**：无自指、纯重跑零 diff、三处副本可用同一个值机械比对。
   const manifest = {
     hallmarkRuleVersion: "1.1.0",
-    designReferencesSource: `skills/design-references @ ${drCommit}`,
     registryGenerated: output.generated,
+    designReferencesHash: skillTreeHash(SKILL_DIR),
     registryResourceCount: resources.length,
   };
   writeFileSync(join(HERE, "../data/manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

@@ -4,9 +4,17 @@
  * 来源: https://interfaces.dev/cheat-sheet（转译，跟随其维护）
  * 只收录低误报、文本可判定的条目；severity 分级控制（error 明确违规 / warn 建议 / info 提示）。
  */
-import { loc, grepLines } from "./types.mjs";
+import { loc, grepLines, pageText } from "./types.mjs";
 
-const TEXT_ELEMENT_RE = /(^|,|\.)\s*[\w.-]*?(h[1-6]|p|title|hero|display|heading|caption|label|button|a\b)[\w.-]*$/i;
+// 文本元素选择器判定：关键词必须是**独立的标签/类名 token**，且允许后代/子代组合。
+// 两处历史缺陷都在这条正则上：
+//   ① 裸 `p` 会把任何含字母 p 的类名当文本元素（.spin/.pill/.input/.spec-table 全误报）→ 加边界与前视；
+//   ② 只在选择器**末尾**匹配，导致 `.card p { ... }` 这类后代选择器永远漏判 → 改为扫描任一段。
+const TEXT_TOKEN_RE = /(^|[\s>+~,.&])(h[1-6]|\bp\b|title|hero|display|heading|caption|label|button|\ba\b)(?![\w-])/i;
+const TEXT_ELEMENT_RE = TEXT_TOKEN_RE; // 保留旧名，避免其它引用处失配
+function isTextSelector(sel) {
+  return TEXT_TOKEN_RE.test(sel);
+}
 
 export function runCheatChecks(files) {
   const findings = [];
@@ -37,7 +45,7 @@ export function runCheatChecks(files) {
     }
 
     // ---- 3. 缺 -webkit-font-smoothing: antialiased（根级一次性）----
-    if (/h[1-6]|body|\./i.test(c) && !/-webkit-font-smoothing\s*:\s*antialiased/i.test(c)) {
+    if (/h[1-6]|body|\./i.test(c) && !/-webkit-font-smoothing\s*:\s*antialiased/i.test(pageText(f))) {
       findings.push({
         gate: "CS-3",
         rule: "missing-antialiased",
@@ -51,7 +59,7 @@ export function runCheatChecks(files) {
     const blocks = c.split(/}/);
     blocks.forEach((block, bi) => {
       const sel = (block.split("{")[0] || "").trim();
-      if (!TEXT_ELEMENT_RE.test(sel)) return;
+      if (!isTextSelector(sel)) return;
       if (/(^|[;{]\s*)(width|height)\s*:\s*\d+(px|rem|em|vw|%)/i.test(block)) {
         findings.push({
           gate: "CS-4",
@@ -94,7 +102,7 @@ export function runCheatChecks(files) {
     }
 
     // ---- 7. 标题缺 text-wrap: balance ----
-    if (/h[1-6]|title|hero|display/i.test(c) && !/text-wrap\s*:\s*balance/i.test(c)) {
+    if (/h[1-6]|title|hero|display/i.test(c) && !/text-wrap\s*:\s*balance/i.test(pageText(f))) {
       findings.push({
         gate: "CS-7",
         rule: "missing-text-wrap-balance",

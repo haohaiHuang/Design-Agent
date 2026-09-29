@@ -4,7 +4,7 @@
  * 覆盖 hallmark gate 2 / 10 / 14 / 24 / 34 / 50 / 51 + design-references 环节4 圆角/渐变扫描。
  * 全部为文本可判定；渲染类（gate 6/35/36/44/45）不在本模块。
  */
-import { loc, grepLines } from "./types.mjs";
+import { loc, grepLines, pageText, collectCssVars, propValueSpan, resolveVar, isSrOnlyIdiom } from "./types.mjs";
 
 const SPACING_OK = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72, 80, 96, 128, 160, 192];
 const RADIUS_OK = new Set([0, 2, 4, 6, 8, 12, 16, 24, 32, 999, 9999]);
@@ -12,6 +12,7 @@ const RADIUS_OK = new Set([0, 2, 4, 6, 8, 12, 16, 24, 32, 999, 9999]);
 export function runLayoutChecks(files) {
   const findings = [];
   const isPage = files.some((f) => f.kind === "html" || /\.html?$/.test(f.path));
+  const vars = collectCssVars(files);
 
   for (const f of files) {
     const c = f.content;
@@ -71,27 +72,34 @@ export function runLayoutChecks(files) {
     }
 
     // ---- gate 24: 非 4pt 间距 ----
-    for (const ln of grepLines(c, /(padding|gap|margin)\s*:\s*[^;]*\b\d{1,3}px\b/i)) {
-      const line = c.split("\n")[ln - 1];
-      const vals = line.match(/(\d{1,3})px/g);
-      if (!vals) continue;
-      const bad = vals.filter((v) => {
-        const n = parseInt(v);
-        return n !== 0 && !SPACING_OK.includes(n);
-      });
-      if (bad.length) {
-        findings.push({
-          gate: "24",
-          rule: "off-scale-spacing",
-          severity: "warn",
-          message: `间距值不在 4pt 刻度上：${bad.join(", ")}（--space-* 令牌或多 4 倍数）。`,
-          location: loc(f.path, ln),
+    // 只判定 padding / gap / margin **自身的值片段**（原先按整行抓所有 Npx，会把同一行
+    // border:1px 的 1px 算成间距违规）；sr-only 惯用法（width/height:1px + 隐藏）整行豁免。
+    for (const prop of ["padding", "gap", "margin"]) {
+      for (const ln of grepLines(c, new RegExp(`(?:^|[;{\\s])${prop}\\s*:`, "i"))) {
+        const line = c.split("\n")[ln - 1];
+        if (isSrOnlyIdiom(line)) continue;
+        const span = propValueSpan(line, prop);
+        if (!span) continue;
+        const vals = span.match(/(\d{1,3})px/g);
+        if (!vals) continue;
+        const bad = vals.filter((v) => {
+          const n = parseInt(v);
+          return n !== 0 && !SPACING_OK.includes(n);
         });
+        if (bad.length) {
+          findings.push({
+            gate: "24",
+            rule: "off-scale-spacing",
+            severity: "warn",
+            message: `间距值不在 4pt 刻度上：${bad.join(", ")}（--space-* 令牌或多 4 倍数）。`,
+            location: loc(f.path, ln),
+          });
+        }
       }
     }
 
-    // ---- gate 34: 缺 overflow-x: clip（页面级，html/body）----
-    if (isPage && !/overflow-x\s*:\s*clip/i.test(c)) {
+    // ---- gate 34: 缺 overflow-x: clip（页面级，html/body；含外链样式表）----
+    if (f.kind === "html" && !/overflow-x\s*:\s*clip/i.test(pageText(f))) {
       findings.push({
         gate: "34",
         rule: "missing-overflow-x-clip",
@@ -117,9 +125,10 @@ export function runLayoutChecks(files) {
       }
     }
 
-    // ---- gate 51: display 标题缺 overflow-wrap ----
-    const hasDisplayHead = /(h1|hero|display|title)[\w-]*\s*[,{]/i.test(c);
-    if (hasDisplayHead && !/overflow-wrap\s*:\s*anywhere/.test(c)) {
+    // ---- gate 51: display 标题缺 overflow-wrap（页面级，含外链样式表）----
+    const pageC = f.kind === "html" ? pageText(f) : c;
+    const hasDisplayHead = /(h1|hero|display|title)[\w-]*\s*[,{]/i.test(pageC);
+    if (hasDisplayHead && !/overflow-wrap\s*:\s*anywhere/.test(pageC)) {
       findings.push({
         gate: "51",
         rule: "missing-overflow-wrap",
@@ -137,7 +146,12 @@ export function runLayoutChecks(files) {
       const vals = m[1].split(/\s+/).map((v) => v.trim());
       const bad = vals.filter((v) => {
         if (v.endsWith("%")) return false;
-        const n = parseFloat(v);
+        // 解析一层 var(--x)：token 引用是约束集要求，不能反过来判它档位异常；
+        // 解析不出（链式 var/无 fallback）则跳过，不误报。
+        const resolved = v.includes("var(") ? resolveVar(v, vars) : v;
+        if (resolved === null) return false;
+        const n = parseFloat(resolved);
+        if (Number.isNaN(n)) return false;
         return !RADIUS_OK.has(n);
       });
       if (bad.length) {
@@ -146,6 +160,38 @@ export function runLayoutChecks(files) {
           rule: "radius-off-scale",
           severity: "info",
           message: `border-radius 档位异常：${bad.join(", ")}（常见档位 0/2/4/8/12/16/24/999）。`,
+          location: loc(f.path, ln),
+        });
+      }
+    }
+
+    // ---- DR-5: 注释定界符自毁 / 未定义的 CSS 变量（渲染核对才能发现的静态盲区）----
+    // 实测教训：注释里再写一个 `/*` 会让第一个 `*/` 提前闭合，把后面的 `:root` 一起吞掉，
+    // 全页令牌失效（标题回退 Times、按钮透明），而所有文本类检查都看不出来。
+    if (f.kind === "html" || f.kind === "css") {
+      const raw = f.raw ?? c;
+      const opens = (raw.match(/\/\*/g) || []).length;
+      const closes = (raw.match(/\*\//g) || []).length;
+      if (opens > closes) {
+        findings.push({
+          gate: "DR-5",
+          rule: "comment-unterminated",
+          severity: "error",
+          message: `CSS 注释定界符未闭合（/* ${opens} 个 vs */ ${closes} 个）：注释会一直吃到文件尾，其后的 :root 与规则全部失效——渲染核对才能发现，静态扫描看不见。`,
+          location: loc(f.path),
+        });
+      }
+    }
+    for (const ln of grepLines(c, /var\(\s*--[a-z0-9-]+/i)) {
+      const line = c.split("\n")[ln - 1];
+      for (const m of line.matchAll(/var\(\s*--([a-z0-9-]+)\s*(,)?/gi)) {
+        const name = m[1].toLowerCase();
+        if (vars.has(name) || m[2]) continue; // 已定义或有 fallback → 合法
+        findings.push({
+          gate: "DR-5",
+          rule: "undefined-css-var",
+          severity: "warn",
+          message: `引用了未定义的 CSS 变量 --${name}（且无 fallback）：该条声明会整条失效，渲染结果与代码意图不一致。`,
           location: loc(f.path, ln),
         });
       }
