@@ -27,5 +27,7 @@ export function skillTreeHash(skillDir) {
     .map((p) => relative(skillDir, p).split(sep).join("/"))
     .sort()
     .map((rel) => `${rel}\0${createHash("sha256").update(readFileSync(join(skillDir, rel))).digest("hex")}`);
+  // 空树必须响亮报错：sha256("") 会静默产出合法值，空壳目录会被当成"指纹一致"通过
+  if (lines.length === 0) throw new Error(`技能树为空，拒绝生成指纹：${skillDir}`);
   return "sha256:" + createHash("sha256").update(lines.join("\n")).digest("hex").slice(0, 16);
 }
