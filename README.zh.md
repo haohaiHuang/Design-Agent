@@ -24,6 +24,33 @@
 > `$.prefix missing required value`。本仓库预设已用 0.1.5 schema，并启用了 0.1.5 新增的
 > 两行：`present`（`dsh-tool-present` 交付物声明）与 `command-goal`（`/goal` 命令）。
 
+## ⚠️ DSH 0.2.0+（桌面端）：预设不再从目录扫描
+
+**0.2.0 换了预设机制**：0.1.x 里预设是目录（`~/.dsh/.agent-presets/<id>/agent.cordis.yml`），由
+`dsh-agent-presets` **扫描发现**；0.2.0 改为 `dsh-agent-preset-registry`（config 只有 `default` /
+`selectedDefault`，**没有 roots、不再扫目录**），每个预设变成 **profile 组合里的一行**
+`@deepseek-ai/dsh-agent-preset`（`config.plugins` 内联，`id` 与 `plugins` 必填）。
+
+**后果**：升级到桌面端（0.2.0-rc.2）后，放在 `~/.dsh/.agent-presets/` 的自定义预设会**从列表里消失**
+——不是坏了，是那个目录不再被读取。
+
+**迁移**（把目录格式转成根层 insert patch）：
+
+```bash
+node docs/migrate-preset-0.2.0.mjs \
+  --src presets/my-agent/agent.cordis.yml \
+  --plugin "$PWD/plugins/design-router/index.mjs" \
+  --append ~/.dsh/profiles/desktop/cordis.patch.yml      # 自动备份 .bak.<时间戳>
+```
+
+然后**完全退出并重开**桌面端，新建会话的预设列表里就会出现「设计 Agent」。
+
+两个格式变化要注意：① **插件行必须用绝对路径**（内联预设没有"预设目录"作相对基准，
+`./plugins/...` 会落到 profile 目录去）——迁移脚本会自动改写；② **桌面 profile 由 Electron 管理**，
+`cordis.patch.yml` 同时承载应用写入的设置，若某次设置变更把它整体重写，重跑一次 `--append` 即可。
+
+> 旧的目录 `~/.dsh/.agent-presets/my-agent/` 可留作参考；0.2.0 已忽略它。
+
 ## plugins/design-router — 确定性工具
 
 移植自 [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) 的

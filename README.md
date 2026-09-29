@@ -25,6 +25,49 @@ A fully reproducible package for a **design agent on [DeepSeek Harness (DSH)](ht
 > two rows introduced in 0.1.5: `present` (`dsh-tool-present`, deliverable declaration) and
 > `command-goal` (`/goal` command).
 
+## ⚠️ DSH 0.2.0+ (desktop app): presets are no longer scanned from a directory
+
+**0.2.0 replaced the preset mechanism.** In 0.1.x a preset was a directory
+(`~/.dsh/.agent-presets/<id>/agent.cordis.yml`) that `@deepseek-ai/dsh-agent-presets` **scanned and discovered**.
+In 0.2.0 there is `@deepseek-ai/dsh-agent-preset-registry` whose config accepts **only** `default` /
+`selectedDefault` — **no roots, no directory discovery** — and every preset is now **one row in the profile
+composition**: `@deepseek-ai/dsh-agent-preset` with an inline `plugins:` list (`id` + `plugins` are required).
+
+Consequence: after upgrading to the desktop app (0.2.0-rc.2), a custom preset sitting in
+`~/.dsh/.agent-presets/` **silently disappears from the picker** — nothing is broken, the directory is simply
+no longer read.
+
+### Migrating a preset to 0.2.0
+
+`docs/migrate-preset-0.2.0.mjs` converts the directory format into a root-level `insert` patch:
+
+```bash
+# 1. 只生成 patch（检查用）
+node docs/migrate-preset-0.2.0.mjs \
+  --src presets/my-agent/agent.cordis.yml \
+  --id design-agent --name "设计 Agent" \
+  --plugin "$PWD/plugins/design-router/index.mjs" \
+  --out /tmp/design-agent-patch.yml
+
+# 2. 写入某个 profile 的 patch 层（自动备份为 .bak.<时间戳>）
+node docs/migrate-preset-0.2.0.mjs --src presets/my-agent/agent.cordis.yml \
+  --plugin "$PWD/plugins/design-router/index.mjs" \
+  --append ~/.dsh/profiles/desktop/cordis.patch.yml
+```
+
+Then **fully quit and reopen** the app; the preset appears in the new-session preset list.
+
+Two things that change with the inline format:
+
+1. **The plugin row must use an absolute path.** An inline preset has no "preset directory", so
+   `./plugins/design-router/index.mjs` would resolve against the *profile* directory. The migration script
+   rewrites it to the absolute repo path (override with `--plugin`).
+2. **The desktop profile is Electron-managed.** `~/.dsh/profiles/desktop/cordis.patch.yml` also receives
+   app-written settings; if a settings change ever rewrites that file, re-run the `--append` command
+   (it is idempotent-safe in the sense that it appends — remove the previous block first if duplicated).
+
+> The legacy directory `~/.dsh/.agent-presets/my-agent/` can be kept as a reference; 0.2.0 ignores it.
+
 ## plugins/design-router — deterministic tools
 
 Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensions/design-router` (pi extension → DSH Cordis plugin). Mounted by the `my-agent` preset via a **relative-path row** in `agent.cordis.yml` (the preset's `plugins/` is a relative symlink to the repo-root `plugins/`, expanded by `cp -RL` on install — no absolute paths needed):
