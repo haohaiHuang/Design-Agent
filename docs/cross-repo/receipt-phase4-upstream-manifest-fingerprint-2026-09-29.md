@@ -102,3 +102,9 @@ fix(design-router): 内容指纹覆盖全部输出字段 + 技能树指纹过滤
 ```
 
 **落实结果**：`d3ce860`，已推 `origin/main`；提交内容 = 审查产物（提交后 `git status --porcelain` 为空，生成器复跑零 diff）。
+
+---
+
+**追记（2026-09-29，Phase 5 收尾后）**：本文所有上游 `registryGenerated = 93517affeae9` 均为**当时**值，
+已被 **`cfbd65fc5e50`** 取代（Phase 5 裁定补齐 `LOGO_EXTRA` 的 5 个 logo 源；DSH 侧 `22ab4157ed14` 未变）。
+本文字段语义、漂移检查、四链验证结论不受影响。

@@ -363,9 +363,12 @@ V4 generated     上游 93517affeae9 ✅ / DSH 22ab4157ed14 ✅（两侧不同�
 | --- | --- |
 | 技能树指纹（跨仓必须一致） | `sha256:b188827d92fc0094` |
 | `registry.md` 文件指纹 | `sha256:8b6d51e422e56cdce415e377beb5e1b524782e5681f6188353d52c65d08c73aa` |
-| `registryGenerated` | 上游 `93517affeae9` / DSH `22ab4157ed14`（**不同属预期**） |
+| `registryGenerated` | 上游 `cfbd65fc5e50` / DSH `22ab4157ed14`（**不同属预期**） |
 | 资源条目 | 两侧均 **103** |
 | 对账命令 | DSH 侧 `node plugins/design-router/scripts/check-checks-sync.mjs <上游 checks 目录>` |
+
+> **追记（2026-09-29，Phase 5 收尾）**：上游值由 `93517affeae9` → `cfbd65fc5e50`（原因是 `LOGO_EXTRA` 补齐 5 个 logo 源：`logggos`/`logo-archive`/`logoinspo`/`logosystem`/`logobook`），DSH 值未变。
+> 上文 §11 验收记录里的旧值属**当时**证据，不再读作当前状态。详见 [`receipt-phase5-reconciliation-2026-09-29.md`](receipt-phase5-reconciliation-2026-09-29.md)。
 
 ### 登记未做（不阻塞）
 
