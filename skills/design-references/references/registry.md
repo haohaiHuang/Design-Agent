@@ -59,6 +59,8 @@
 
 **版本号写入规范（防腐烂）**：不写死第三方 CLI 的当前版本——统一写「已装，版本自检 `<cmd> --version`」。确需记录版本时，必须绑日期并标「当时」作历史证据，不得读作当前状态。
 
+> **路由短名单是各仓库自有策划**：本仓库 `ROUTES`（`scripts/build-registry.mjs`）只收「`主` 层级 + 需求特征命中项」，是策划结果而非全量索引（全量目录是本文件）。**不追求与 DSH 侧一致**；跨仓回流只回流**资源行与通用规则**，路由各自主张。
+
 改 registry.md 后重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json；禁止手改 registry.json。
 
 ---

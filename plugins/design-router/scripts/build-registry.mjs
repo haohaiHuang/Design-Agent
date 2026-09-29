@@ -330,7 +330,6 @@ const ROUTES = {
       "kami-skeleton",
       "refero-design",
       "design-md-skill",
-      "poster-compositions-landing",
       "design-md",
     ],
     "3": [
