@@ -6,6 +6,10 @@
  * 未来 pi 版更新检查器时，阈值细节无法逐行 diff，容易漏同步。本脚本从两版提取
  * 实际使用的 gate 号（排除类型定义里的字符串），对比覆盖是否一致。
  *
+ * 同时做**技能树指纹对账**：`skills/design-references/` 的内容指纹在三处（DSH 仓库 / pi 仓库 /
+ * 已安装 ~/.agents/skills）必须相同——这是"资源目录必须一致"的机械保证（manifest.designReferencesHash
+ * 就是同一个值）。路由短名单（ROUTES）有意分叉，不参与该项比对。
+ *
  * 用法：
  *   node plugins/design-router/scripts/check-checks-sync.mjs
  *   node plugins/design-router/scripts/check-checks-sync.mjs /path/to/my-pi-skills/extensions/design-router/checks
@@ -16,6 +20,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
+import { skillTreeHash } from "./skill-hash.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DSH_CHECKS = join(HERE, "../checks");
@@ -79,7 +84,40 @@ for (const f of [...allFiles].sort()) {
 console.log("");
 if (fail) {
   console.log(`❌ ${fail} 个文件 gate 覆盖不一致——对照 pi 版检查移植是否完整。`);
-  process.exit(1);
 } else {
   console.log("✅ 全部 checks 与 pi 版 gate 覆盖一致。");
 }
+
+// ---------- 技能树指纹对账（三处副本必须相同）----------
+const DSH_SKILL = join(HERE, "../../../skills/design-references");   // plugins/design-router/scripts → 仓库根
+const PI_SKILL = join(PI_CHECKS, "../../../skills/design-references"); // <pi>/extensions/design-router/checks → <pi>
+const INSTALLED_SKILL = join(homedir(), ".agents", "skills", "design-references");
+
+const targets = [
+  ["DSH 仓库", DSH_SKILL],
+  ["pi 仓库", PI_SKILL],
+  ["已安装 ~/.agents", INSTALLED_SKILL],
+];
+const hashes = [];
+console.log("\n技能树指纹（skills/design-references 全树，跨仓必须一致）：");
+for (const [label, dir] of targets) {
+  if (!existsSync(dir)) {
+    console.log(`  ⏭️  ${label}: 目录不存在，跳过`);
+    continue;
+  }
+  const h = skillTreeHash(dir);
+  hashes.push([label, h]);
+  console.log(`  ${label.padEnd(18)} ${h}`);
+}
+const uniq = new Set(hashes.map(([, h]) => h));
+if (hashes.length === 0) {
+  console.log("  （未找到任何技能副本）");
+} else if (uniq.size === 1) {
+  console.log(`✅ ${hashes.length} 处技能副本内容一致。`);
+} else {
+  fail++;
+  console.log("❌ 技能副本内容不一致——资源目录必须一致（改 registry.md 后记得整文件复制到其它副本）。");
+}
+
+console.log("");
+if (fail) process.exit(1);

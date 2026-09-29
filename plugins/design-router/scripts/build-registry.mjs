@@ -11,11 +11,13 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { skillTreeHash } from "./skill-hash.mjs";
+import { createHash } from "node:crypto";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SRC = join(HERE, "../../../skills/design-references/references/registry.md");
 const OUT = join(HERE, "../data/registry.json");
+const SKILL_DIR = join(HERE, "../../../skills/design-references");
 
 // ---------- 名称 → slug 映射（registry 首列为中文+括号描述，需人工映射） ----------
 const SLUG_BY_KEYWORD = [
@@ -634,9 +636,25 @@ function main() {
     }
   }
 
+  // 内容指纹（sha1 前 12 位，非日期）：内容不变则恒定——避免纯重跑因日期/提交产生无意义 diff。
+  // 注意：它是**本仓生成物**的指纹（含 ROUTES），两侧路由有意分叉故**不要求跨仓相等**；
+  // 跨仓对账用 manifest.designReferencesHash（技能树指纹）。
+  const resourceFingerprint = createHash("sha1")
+    .update(
+      JSON.stringify({
+        resources,
+        routes: ROUTES,
+        buckets: BUCKETS,
+        routing: ROUTING,
+        bucketNotes: BUCKET_NOTES,
+      }),
+    )
+    .digest("hex")
+    .slice(0, 12);
+
   // 组装输出
   const output = {
-    generated: new Date().toISOString().slice(0, 10),
+    generated: resourceFingerprint,
     source: "skills/design-references/references/registry.md",
     resources,
     routes: ROUTES,
@@ -652,18 +670,13 @@ function main() {
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(output, null, 2) + "\n");
 
-  // 版本配套元数据（追溯用）：checks/ 的 gate 号语义跟随 hallmarkRuleVersion；
-  // designReferencesSource 记录 registry.md 来源 commit（非 git 环境回退写死值）。
-  let drCommit = "unknown";
-  try {
-    drCommit = execSync("git rev-parse --short HEAD", { cwd: join(HERE, "../../..") }).toString().trim();
-  } catch {
-    /* 非 git 环境 */
-  }
+  // 版本配套元数据（追溯用）：checks/ 的 gate 号语义跟随 hallmarkRuleVersion。
+  // 不再写 git rev（自指字段：内容提交后必然变旧，需再补一个 chore 提交刷新，且两侧无法对账）；
+  // 改存**技能树内容指纹**：无自指、纯重跑零 diff、三处副本可用同一个值机械比对。
   const manifest = {
     hallmarkRuleVersion: "1.1.0",
-    designReferencesSource: `skills/design-references @ ${drCommit}`,
     registryGenerated: output.generated,
+    designReferencesHash: skillTreeHash(SKILL_DIR),
     registryResourceCount: resources.length,
   };
   writeFileSync(join(HERE, "../data/manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
