@@ -639,22 +639,12 @@ function main() {
   // 内容指纹（sha1 前 12 位，非日期）：内容不变则恒定——避免纯重跑因日期/提交产生无意义 diff。
   // 注意：它是**本仓生成物**的指纹（含 ROUTES），两侧路由有意分叉故**不要求跨仓相等**；
   // 跨仓对账用 manifest.designReferencesHash（技能树指纹）。
-  const resourceFingerprint = createHash("sha1")
-    .update(
-      JSON.stringify({
-        resources,
-        routes: ROUTES,
-        buckets: BUCKETS,
-        routing: ROUTING,
-        bucketNotes: BUCKET_NOTES,
-      }),
-    )
-    .digest("hex")
-    .slice(0, 12);
-
-  // 组装输出
-  const output = {
-    generated: resourceFingerprint,
+  //
+  // 覆盖范围 = **除 generated 自身以外的全部输出字段**（output 由本对象展开而来）：
+  // 以前只哈希 5 个字段，source / logoExtra / hallmarkExtra / cheatExtra / qualityLevels
+  // 改动时指纹不变（实测把 LOGO_EXTRA 加一项，registry.json 字节变了而指纹纹丝不动）——
+  // 改成"展开同一对象"后，以后新增字段自动纳入，不会再漏。
+  const fingerprintPayload = {
     source: "skills/design-references/references/registry.md",
     resources,
     routes: ROUTES,
@@ -666,6 +656,13 @@ function main() {
     bucketNotes: BUCKET_NOTES,
     qualityLevels: QUALITY_LEVELS,
   };
+  const resourceFingerprint = createHash("sha1")
+    .update(JSON.stringify(fingerprintPayload))
+    .digest("hex")
+    .slice(0, 12);
+
+  // 组装输出（键序：generated 在前，其余与 fingerprintPayload 完全一致 → 指纹覆盖内容 ≡ 输出内容）
+  const output = { generated: resourceFingerprint, ...fingerprintPayload };
 
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(output, null, 2) + "\n");

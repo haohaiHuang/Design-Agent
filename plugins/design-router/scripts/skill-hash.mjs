@@ -13,10 +13,19 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
+// 垃圾文件/目录过滤：三处副本任一出现 .DS_Store 或编辑器临时文件就会误报"不一致"，
+// 而误报的表现恰好是这个指纹要防的假警报。（当前树里没有这类文件，故过滤不改变指纹值。）
+const JUNK_DIR = new Set([".git", "node_modules"]);
+const JUNK_NAME = /^(\.DS_Store|Thumbs\.db|desktop\.ini)$/i;
+const JUNK_SUFFIX = /(~|\.sw[po]|\.tmp)$/i;
+const JUNK_PREFIX = /^\.#/;
+const isJunk = (name) => JUNK_NAME.test(name) || JUNK_SUFFIX.test(name) || JUNK_PREFIX.test(name);
+
 /** 技能树指纹：排序后的「相对路径\0文件 sha256」逐行拼接，再 sha256，取前 16 位 */
 export function skillTreeHash(skillDir) {
   const walk = (d, acc = []) => {
     for (const e of readdirSync(d).sort()) {
+      if (JUNK_DIR.has(e) || isJunk(e)) continue;
       const p = join(d, e);
       if (statSync(p).isDirectory()) walk(p, acc);
       else acc.push(p);
