@@ -48,6 +48,9 @@ function checkDir(label, dir, base) {
   const out = {};
   for (const f of readdirSync(dir)) {
     if (!f.endsWith(".ts") && !f.endsWith(".mjs")) continue;
+    // 排除测试与运行器：它们扫描的 gate 号取决于测试怎么写（如 kill-slop.test 顺带断言
+    // typography 的 gate 1/38），与"检查器覆盖"无关 —— 早先它会报出两条假差异。
+    if (/\.test\.(ts|mjs)$/.test(f) || /^run-tests\./.test(f)) continue;
     const content = readFileSync(join(dir, f), "utf8");
     const gates = extractGates(content);
     const name = f.replace(/\.(ts|mjs)$/, "");

@@ -42,7 +42,7 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 | `design_route <need>` | Map need keywords to recommended style-bucket combos (primary must-check + secondary on-demand) + per-bucket representative resources | Phase 1 research (anti-homogeneity routing) |
 | `design_diversity <c1> <c2> <c3>` | Machine check of 3 candidates' difference (hue family / font tone / source bucket), PASS/FAIL | Before presenting candidates in Phase 1 (anti-homogeneity check) |
 | `design_quality <report\|query>` | Record/query source-quality signals (extraction success / rework rate / reachability — objective, not taste-based); local log, not in git | Record after Phase 4 / consume for downranking in Phase 1 |
-| `design_audit <target>` | Machine slop gates (hallmark machine subset) + interfaces CS-* 8 rules + phase-4 scans + inherited-contrast | Phase 4 verification |
+| `design_audit <target>` | Machine slop gates (hallmark machine subset) + interfaces CS-* 8 rules + phase-4 scans (incl. `DR-4` weight/radius, `DR-5` comment self-destruct & undefined vars, `DR-6` non-text contrast per WCAG 1.4.11) + inherited-contrast. Strips comments before scanning, resolves one level of `var()`, reads same-dir linked stylesheets, honours inline `slop-ignore: <reason>` waivers | Phase 4 verification |
 | `design_contrast <target>` | WCAG 2.1 + APCA-approx contrast | Phase 4 verification |
 
 ### Intentional differences from the pi version
@@ -119,6 +119,38 @@ with `presets/my-agent/plugins` as a relative symlink expanded by `cp -RL`), so 
 machine just copies the preset directory — **no path edits required**. If you'd rather
 avoid symlinks, copy `plugins/design-router/` into `presets/my-agent/plugins/` and use
 plain `cp -R` (same result, just a second copy).
+
+## Prerequisites (from real-machine testing)
+
+The audit checks and the skill's rendering discipline lean on a few local tools. Missing ones only degrade output, but degrade it a lot:
+
+```bash
+# 1) Visual review (vision skill + the critic sub-agent's direct image reading)
+#    vision-cli / ego-browser usually live in ~/.local/bin — if that dir is not on PATH the tools report "not found"
+ln -sf ~/.local/bin/vision-cli   /opt/homebrew/bin/vision-cli
+ln -sf ~/.local/bin/ego-browser  /opt/homebrew/bin/ego-browser   # any dir already on PATH
+
+# 2) Reference-site token extraction
+npm install -g dembrandt            # real-browser render → exact tokens + DESIGN.md
+
+# 3) Screenshot channel (measured on this machine; try in order)
+#    chrome-headless-shell (Playwright cache) → iframe preview shell →
+#    ego-browser Page.printToPDF + pdftoppm
+#    Note: headless Google Chrome enforces a minimum window width (`--window-size=375` yields
+#    innerWidth 500), so narrow-viewport shots come out as a wider layout cropped to 375.
+```
+
+## Verified (re-runnable verification entry points)
+
+Full verdicts and evidence for 18 real-machine cases, 8 post-fix re-runs and 3 back-port samples live in
+[`docs/test-results.md`](docs/test-results.md); fixtures and the case list in [`docs/test-plan.md`](docs/test-plan.md)
+and [`docs/test-fixtures/`](docs/test-fixtures/).
+
+```bash
+node plugins/design-router/index.test.mjs                                  # plugin unit tests (incl. 8 false-positive regressions)
+node plugins/design-router/scripts/check-checks-sync.mjs <pi-checks-dir>   # gate-coverage parity with the pi version
+cd <my-pi-skills>/extensions/design-router/checks && node run-tests.mjs    # upstream checker suite (runs under Node)
+```
 
 ### Repository structure
 

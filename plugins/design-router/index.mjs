@@ -23,7 +23,7 @@ import { runTypographyChecks } from "./checks/typography.mjs";
 import { runLayoutChecks } from "./checks/layout.mjs";
 import { runA11yChecks } from "./checks/a11y.mjs";
 import { runCopyChecks } from "./checks/copy.mjs";
-import { runContrastChecks } from "./checks/contrast.mjs";
+import { runContrastChecks, runNonTextContrastChecks } from "./checks/contrast.mjs";
 import { runCheatChecks } from "./checks/cheat.mjs";
 import { runKillSlopChecks } from "./checks/kill-slop.mjs";
 import { runAssetChecks } from "./checks/assets.mjs";
@@ -181,6 +181,48 @@ function readTargetFiles(target) {
 
 const VISUAL_GATES_NOTE =
   "以下 gates 需视觉/上下文判定，机器无法覆盖，请模型按 hallmark references/slop-test.md 自查：6（hero 居中）、8（结构指纹）、28/29/31（enrichment）、32（diversification knob）、35/36（装饰/基线）、44/45（hero 折叠/无意义装饰）、52-54（响应式 section-head/radio/eyebrow 列）、56（sticky 重叠）、57（studied-DNA 丢弃）。";
+
+/**
+ * 行内豁免标记：`slop-ignore: <理由>` / `deslop-ignore: <理由>`（必须带理由，空理由不算）。
+ *
+ * 用途：产物里**刻意保留**的缺陷需要正式出口——例如"引用证据 / 现状复现 / 正误对照"块里
+ * 故意展示原来的 13px 圆角、渐变按钮、编造指标。剥离注释只解决注释内的说明，
+ * 解决不了可见正文里的反例。标记可写在 CSS 注释、HTML 注释或该行行尾。
+ * 生效范围：① 标记所在行；② 若该行在 `{ ... }` 块内，则整个块。
+ */
+const IGNORE_MARK_RE = /(?:slop|deslop)-ignore\s*:\s*[^\s*\-][^\n]*/i;
+
+function ignoreWindow(text, lineNo) {
+  const lines = text.split("\n");
+  const idx = lineNo - 1;
+  if (idx < 0 || idx >= lines.length) return "";
+  // ① 起点：先向上吃连续注释行（标记常写在被标注规则的正上方），再吃紧邻的块首 `{`
+  let start = idx;
+  let j = idx - 1;
+  while (j >= 0 && /^\s*(\/\*|\*|\/\/|<!--)/.test(lines[j])) { start = j; j--; }
+  if (j >= 0 && /\{/.test(lines[j])) start = j;
+  const hasOpen = lines.slice(start, idx + 1).some((l) => /\{/.test(l));
+  // ② 终点：块内则吃到配对的 `}`（有上限，避免跨文件吞太多）
+  let end = idx;
+  if (hasOpen) {
+    for (let i = idx; i < lines.length && i <= idx + 60; i++) {
+      if (/\}/.test(lines[i])) { end = i; break; }
+    }
+  }
+  return lines.slice(start, end + 1).join("\n");
+}
+
+function applyIgnores(findings, files) {
+  const byPath = new Map(files.map((f) => [f.path, f]));
+  return findings.filter((f) => {
+    const m = /^(.*?)(?::(\d+))?$/.exec(f.location || "");
+    if (!m || !m[2]) return true;                 // 文件级命中不豁免（要豁免请放到具体行）
+    const file = byPath.get(m[1]);
+    if (!file) return true;
+    const text = file.raw ?? file.content;
+    return !IGNORE_MARK_RE.test(ignoreWindow(text, parseInt(m[2], 10)));
+  });
+}
 
 function formatFindings(findings, showVisualNote) {
   if (findings.length === 0) {
@@ -541,13 +583,17 @@ function apply(ctx) {
         ...runA11yChecks(files),
         ...runCopyChecks(files),
         ...runContrastChecks(files),
+        ...runNonTextContrastChecks(files),
         ...runCheatChecks(files),
         ...runKillSlopChecks(files),
         ...runAssetChecks(files, targetAbs),
       ];
       const isPage = files.some((f) => f.kind === "html");
-      const text = formatFindings(findings, isPage);
-      return `${text}\n\n扫描 ${paths.length} 个文件：${paths.slice(0, 8).join(", ")}${paths.length > 8 ? " …" : ""}`;
+      const kept = applyIgnores(findings, files);
+      const ignored = findings.length - kept.length;
+      const text = formatFindings(kept, isPage);
+      const ignoreNote = ignored ? `\n（另有 ${ignored} 项被 \`slop-ignore\` 标记豁免，已核对该行/块确有理由）` : "";
+      return `${text}${ignoreNote}\n\n扫描 ${paths.length} 个文件：${paths.slice(0, 8).join(", ")}${paths.length > 8 ? " …" : ""}`;
     },
   }));
 

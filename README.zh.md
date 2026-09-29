@@ -44,7 +44,7 @@
 | `design_route <需求特征>` | 按需求关键词返回推荐风格桶组合（主桶必查 + 次桶按需）+ 各桶代表资源 | 环节 1 调研（反同质化定位） |
 | `design_diversity <c1> <c2> <c3>` | 3 候选差异度机器检查（色相族/字体气质/来源桶），PASS/FAIL | 环节 1 候选展示前（反同质化校验） |
 | `design_quality <report\|query>` | 质量信号记录/查询（提取成功率/回炉率/可达性等客观信号，非审美），本地日志不入 git | 环节 4 后记录 / 环节 1 消费降权 |
-| `design_audit <target>` | 机器化 slop gates（hallmark 机器子集）+ interfaces CS-* 8 条 + 环节 4 扫描 + 继承链对比度 | 环节 4 校验 |
+| `design_audit <target>` | 机器化 slop gates（hallmark 机器子集）+ interfaces CS-* 8 条 + 环节 4 扫描（含 `DR-4` 字重/圆角、`DR-5` 注释自毁与未定义变量、`DR-6` 非文本对比度 WCAG 1.4.11）+ 继承链对比度。扫描前剥离注释、解析一层 `var()`、读同目录外链样式表、支持 `slop-ignore: <理由>` 行内豁免 | 环节 4 校验 |
 | `design_contrast <target>` | WCAG 2.1 + APCA 近似对比度 | 环节 4 校验 |
 
 ### 与 pi 版的差异（有意裁剪）
@@ -109,6 +109,37 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 （`presets/my-agent/plugins` 为相对软链，`cp -RL` 展开），换机器直接复制预设目录即可，
 **无需修改任何路径**。若不想用软链，也可以把 `plugins/design-router/` 整体复制进
 `presets/my-agent/plugins/` 再 `cp -R`（结果相同，只是多一份拷贝）。
+
+## 环境前置（真机测试补充）
+
+`design_audit` 与技能里的渲染纪律依赖几个本机工具，缺失只降级、不阻断，但会明显拉低交付质量：
+
+```bash
+# 1) 视觉复核（vision 技能 + critic 子代理的视觉直读）
+#    vision-cli 与 ego-browser 常在 ~/.local/bin —— 若该目录不在 PATH，工具会报 "not found"
+ln -sf ~/.local/bin/vision-cli   /opt/homebrew/bin/vision-cli
+ln -sf ~/.local/bin/ego-browser  /opt/homebrew/bin/ego-browser   # 在 PATH 上的目录即可
+
+# 2) 参考站 token 萃取
+npm install -g dembrandt            # 真浏览器渲染 → 精确 token + DESIGN.md
+
+# 3) 截图通道（本机实测结论，按序试）
+#    chrome-headless-shell（Playwright 缓存）→ iframe 预览壳 →
+#    ego-browser Page.printToPDF + pdftoppm
+#    注意：Google Chrome 无头 --window-size=375 有最小窗宽（innerWidth 被抬到 500），
+#    直接用它出窄屏图会得到"更宽布局被裁到 375"的假图。
+```
+
+## 已验证（可复跑的验证入口）
+
+真机测试 18 例 + 修复后重跑 8 例 + 回灌轮抽样 3 例的完整判定与证据见 [`docs/test-results.md`](docs/test-results.md)；
+素材生成与测试清单见 [`docs/test-plan.md`](docs/test-plan.md) 与 [`docs/test-fixtures/make-fixtures.sh`](docs/test-fixtures/)。
+
+```bash
+node plugins/design-router/index.test.mjs                                  # 插件单测（含 8 条误报回归）
+node plugins/design-router/scripts/check-checks-sync.mjs <pi-checks-dir>   # 与 pi 版 gate 覆盖一致性
+cd <my-pi-skills>/extensions/design-router/checks && node run-tests.mjs    # 上游检查器测试套（Node 可直接跑）
+```
 
 ### 仓库结构
 

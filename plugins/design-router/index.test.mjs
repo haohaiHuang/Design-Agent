@@ -172,6 +172,10 @@ test("回归 CS-4：含字母 p 的类名不是文本元素（.spin/.pill/.input
     writeFileSync(join(dir, "a.css"), ".spin{width:14px;height:14px}\n.pill{width:64px;height:24px}\n.input{height:40px}\n");
     const ok = await design_audit.execute({ target: join(dir, "a.css") });
     assert.doesNotMatch(ok, /\[gate CS-4\]/, ".spin/.pill/.input 是装饰或控件，不该判文本元素固定尺寸");
+    // 后代/子代组合要能命中（原先只在选择器末尾匹配，`.card p` 永远漏判）
+    writeFileSync(join(dir, "b.css"), ".card p{width:100px}\n.hero > h1{height:20px}\n");
+    const desc = await design_audit.execute({ target: join(dir, "b.css") });
+    assert.match(desc, /\[gate CS-4\]/, "后代/子代选择器里的文本元素应被命中");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -194,6 +198,71 @@ test("回归 F5/DR-5：注释定界符自毁与未定义变量被抓出", async 
     const out2 = await design_audit.execute({ target: join(dir, "undef.css") });
     assert.match(out2, /--nope/, "未定义且无 fallback 的变量应报 DR-5");
     assert.doesNotMatch(out2, /--ok\b.*未定义/, "已定义变量不该报");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F6：slop-ignore 标记可豁免该行/该块（且必须带理由）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-f6-"));
+  try {
+    writeFileSync(
+      join(dir, "evidence.html"),
+      `<!DOCTYPE html><html><head><style>
+:root{--ink:#0f1011}
+/* 引用证据：以下是原项目缺陷的复现，slop-ignore: 现状复现，作正误对照用 */
+.legacy{font-family:'Inter';border-radius:13px;font-style:italic}
+body{color:var(--ink);overflow-x:clip}
+h1{overflow-wrap:anywhere;text-wrap:balance}
+*:focus-visible{outline:2px solid #000}
+</style></head><body><h1>标题</h1></body></html>`,
+    );
+    const out = await design_audit.execute({ target: join(dir, "evidence.html") });
+    assert.doesNotMatch(out, /border-radius 档位异常/, "带 slop-ignore 的块内圆角不该报");
+    assert.match(out, /被 `slop-ignore` 标记豁免/, "应报告豁免了几项");
+
+    // 空理由不算豁免
+    writeFileSync(join(dir, "no-reason.css"), ".card{border-radius:13px /* slop-ignore: */}\n");
+    const out2 = await design_audit.execute({ target: join(dir, "no-reason.css") });
+    assert.match(out2, /border-radius 档位异常/, "空理由不应豁免");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F7/DR-6：控件边界与填充同时失效时报 info（且可 slop-ignore 豁免）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-dr6-"));
+  try {
+    writeFileSync(
+      join(dir, "bad.html"),
+      `<!DOCTYPE html><html><head><style>
+:root{ --paper:#f5f4ed; --border:#e8e6dc }
+body{ background:var(--paper); color:#0f1011 }
+input{ background:var(--paper); border:1px solid var(--border); padding:8px 12px }
+</style></head><body><h1>t</h1><input></body></html>`,
+    );
+    const out = await design_audit.execute({ target: join(dir, "bad.html") });
+    assert.match(out, /\[gate DR-6\]/, "边界与填充同时 1.1:1 的控件应报 DR-6");
+    assert.match(out, /WCAG 1\.4\.11/, "应说明依据");
+
+    // 负例：边界升档到 5:1 → 不报
+    writeFileSync(
+      join(dir, "good.html"),
+      `<!DOCTYPE html><html><head><style>
+:root{ --paper:#f5f4ed; --bs:#6b6a64 }
+body{ background:var(--paper) }
+input{ background:var(--paper); border:1px solid var(--bs) }
+</style></head><body><input></body></html>`,
+    );
+    const out2 = await design_audit.execute({ target: join(dir, "good.html") });
+    assert.doesNotMatch(out2, /\[gate DR-6\]/, "边界 5:1 时不该报");
+
+    // 负例：该规则既没边界也没填充（外观继承自基类）→ 不报
+    writeFileSync(join(dir, "inherit.css"), ".btn:active{transform:translateY(1px)}\n:root{--bg:#f5f4ed}\nbody{background:var(--bg)}\n");
+    const out3 = await design_audit.execute({ target: join(dir, "inherit.css") });
+    assert.doesNotMatch(out3, /\[gate DR-6\]/, "未声明边界/填充的规则不该报");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
