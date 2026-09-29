@@ -159,6 +159,30 @@
       "quality": "未评估"
     },
     {
+      "name": "Unsplash（免费照片库：**可商用、无需署名**）",
+      "role": "R",
+      "form": "直引",
+      "level": "次",
+      "scenarios": "网页 / 海报 / 杂志（实景照片）",
+      "fallback": "→ Pexels → 诚实占位（灰块 + 说明）",
+      "source": "官网 `https://unsplash.com/`；授权 `https://unsplash.com/license`（已核实：免费商用、无需署名；**禁**未做显著修改即转售、禁用它拼同类/竞争服务）",
+      "slug": "unsplash",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "Pexels（免费照片/视频库：中文界面，**可商用、无需署名**）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "网页 / 海报 / 杂志",
+      "fallback": "→ 诚实占位",
+      "source": "官网 `https://www.pexels.com/`；授权 `https://www.pexels.com/license/`（已核实：可免费用与修改；**禁**让可识别人物出现在负面/冒犯语境、禁转售未修改副本、禁暗示代言、禁在同类素材平台再分发、禁作商标/商号）",
+      "slug": "pexels",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "Lucide（图标库·首选）",
       "role": "R",
       "form": "直引",
@@ -215,6 +239,18 @@
       "fallback": "→ 官网复制 → Iconify（兜底）",
       "source": "官网 `https://iconpark.oceanengine.com/`；仓库 `https://github.com/bytedance/IconPark`（Apache-2.0）",
       "slug": "iconpark",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "SVG Repo（**50 万+** 开源 SVG 图标/矢量搜索）",
+      "role": "R",
+      "form": "直引",
+      "level": "兜底",
+      "scenarios": "通用（要搜\"某个具体图形\"时）",
+      "fallback": "→ Iconify（成套图标）→ Lucide",
+      "source": "官网 `https://www.svgrepo.com/`；授权 `https://www.svgrepo.com/page/licensing/`（已核实：默认 \"SVG Repo License\" 免署名可 remix，**禁**以类似本站的方式再分发/转售；**站内条目逐条授权不同，用时按图标页标注核对**）",
+      "slug": "svgrepo",
       "bucket": null,
       "quality": "未评估"
     },
@@ -279,6 +315,18 @@
       "quality": "未评估"
     },
     {
+      "name": "Coolors（调色板生成器：**免费档可用**，含配色方案库与对比度检查；Pro 付费）",
+      "role": "R",
+      "form": "工具",
+      "level": "兜底",
+      "scenarios": "通用（环节 2 定色板时的探索工具）",
+      "fallback": "→ 官网直接用 → 手写 `oklch()`/`hsl()` 令牌",
+      "source": "官网 `https://coolors.co/`（已核实免费档功能：生成 5 色板 / 1 万+ 现成配色 / 存 10 个色板；Pro 解锁 AI 与无限存档）",
+      "slug": "coolors",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
       "name": "DESIGN.md 格式规范（Google spec）",
       "role": "R",
       "form": "直引",
@@ -312,6 +360,18 @@
       "source": "`https://transitions.dev/`（含 agent skill 集成）",
       "slug": "transitions-dev",
       "bucket": "liquid",
+      "quality": "未评估"
+    },
+    {
+      "name": "Codrops（前端创意出版物：教程 + 可跑 demo，偏动效/交互/WebGL）",
+      "role": "R",
+      "form": "转译",
+      "level": "兜底",
+      "scenarios": "网页动效 / 通用（找\"这个效果怎么做\"的思路与实现）",
+      "fallback": "→ 官网浏览 → web_search",
+      "source": "官网 `https://tympanus.net/codrops/`（2009 年至今；已核实为教程+demo 出版物）",
+      "slug": "codrops",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -370,7 +430,7 @@
       "scenarios": "网页 / 落地页",
       "fallback": "→ web_search",
       "source": "`https://land-book.com/`",
-      "slug": "land-book",
+      "slug": "landbook",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -382,7 +442,7 @@
       "scenarios": "网页 / 单页",
       "fallback": "→ web_search",
       "source": "`https://onepagelove.com/inspiration`",
-      "slug": "onepagelove",
+      "slug": "one-page-love",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -490,7 +550,7 @@
       "scenarios": "网页 / 页脚组件",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.footer.design/`",
-      "slug": "footer-design",
+      "slug": "footer-gallery",
       "bucket": "minimal",
       "quality": "未评估"
     },
@@ -550,7 +610,7 @@
       "scenarios": "网页 / 微交互细节",
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://designspells.com/`",
-      "slug": "designspells",
+      "slug": "design-spells",
       "bucket": "liquid",
       "quality": "未评估"
     },
@@ -598,7 +658,7 @@
       "scenarios": "网页（单案例参考）",
       "fallback": "→ 灵感库聚合",
       "source": "`https://dribbble.com/`",
-      "slug": "dribbble-shot",
+      "slug": "dribbble",
       "bucket": null,
       "quality": "未评估"
     },
@@ -1189,8 +1249,8 @@
         "recent-design",
         "awwwards",
         "siteinspire",
-        "land-book",
-        "onepagelove",
+        "landbook",
+        "one-page-love",
         "lapa-ninja",
         "muzli",
         "inspora",
@@ -1229,21 +1289,23 @@
         "recent-design",
         "awwwards",
         "siteinspire",
-        "land-book",
-        "onepagelove",
+        "landbook",
+        "one-page-love",
         "lapa-ninja",
         "muzli",
         "inspora",
-        "footer-design",
+        "footer-gallery",
         "cta-gallery",
         "navbar-gallery",
         "supahero",
-        "designspells",
+        "design-spells",
         "threeui",
         "loadmore",
         "openpencil",
         "undraw",
-        "component-gallery"
+        "component-gallery",
+        "unsplash",
+        "pexels"
       ],
       "2": [
         "kami-skeleton",
@@ -1284,7 +1346,9 @@
       "1": [
         "zine-style-library",
         "orange-line-illustration",
-        "poster-compositions"
+        "poster-compositions",
+        "unsplash",
+        "pexels"
       ],
       "2": [
         "zine-family-recipes",
@@ -1306,7 +1370,9 @@
         "zine-style-library",
         "orange-line-illustration",
         "undraw",
-        "lxgw-wenkai"
+        "lxgw-wenkai",
+        "unsplash",
+        "pexels"
       ],
       "2": [
         "zine-family-recipes",
@@ -1339,11 +1405,11 @@
         "hero-patterns",
         "21st-dev",
         "uiverse",
-        "footer-design",
+        "footer-gallery",
         "cta-gallery",
         "navbar-gallery",
         "supahero",
-        "designspells",
+        "design-spells",
         "reicon",
         "beui",
         "boardui",
@@ -1355,7 +1421,12 @@
         "iconpark",
         "source-han",
         "lxgw-wenkai",
-        "component-gallery"
+        "component-gallery",
+        "unsplash",
+        "pexels",
+        "svgrepo",
+        "coolors",
+        "codrops"
       ],
       "2": [
         "kami-skeleton"
@@ -1373,7 +1444,8 @@
         "transitions-dev",
         "liquid-gooey",
         "threeui",
-        "beui"
+        "beui",
+        "codrops"
       ],
       "2": [
         "fluid-functionalism",

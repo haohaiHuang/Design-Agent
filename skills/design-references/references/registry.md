@@ -80,19 +80,24 @@
 | Uiverse Galaxy（组件/按钮素材） | 直引 | 兜底 | 网页 | → 本地克隆 grep | `https://uiverse.io/` |
 | orange-line-illustration（纽约客风编辑插画风格） | 转译 | 次 | 海报 / 杂志 | → 技能本地文件 | skill 仓库 `https://github.com/orange2ai/orange-line-illustration.git` |
 | unDraw（开源插画库：可改主色的 SVG；**免费商用且无需署名**） | 直引 | 次 | 网页 / 杂志插图（落地页特性图、空状态图） | → Storyset（免费用**须署名**）→ 人工绘制 / 诚实占位 | 官网 `https://undraw.co/`；授权 `https://undraw.co/license`（**禁** ML 训练 / 整包再分发 / 做同类集成） |
+| Unsplash（免费照片库：**可商用、无需署名**） | 直引 | 次 | 网页 / 海报 / 杂志（实景照片） | → Pexels → 诚实占位（灰块 + 说明） | 官网 `https://unsplash.com/`；授权 `https://unsplash.com/license`（已核实：免费商用、无需署名；**禁**未做显著修改即转售、禁用它拼同类/竞争服务） |
+| Pexels（免费照片/视频库：中文界面，**可商用、无需署名**） | 直引 | 兜底 | 网页 / 海报 / 杂志 | → 诚实占位 | 官网 `https://www.pexels.com/`；授权 `https://www.pexels.com/license/`（已核实：可免费用与修改；**禁**让可识别人物出现在负面/冒犯语境、禁转售未修改副本、禁暗示代言、禁在同类素材平台再分发、禁作商标/商号） |
 | Lucide（图标库·首选） | 直引 | 兜底 | 通用 | → CDN 直引（无退化） | `https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg` |
 | Heroicons（图标库·补充） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg` |
 | Reicon（图标库·补充·多框架/双字重/MCP） | 直引 | 兜底 | 通用 | → CDN 直引（无退化）→ MCP 搜索 | `https://reicon.dev/`；CDN `https://unpkg.com/reicon/cdn/reicon.js`；npm `reicon-react`/`reicon-mcp`（MCP 搜索） |
 | Iconify（图标聚合层：一套语法 + 一个 API 覆盖主流开源图标集，**30 万+ 图标**；框架 MIT） | 直引 | 次 | 通用（需要「任意图标集统一调用」时；比逐库引入省事） | → 单库直引（Lucide / Heroicons / Reicon） | 官网 `https://iconify.design/`；API `https://api.iconify.design/`；框架仓库 `https://github.com/iconify/iconify`（MIT） |
 | IconPark（字节跳动图标库：**Apache-2.0**，可调粗细/风格，国内可用） | 直引 | 兜底 | 通用（国内项目 / 需要统一线宽时） | → 官网复制 → Iconify（兜底） | 官网 `https://iconpark.oceanengine.com/`；仓库 `https://github.com/bytedance/IconPark`（Apache-2.0） |
+| SVG Repo（**50 万+** 开源 SVG 图标/矢量搜索） | 直引 | 兜底 | 通用（要搜"某个具体图形"时） | → Iconify（成套图标）→ Lucide | 官网 `https://www.svgrepo.com/`；授权 `https://www.svgrepo.com/page/licensing/`（已核实：默认 "SVG Repo License" 免署名可 remix，**禁**以类似本站的方式再分发/转售；**站内条目逐条授权不同，用时按图标页标注核对**） |
 | Google Fonts（字体源） | 直引 | 兜底 | 通用 | → CDN 直引 | `https://fonts.google.com/` |
 | 思源黑体 / 思源宋体（Adobe Source Han：**SIL OFL 1.1**，中文正文/标题最稳的开源字族） | 直引 | 次 | 通用（**中文字族必须显式引入**时首选 —— 见 workflow.md 环节 3 的 CJK 实测规矩） | → 霞鹜文楷（人文向）→ 系统字体栈（气质不可控） | 仓库 `https://github.com/adobe-fonts/source-han-sans`（LICENSE.txt = SIL OFL 1.1）；宋体 `https://github.com/adobe-fonts/source-han-serif` |
 | 霞鹜文楷 LXGW WenKai（**OFL-1.1**，基于 FONTWORKS Klee One 衍生：楷体、人文向） | 直引 | 兜底 | 通用 / 海报 / 杂志（楷体标题、书卷气） | → 思源宋体 → 系统楷体（气质不可控） | 仓库 `https://github.com/lxgw/LxgwWenKai`（OFL-1.1） |
 | Hero Patterns（SVG 背景纹理） | 直引 | 兜底 | 通用 | → 官网复制 | `https://heropatterns.com/` |
 | CSS 渐变工具 | 直引 | 兜底 | 通用 | → 官网 | `https://cssgradient.io/`（或同类） |
+| Coolors（调色板生成器：**免费档可用**，含配色方案库与对比度检查；Pro 付费） | 工具 | 兜底 | 通用（环节 2 定色板时的探索工具） | → 官网直接用 → 手写 `oklch()`/`hsl()` 令牌 | 官网 `https://coolors.co/`（已核实免费档功能：生成 5 色板 / 1 万+ 现成配色 / 存 10 个色板；Pro 解锁 AI 与无限存档） |
 | DESIGN.md 格式规范（Google spec） | 直引 | 次 | 通用 | → 仓库直读 | 参考实现 `https://github.com/google-labs-code/design.md`（原聚合站 `getdesign.md` 域名已失效：HTTPS 不可用、HTTP 302 到裸 IP，勿再引用） |
 | Liquid Gooey（React 液态 UI 效果库：Morph 粘性融合/果冻形变/接触溶解 + Move 液态拖尾） | 转译 | 次 | 网页动效（液态/粘性/果冻效果） | → 官网 demo 浏览 → web_search | 官网 `https://gooey.jakubantalik.com/`；npm `liquid-gooey`；仓库 `https://github.com/Jakubantalik/Libraries` |
 | transitions.dev（30+ UI 过渡动画范式库：卡片缩放/数字弹跳/菜单折叠/3D 倾斜/Toast…） | 转译 | 次 | 网页动效（UI 过渡/微交互） | → 官网复制 → web_search | `https://transitions.dev/`（含 agent skill 集成） |
+| Codrops（前端创意出版物：教程 + 可跑 demo，偏动效/交互/WebGL） | 转译 | 兜底 | 网页动效 / 通用（找"这个效果怎么做"的思路与实现） | → 官网浏览 → web_search | 官网 `https://tympanus.net/codrops/`（2009 年至今；已核实为教程+demo 出版物） |
 | vibeprompts.dev（Tailwind 营销区块库：Auth/Pricing/Features-Bento/Hero/CTA/Stats/Nav） | 转译 | 兜底 | 网页（Tailwind 区块，与 Aceternity/21st.dev 同型） | → 官网浏览 → web_search | `https://vibeprompts.dev/` |
 | Recent Design（近期网页设计灵感） | 转译 | 次 | 网页 / 通用 | → web_search | `https://recent.design/` |
 | Awwwards（获奖网站评选，含 /websites 子页） | 转译 | 次 | 网页 / 通用 | → web_search | `https://www.awwwards.com/` |
