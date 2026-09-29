@@ -1255,13 +1255,15 @@
         "muzli",
         "inspora",
         "mobbin",
-        "openpencil"
+        "openpencil",
+        "design-research-methods"
       ],
       "2": [
         "kami-skeleton",
         "refero-design",
         "design-md-skill",
-        "poster-compositions"
+        "poster-compositions-landing",
+        "design-md"
       ],
       "3": [
         "kami-skill",
@@ -1286,32 +1288,19 @@
         "linear-dark",
         "saasui-dashboard",
         "dash-ui",
-        "recent-design",
-        "awwwards",
-        "siteinspire",
-        "landbook",
-        "one-page-love",
-        "lapa-ninja",
-        "muzli",
-        "inspora",
-        "footer-gallery",
-        "cta-gallery",
-        "navbar-gallery",
-        "supahero",
-        "design-spells",
-        "threeui",
-        "loadmore",
         "openpencil",
         "undraw",
         "component-gallery",
         "unsplash",
-        "pexels"
+        "pexels",
+        "design-research-methods"
       ],
       "2": [
         "kami-skeleton",
         "refero-design",
         "design-md-skill",
-        "poster-compositions"
+        "poster-compositions-landing",
+        "design-md"
       ],
       "3": [
         "huashu-design",
@@ -1332,7 +1321,8 @@
       ],
       "2": [
         "kami-skeleton",
-        "refero-design"
+        "refero-design",
+        "design-md"
       ],
       "3": [
         "frontend-design"

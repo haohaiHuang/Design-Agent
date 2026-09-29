@@ -302,6 +302,11 @@ const QUALITY_LEVELS = {
 
 // ---------- 分支 × 环节 → 资源 slug 路由表（来自 SKILL.md 分支表 + workflow.md 环节调用表） ----------
 // stage: 0 意图 / 1 调研 / 2 约束 / 3 产出 / 4 校验
+// 本仓库 ROUTES 是自有策划短名单（只收「主」+ 需求命中），不追求与上游 my-pi-skills 一致：
+// 两仓库共享的是资源行与 slug（资源目录必须一致），路由各自主张。
+// 历史：2026-08-28 书签批量导入曾把 15 条灵感画廊塞进 A2·1（29 条），导致 design_lookup 过于灵敏；
+// 2026-09-29 按「短名单 = 主 + 需求命中」收敛，此后新增画廊一律先看是否该在 registry.md 升为「主」，
+// 不要直接塞短名单。跨仓回流只回流资源行与通用规则。
 const ROUTES = {
   "A1": {
     "1": [
@@ -318,13 +323,15 @@ const ROUTES = {
       "muzli",
       "inspora",
       "mobbin",
-      "openpencil"
+      "openpencil",
+      "design-research-methods",
     ],
     "2": [
       "kami-skeleton",
       "refero-design",
       "design-md-skill",
-      "poster-compositions"
+      "poster-compositions-landing",
+      "design-md",
     ],
     "3": [
       "kami-skill",
@@ -349,33 +356,19 @@ const ROUTES = {
       "linear-dark",
       "saasui-dashboard",
       "dash-ui",
-      "recent-design",
-      "awwwards",
-      "siteinspire",
-      "landbook",
-      "one-page-love",
-      "lapa-ninja",
-      "muzli",
-      "inspora",
-      "footer-gallery",
-      "cta-gallery",
-      "navbar-gallery",
-      "supahero",
-      "design-spells",
-      "threeui",
-      "loadmore",
-      "openpencil"
-    ,
+      "openpencil",
       "undraw",
       "component-gallery",
-          "unsplash",
+      "unsplash",
       "pexels",
+      "design-research-methods",
     ],
     "2": [
       "kami-skeleton",
       "refero-design",
       "design-md-skill",
-      "poster-compositions"
+      "poster-compositions-landing",
+      "design-md",
     ],
     "3": [
       "huashu-design",
@@ -396,7 +389,8 @@ const ROUTES = {
     ],
     "2": [
       "kami-skeleton",
-      "refero-design"
+      "refero-design",
+      "design-md",
     ],
     "3": [
       "frontend-design"
