@@ -140,6 +140,9 @@ npm install -g dembrandt            # 真浏览器渲染 → 精确 token + DESI
 真机测试 18 例 + 修复后重跑 8 例 + 回灌轮抽样 3 例的完整判定与证据见 [`docs/test-results.md`](docs/test-results.md)；
 素材生成与测试清单见 [`docs/test-plan.md`](docs/test-plan.md) 与 [`docs/test-fixtures/make-fixtures.sh`](docs/test-fixtures/)。
 
+跨仓协议（哪些必须与上游一致、哪些是有意分叉）与历次工作切片归档在 [`docs/cross-repo/`](docs/cross-repo/)；
+一条命令对账 gate 覆盖 + 所有技能副本指纹：`node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/design-router/checks`。
+
 ```bash
 node plugins/design-router/index.test.mjs                                  # 插件单测（含 8 条误报回归）
 node plugins/design-router/scripts/check-checks-sync.mjs <pi-checks-dir>   # 与 pi 版 gate 覆盖一致性

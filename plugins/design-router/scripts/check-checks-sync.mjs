@@ -88,35 +88,44 @@ if (fail) {
   console.log("✅ 全部 checks 与 pi 版 gate 覆盖一致。");
 }
 
-// ---------- 技能树指纹对账（三处副本必须相同）----------
-const DSH_SKILL = join(HERE, "../../../skills/design-references");   // plugins/design-router/scripts → 仓库根
-const PI_SKILL = join(PI_CHECKS, "../../../skills/design-references"); // <pi>/extensions/design-router/checks → <pi>
-const INSTALLED_SKILL = join(homedir(), ".agents", "skills", "design-references");
-
-const targets = [
-  ["DSH 仓库", DSH_SKILL],
-  ["pi 仓库", PI_SKILL],
-  ["已安装 ~/.agents", INSTALLED_SKILL],
+// ---------- 技能树指纹对账（所有存在的副本必须相同）----------
+// 平台目录约定取自上游 `docs/skill-sync-map.md`（pi 的规范路径是 ~/.pi/agent/skills，不是 ~/.pi/skills）。
+const SKILL_COPIES = [
+  ["DSH 仓库", join(HERE, "../../../skills/design-references")],              // plugins/design-router/scripts → 仓库根
+  ["pi 仓库", join(PI_CHECKS, "../../../skills/design-references")],           // <pi>/extensions/design-router/checks → <pi>
+  ["pi", join(homedir(), ".pi", "agent", "skills", "design-references")],
+  ["共享层", join(homedir(), ".agents", "skills", "design-references")],
+  ["workbuddy", join(homedir(), ".workbuddy", "skills", "design-references")],
+  ["codex", join(homedir(), ".codex", "skills", "design-references")],
+  ["claude", join(homedir(), ".claude", "skills", "design-references")],
+  ["trae-ide", join(homedir(), ".trae-cn", "skills", "design-references")],
+  ["trae-work", join(homedir(), ".trae", "skills", "design-references")],
 ];
+
+console.log("\n技能树指纹（skills/design-references 全树，各副本必须一致）：");
 const hashes = [];
-console.log("\n技能树指纹（skills/design-references 全树，跨仓必须一致）：");
-for (const [label, dir] of targets) {
+const missing = [];
+for (const [label, dir] of SKILL_COPIES) {
   if (!existsSync(dir)) {
-    console.log(`  ⏭️  ${label}: 目录不存在，跳过`);
+    missing.push(label);
     continue;
   }
   const h = skillTreeHash(dir);
   hashes.push([label, h]);
-  console.log(`  ${label.padEnd(18)} ${h}`);
+  console.log(`  ${label.padEnd(12)} ${h}`);
 }
 const uniq = new Set(hashes.map(([, h]) => h));
 if (hashes.length === 0) {
-  console.log("  （未找到任何技能副本）");
+  fail++;
+  console.log("  ❌ 一个技能副本都没找到——检查路径或参数");
 } else if (uniq.size === 1) {
-  console.log(`✅ ${hashes.length} 处技能副本内容一致。`);
+  console.log(`✅ ${hashes.length} 处技能副本内容一致${missing.length ? `（未安装：${missing.join(" / ")}）` : ""}。`);
 } else {
   fail++;
-  console.log("❌ 技能副本内容不一致——资源目录必须一致（改 registry.md 后记得整文件复制到其它副本）。");
+  console.log(`❌ 技能副本内容不一致（${uniq.size} 种指纹）——资源目录必须一致：改 registry.md 后整文件复制到其余副本。`);
+  const byHash = {};
+  for (const [label, h] of hashes) (byHash[h] ||= []).push(label);
+  for (const [h, labels] of Object.entries(byHash)) console.log(`   ${h}: ${labels.join(", ")}`);
 }
 
 console.log("");

@@ -151,6 +151,10 @@ Full verdicts and evidence for 18 real-machine cases, 8 post-fix re-runs and 3 b
 [`docs/test-results.md`](docs/test-results.md); fixtures and the case list in [`docs/test-plan.md`](docs/test-plan.md)
 and [`docs/test-fixtures/`](docs/test-fixtures/).
 
+Cross-repo protocols (what must match upstream, what is intentionally divergent) and past work slices are archived in
+[`docs/cross-repo/`](docs/cross-repo/); one command reconciles gate coverage plus **every** skill-copy fingerprint:
+`node plugins/design-router/scripts/check-checks-sync.mjs <upstream>/extensions/design-router/checks`.
+
 ```bash
 node plugins/design-router/index.test.mjs                                  # plugin unit tests (incl. 8 false-positive regressions)
 node plugins/design-router/scripts/check-checks-sync.mjs <pi-checks-dir>   # gate-coverage parity with the pi version
