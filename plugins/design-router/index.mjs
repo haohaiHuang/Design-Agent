@@ -104,14 +104,61 @@ function collectFiles(target) {
   return out;
 }
 
+/**
+ * 剥离注释后再扫描。
+ *
+ * 为什么需要：注释里写规范说明（如「不编造 50,000+」「删掉 transition: all」）本来是好事，
+ * 但原实现把注释当正文 → 注释写得越规范越被判违规（gate 46 / KS-14 / gate 10 均实测命中过）。
+ * 用等长空格替换注释内容以**保持行号不变**，location 仍准确。
+ *
+ * 只剥 HTML 注释与 CSS 块注释；JS 的 `//` 不剥（会误伤 https:// 这类字符串）。
+ */
+function stripComments(content, kind) {
+  const blank = (s) => s.replace(/[^\n]/g, " ");
+  let out = content;
+  if (kind === "html") {
+    out = out.replace(/<!--[\s\S]*?-->/g, (m) => blank(m));
+  }
+  if (kind === "html" || kind === "css") {
+    // 未闭合的 `/*`（如注释定界符自毁）会一直吃到文件尾——与浏览器行为一致，也顺带暴露该缺陷
+    out = out.replace(/\/\*[\s\S]*?(?:\*\/|$)/g, (m) => blank(m));
+  }
+  return out;
+}
+
+/** 解析 HTML 里 <link rel="stylesheet" href="...">（同目录/相对路径，深度 1），读回内容 */
+function readLinkedCss(absPath, content) {
+  const parts = [];
+  const seen = new Set();
+  for (const m of content.matchAll(/<link\b[^>]*>/gi)) {
+    const tag = m[0];
+    if (!/rel\s*=\s*["']?stylesheet/i.test(tag)) continue;
+    const href = tag.match(/href\s*=\s*["']([^"']+)["']/i);
+    if (!href) continue;
+    const url = href[1].trim();
+    if (/^(https?:)?\/\//i.test(url) || url.startsWith("data:")) continue; // 远程/内联不取
+    const p = resolve(dirname(absPath), url.split(/[?#]/)[0]);
+    if (seen.has(p)) continue;
+    seen.add(p);
+    try {
+      parts.push(stripComments(readFileSync(p, "utf8"), "css"));
+    } catch {
+      // 读不到就跳过：目标目录之外或已删除的外链样式表不参与判定
+    }
+  }
+  return parts.join("\n");
+}
+
 function readAuditFiles(paths) {
   return paths
     .map((p) => {
       try {
-        const content = readFileSync(p, "utf8");
+        const raw = readFileSync(p, "utf8");
         const ext = extname(p).toLowerCase();
         const kind = ext === ".html" || ext === ".htm" ? "html" : ext === ".css" || ext === ".scss" ? "css" : "other";
-        return { path: p, content, kind };
+        const f = { path: p, raw, content: stripComments(raw, kind), kind };
+        if (kind === "html") f.linkedCss = readLinkedCss(p, raw);
+        return f;
       } catch {
         return null;
       }

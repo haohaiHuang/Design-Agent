@@ -39,9 +39,19 @@ test("注册 6 个工具，5 只读 + 1 写入", () => {
   assert.match(byName.design_quality.description, /写入边界|~\/\.dsh\/design-router-quality\.json/);
 });
 
-test("fixture 03-maple-bakery 可被 design_audit 审计且输出格式正确", async () => {
+test("fixture 03-maple-bakery 可被 design_audit 审计且输出格式正确", async (t) => {
   const { design_audit } = tools();
-  const target = join(here, "..", "..", "skills", "hallmark", "site", "_tests", "03-maple-bakery");
+  // 该 fixture 在仓库里（plugins/../../skills/hallmark/…）；装到预设目录后仓库根不存在
+  // （skills 在 ~/.agents/skills），此时跳过而不是误报失败。
+  const candidates = [
+    join(here, "..", "..", "skills", "hallmark", "site", "_tests", "03-maple-bakery"),
+    join(here, "..", "..", "..", "..", "agents", "skills", "hallmark", "site", "_tests", "03-maple-bakery"),
+  ];
+  const target = candidates.find((c) => existsSync(c));
+  if (!target) {
+    t.skip("仓库外的安装副本里没有 hallmark fixture，跳过");
+    return;
+  }
   const out = await design_audit.execute({ target });
   assert.match(out, /检出 \d+ 项（error \d+ \/ warn \d+ \/ info \d+）/);
   assert.match(out, /\[gate \d+\]/);
@@ -73,6 +83,117 @@ test("动效 EM-2/3/5 机器 gates 触发", async () => {
     assert.match(out, /\[gate EM-2\]/);
     assert.match(out, /\[gate EM-3\]/);
     assert.match(out, /\[gate EM-5\]/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ---- 回归：真机测试暴露的四类误报（见仓库 docs/test-results.md）----
+
+test("回归 F4：注释内容不参与判定（注释里写规范说明不该被判违规）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-f4-"));
+  try {
+    writeFileSync(
+      join(dir, "page.html"),
+      `<!DOCTYPE html><html><head><style>
+:root { --ink:#0f1011; }
+/* 约束10 · 不编造「Trusted by 50,000+」，禁止 transition: all，删掉「一站式」AI 腔 */
+body { color: var(--ink); overflow-x: clip; }
+h1 { overflow-wrap: anywhere; text-wrap: balance; }
+*:focus-visible { outline: 2px solid var(--ink); }
+</style></head><body><h1>标题</h1><button>按钮</button></body></html>`,
+    );
+    const out = await design_audit.execute({ target: join(dir, "page.html") });
+    assert.doesNotMatch(out, /\[gate 46\]/, "注释里的 50,000 不该判编造指标");
+    assert.doesNotMatch(out, /KS-14/, "注释里的「一站式」不该判 AI 文案腔");
+    assert.doesNotMatch(out, /\[gate 10\]/, "注释里的 transition: all 不该判 transition-all");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F1：var() 引用的圆角不判档位异常，裸值仍判", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-f1-"));
+  try {
+    writeFileSync(join(dir, "tokens.css"), ":root { --r-md: 12px; }\n.card { border-radius: var(--r-md); }\n");
+    const ok = await design_audit.execute({ target: join(dir, "tokens.css") });
+    assert.doesNotMatch(ok, /border-radius 档位异常/, "var(--r-md)=12px 在档位内，不该报警");
+    writeFileSync(join(dir, "bad.css"), ".card { border-radius: 13px; }\n");
+    const bad = await design_audit.execute({ target: join(dir, "bad.css") });
+    assert.match(bad, /border-radius 档位异常/, "裸值 13px 仍应报警");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F3：同一行的 border:1px 与 sr-only 惯用法不判间距违规，真超标仍判", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-f3-"));
+  try {
+    writeFileSync(
+      join(dir, "a.css"),
+      ".btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid transparent}\n" +
+        ".sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}\n",
+    );
+    const ok = await design_audit.execute({ target: join(dir, "a.css") });
+    assert.doesNotMatch(ok, /\[gate 24\]/, "边框 1px 与 sr-only 不该判间距不在 4pt 刻度");
+    writeFileSync(join(dir, "b.css"), ".card{padding:13px 7px}\n");
+    const bad = await design_audit.execute({ target: join(dir, "b.css") });
+    assert.match(bad, /\[gate 24\]/, "真实超标值 13px/7px 仍应报警");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F2：外链样式表里的规则算数（页面级缺失类检查不误报）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-f2-"));
+  try {
+    writeFileSync(join(dir, "styles.css"), "html,body{overflow-x:clip}\n*:focus-visible{outline:2px solid #000}\nh1{overflow-wrap:anywhere;text-wrap:balance}\nbody{-webkit-font-smoothing:antialiased}\n");
+    writeFileSync(
+      join(dir, "page.html"),
+      '<!DOCTYPE html><html><head><link rel="stylesheet" href="styles.css"></head><body><h1>标题</h1><button>按钮</button></body></html>',
+    );
+    const out = await design_audit.execute({ target: join(dir, "page.html") });
+    for (const g of ["26", "34", "51", "CS-3", "CS-7"]) {
+      assert.doesNotMatch(out, new RegExp(`\\[gate ${g}\\]`), `外链样式表已提供 gate ${g} 所需的规则，不该报缺失`);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 CS-4：含字母 p 的类名不是文本元素（.spin/.pill/.input 不误报）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-cs4-"));
+  try {
+    writeFileSync(join(dir, "a.css"), ".spin{width:14px;height:14px}\n.pill{width:64px;height:24px}\n.input{height:40px}\n");
+    const ok = await design_audit.execute({ target: join(dir, "a.css") });
+    assert.doesNotMatch(ok, /\[gate CS-4\]/, ".spin/.pill/.input 是装饰或控件，不该判文本元素固定尺寸");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 F5/DR-5：注释定界符自毁与未定义变量被抓出", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-dr5-"));
+  try {
+    // 注释里再写 /* → 第一个 */ 提前闭合，吞掉后面的 :root
+    writeFileSync(
+      join(dir, "boom.html"),
+      '<!DOCTYPE html><html><head><style>\n/* 说明：禁止 /* 嵌套写法\n:root{--ink:#0f1011}\nbody{color:var(--ink)}\n</style></head><body><h1>标题</h1></body></html>',
+    );
+    const out1 = await design_audit.execute({ target: join(dir, "boom.html") });
+    assert.match(out1, /\[gate DR-5\]/, "未闭合注释应报 DR-5");
+
+    rmSync(join(dir, "boom.html"));
+    writeFileSync(join(dir, "undef.css"), ".card{color:var(--nope);background:var(--ok)}\n:root{--ok:#fff}\n");
+    const out2 = await design_audit.execute({ target: join(dir, "undef.css") });
+    assert.match(out2, /--nope/, "未定义且无 fallback 的变量应报 DR-5");
+    assert.doesNotMatch(out2, /--ok\b.*未定义/, "已定义变量不该报");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

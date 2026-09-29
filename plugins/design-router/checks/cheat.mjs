@@ -4,9 +4,12 @@
  * 来源: https://interfaces.dev/cheat-sheet（转译，跟随其维护）
  * 只收录低误报、文本可判定的条目；severity 分级控制（error 明确违规 / warn 建议 / info 提示）。
  */
-import { loc, grepLines } from "./types.mjs";
+import { loc, grepLines, pageText } from "./types.mjs";
 
-const TEXT_ELEMENT_RE = /(^|,|\.)\s*[\w.-]*?(h[1-6]|p|title|hero|display|heading|caption|label|button|a\b)[\w.-]*$/i;
+// 文本元素选择器判定：关键词必须是**独立的标签/类名 token**。
+// 原实现把 `p` 写成裸字符，于是任何含字母 p 的类名都被当文本元素（实测 .spin / .pill / .input /
+// .spec-table 全部误报 CS-4）——加词边界根治：`.spin` 里的 p 不是独立 token。
+const TEXT_ELEMENT_RE = /(^|,|\.)\s*[\w.-]*?(h[1-6]|\bp\b|title|hero|display|heading|caption|label|button|\ba\b)[\w.-]*$/i;
 
 export function runCheatChecks(files) {
   const findings = [];
@@ -37,7 +40,7 @@ export function runCheatChecks(files) {
     }
 
     // ---- 3. 缺 -webkit-font-smoothing: antialiased（根级一次性）----
-    if (/h[1-6]|body|\./i.test(c) && !/-webkit-font-smoothing\s*:\s*antialiased/i.test(c)) {
+    if (/h[1-6]|body|\./i.test(c) && !/-webkit-font-smoothing\s*:\s*antialiased/i.test(pageText(f))) {
       findings.push({
         gate: "CS-3",
         rule: "missing-antialiased",
@@ -94,7 +97,7 @@ export function runCheatChecks(files) {
     }
 
     // ---- 7. 标题缺 text-wrap: balance ----
-    if (/h[1-6]|title|hero|display/i.test(c) && !/text-wrap\s*:\s*balance/i.test(c)) {
+    if (/h[1-6]|title|hero|display/i.test(c) && !/text-wrap\s*:\s*balance/i.test(pageText(f))) {
       findings.push({
         gate: "CS-7",
         rule: "missing-text-wrap-balance",

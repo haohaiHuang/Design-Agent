@@ -204,6 +204,16 @@
 3. **素材硬性规则**：
    - 图标一律从台账直引（Lucide / Heroicons），**禁止手写 SVG、禁止 emoji**
    - 字体从 Google Fonts 直引，禁止默认字体
+   - **中文字形覆盖必须实测，不能只看字体栈声明**：拉丁字体族（Inter / IBM Plex / Source Serif 等）**通常不含 CJK 字形**，声明了也会静默回退到系统字体。实测方法：同一段中文与拉丁样本各测一次宽度，中文在所有族里宽度相同（= 每字等宽 × 字数）说明该族没有中文字形、正在回退。可复跑脚本：
+     ```js
+     // 在页面里跑（CDP evaluate 或临时 script）：看两件事
+     const c = document.createElement('canvas').getContext('2d');
+     const w = (font, text) => { c.font = font; return c.measureText(text).width; };
+     w('100px "Source Serif 4"', '暖设计系统参考') === w('100px "IBM Plex Sans"', '暖设计系统参考') // true ⇒ 两个族都没有中文字形
+     document.fonts.check('40px "Source Serif 4"', '暖')  // false ⇒ 该族无此字形
+     ```
+     结论：**要中文气质可控，必须显式引入 CJK 字族**（Noto Sans/Serif SC、思源系列）并把它写进字体栈；否则不同平台会各自回退（macOS 落 PingFang/Songti、Windows 落雅黑/SimSun），气质不可控。
+   - **中文标题别盲用 `text-wrap: balance`**：它只按行长均衡切分、**不懂中文词边界**，会把词组从中间断开（实测 17 字标题被切成 8+9，断在「工/作」之间）。中文标题要么手动断行（`<br>` / 定宽），要么配合 `word-break: keep-all` / `line-break: strict` 再核对；发现问题回环节 2 改约束，不要就地打补丁。
    - 检查项目既有 DESIGN.md / 规则文件里的 no-emoji / no-gradient 等禁令并执行
 4. **形态执行**：严格按环节 0 确认的形态（Mac 窗口 / 页面 / 画布）实现
 5. 产出后对照约束集自查一遍再交付
@@ -247,10 +257,21 @@
    - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
    - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
    - **未装 openpencil → 导出 PNG + Figma 家族技能或人工核对**
+1c. **渲染核对（与「机器扫描」「独立评审」并列的第三件事，不能互相替代）**：机器扫描只能读文本，**看不见"代码看着对、渲染出来是坏的"**。必须真渲染并读**计算样式**核对：
+   - **注释定界符自毁**：CSS 注释**不嵌套**——注释里再写 `/*` 会让第一个 `*/` 提前闭合，把紧跟其后的 `:root` 一起吞掉，**全页令牌瞬间失效**（实测症状：标题回退 Times 16px、按钮底色透明、圆角归零），而 `design_audit` 与任何静态检查都看不出来。同理自查"声明的 `:root` 变量是否真的被定义、被消费"。
+   - **溢出必须逐元素判，不能用滚动条判**：`overflow-x: clip` 会把文档级滚动兜住，于是 `scrollWidth === clientWidth` **失去分辨力——内容被裁掉也照样通过**。正确做法：逐元素比较 `getBoundingClientRect()` 与视口宽，并区分「真溢出」与「在滚动容器内可达（合法）」。
+     ```js
+     [...document.querySelectorAll('*')].filter(el => el.getBoundingClientRect().right > innerWidth + 1)
+       .map(el => [el.tagName, Math.round(el.getBoundingClientRect().right), el.className]);
+     ```
+   - **多视口 + 关键状态**：桌面 / 平板 / 窄屏各一档；只截图不够，同时 dump 关键元素的计算样式（字号、行高、圆角、颜色、字体族是否命中目标族）。
+   - **视觉模型的结论必须回源码核对**：本地视觉模型会**凭空报出**圆角、阴影、渐变、纹理这类"看起来该有"的东西（实测两例：报出"亚麻纹理"而原图纯平；报出"8px 圆角 / 轻微阴影 / 线性渐变"而源码 grep 计数为 0）。凡是"有没有某属性"这类可判定问题，一律用 `grep`/计算样式定论，视觉模型只用于"气质/观感"这类无法 grep 的判断。
+   - **移动端渲染通道（踩过的坑）**：**禁用 `Google Chrome --headless --window-size=375`**。Chrome 有最小窗口宽度（实测 `innerWidth` 被抬到 **500**），拿到的是"更宽布局被裁到 375"的假图——它会让窄屏结论全错，而图看着正常。可用通道（**按序试**，每换一条都先跑自检）：① `chrome-headless-shell`（Playwright 缓存 `ms-playwright/chromium_headless_shell-*/…`，实测 `--window-size=375` 下 `innerWidth` 真为 375）；② **iframe 预览壳**：外层页面写死 `width:375px` 的 iframe 承载被测页面，最稳、零依赖，推荐；③ **PDF 中转**：`ego-browser` 的 `Page.printToPDF` 出 PDF 再用 `pdftoppm` 转 PNG（本机实测：系统 Chrome 无头 `Trace/BPT trap`、`screencapture` 无屏幕录制权限、`ego-browser` 的 CDP 截图接口超时，三条常见路径都不通时这条稳定可用）；④ 自检：渲染后先断言 `innerWidth` 等于目标宽，不等就换通道，别继续分析截图；把本机最终可用的通道与坑位写进产物目录（如 `designs/shots/README.md`）供下一轮复用。
+   - **截图非空自检**：路径写错时截图会是一张纯灰图而毫无报错。加一条机器判据——**灰度/颜色种类数 > 8** 才算有效截图（实测抓到过两张全灰的"移动端截图"）。
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
 3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
-5. **成品视觉评审——默认用独立 critic 子代理，不用产出者自评（关键纪律，源自 Anshu critic loop）**：产出者自评不客观（它看自己的代码/rationale 会自我辩护），且产出者与评审同分布 → 自评只是“自查语法”，不是品味判断。评审动作：无头浏览器/截图工具渲染成品（多视口：桌面+移动+关键状态）→ **另起独立 critic 子代理（pi：调 `design-critic` agent；关键前提：critic 模型能力 ≥ 执行模型且支持视觉直读，否则审的是文字转述、能力降级）**（全新上下文、不携带约束集推导过程）→ 只喂截图路径 + {方向锁产物} + 环节 1 选定的真实参考/范例图当 moodboard（critic 不知晓产品 PRD，防止“功能正确性”污染审美判断）→ 按四维输出：方向保真 / 执行质量（对照工作室线）/ AI 味残留 / 克制度 → 10 分制独立打分。critic 提示词内嵌见下方「critic 评审提示词」；**critic prompt 里不写入通过线/验收线**（知道分数线 = 分数朝线虚胖，LLM 会迎合隐含目标），通过线只存在于你的验收决定里。视觉层 58 gates 照跑（机器子集层 1 已覆盖），critic 管 gates 管不了的“整体气质”判断。（无子代理能力时退化：huashu 5 维自查 + 无头浏览器截图 + 视觉模型复核，并明示这是自评降级）
+5. **成品视觉评审——默认用独立 critic 子代理，不用产出者自评（关键纪律，源自 Anshu critic loop）**：产出者自评不客观（它看自己的代码/rationale 会自我辩护），且产出者与评审同分布 → 自评只是“自查语法”，不是品味判断。**注意：critic 也替代不了步骤 1c 的渲染核对**——critic 看的是截图，而"注释自毁导致令牌全失效""`clip` 掩盖的溢出"这类问题在截图里可能看着正常（实测两轮 critic 都没看出注释自毁，是计算样式核对抓到的）；**渲染核对、机器扫描、独立评审是三件事，都要做**。评审动作：无头浏览器/截图工具渲染成品（多视口：桌面+移动+关键状态）→ **另起独立 critic 子代理（pi：调 `design-critic` agent；关键前提：critic 模型能力 ≥ 执行模型且支持视觉直读，否则审的是文字转述、能力降级）**（全新上下文、不携带约束集推导过程）→ 只喂截图路径 + {方向锁产物} + 环节 1 选定的真实参考/范例图当 moodboard（critic 不知晓产品 PRD，防止“功能正确性”污染审美判断）→ 按四维输出：方向保真 / 执行质量（对照工作室线）/ AI 味残留 / 克制度 → 10 分制独立打分。critic 提示词内嵌见下方「critic 评审提示词」；**critic prompt 里不写入通过线/验收线**（知道分数线 = 分数朝线虚胖，LLM 会迎合隐含目标），通过线只存在于你的验收决定里。视觉层 58 gates 照跑（机器子集层 1 已覆盖），critic 管 gates 管不了的“整体气质”判断。（无子代理能力时退化：huashu 5 维自查 + 无头浏览器截图 + 视觉模型复核，并明示这是自评降级）
 
 **critic 评审提示词（换行处即变量位置；中文见括号）**：
 

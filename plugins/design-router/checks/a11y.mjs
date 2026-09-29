@@ -4,7 +4,7 @@
  * 覆盖 hallmark gate 26 / 27 / 33 / 39（文本可判定子集）。
  * gate 40-41 对比度在 contrast.mjs 单独算。
  */
-import { loc, grepLines } from "./types.mjs";
+import { loc, grepLines, pageText } from "./types.mjs";
 
 export function runA11yChecks(files) {
   const findings = [];
@@ -13,8 +13,8 @@ export function runA11yChecks(files) {
     const c = f.content;
     const hasInteractive = /<(button|a\b|input|select|textarea|summary|label\b)/i.test(c);
 
-    // ---- gate 26: 交互元素缺 :focus-visible ----
-    if (hasInteractive && !/:focus-visible/.test(c)) {
+    // ---- gate 26: 交互元素缺 :focus-visible（页面级：外链样式表里写了也算有）----
+    if (hasInteractive && !/:focus-visible/.test(pageText(f))) {
       findings.push({
         gate: "26",
         rule: "missing-focus-visible",
