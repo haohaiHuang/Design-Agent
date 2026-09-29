@@ -120,6 +120,11 @@ machine just copies the preset directory — **no path edits required**. If you'
 avoid symlinks, copy `plugins/design-router/` into `presets/my-agent/plugins/` and use
 plain `cp -R` (same result, just a second copy).
 
+> ⚠️ **When plugin changes take effect**: the preset's **persona text is read per session** — create a new session after saving,
+> no restart needed. But `plugins/design-router/` is a Cordis plugin **mounted once per process** (ESM imports once),
+> so after changing the plugin you must **restart the `dsh web` process** for it to be reloaded. Re-install with
+> `cp -RL presets/my-agent ~/.dsh/.agent-presets/` and then restart; re-installing without restarting keeps running the old checkers.
+
 ## Prerequisites (from real-machine testing)
 
 The audit checks and the skill's rendering discipline lean on a few local tools. Missing ones only degrade output, but degrade it a lot:

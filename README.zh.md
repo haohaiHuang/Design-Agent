@@ -110,6 +110,11 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 **无需修改任何路径**。若不想用软链，也可以把 `plugins/design-router/` 整体复制进
 `presets/my-agent/plugins/` 再 `cp -R`（结果相同，只是多一份拷贝）。
 
+> ⚠️ **插件代码改动的生效时机**：预设里的 **persona 文本按会话读取**——保存后新建会话即生效，无需重启；
+> 但 `plugins/design-router/` 是**按进程挂载一次**的 Cordis 插件（ESM 只 import 一次），
+> 改动插件后必须**重启 `dsh web` 进程**才会被重新加载。改完记得 `cp -RL presets/my-agent ~/.dsh/.agent-presets/` 重装，
+> 再重启服务；只重装不重启，新会话仍跑旧检查器。
+
 ## 环境前置（真机测试补充）
 
 `design_audit` 与技能里的渲染纪律依赖几个本机工具，缺失只降级、不阻断，但会明显拉低交付质量：
