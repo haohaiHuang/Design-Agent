@@ -15,6 +15,7 @@
 | `extra-pools-and-mount-checks-slice-2026-09-29.md` | `EXTRA池键序与校验漏挂-双端工作切片-2026-09-29.md` | Phase 6 切片：EXTRA 池键语义（D1）、漏挂补挂（D2/D3）、V 类挂载不变量（D4）；含被撤回的「三池必须一致」契约 |
 | `receipt-phase6-upstream-extra-pools-2026-09-29.md` | `回执-Phase6-上游-EXTRA池键序与校验漏挂-2026-09-29.md` | 上游 Phase 6 回执：任务相关池移出 `design_lookup`（D1 修根因）、`kill-ai-slop` 补挂、新增 `checks/pool-scope.test.mjs` 端到端断言 |
 | `receipt-phase7-upstream-source-rot-and-guards-2026-09-29.md` | `回执-Phase7-上游-pi侧收口-2026-09-29.md` | 上游 Phase 7 回执：emil 动效真源路径修正（**动了共享件** registry.md/workflow.md）、树指纹垃圾类补全、登记过期检测、下限判据分工说明 |
+| `upstream-followup-gates-and-chart-readout-2026-09-30.md` | `上游跟进-闸门误报修正与环节4图表读数核对-2026-09-30.md` | 真实产物复盘产出的上游跟进清单：`checks/layout.ts` 的 gate 2 判据收窄 + gate 24 微调豁免（精确改法 + 建议测试），以及 `workflow.md` §环节 4 → 1c 要补的「图表读数逐项对齐」人工核对项（含共享件契约后果与 V1–V5 验收） |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
