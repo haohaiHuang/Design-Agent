@@ -548,6 +548,21 @@ test("回归 CS-2 与 DR-A4 分工：role=button → CS-2；无 role 的 onclick
     const b = await design_audit.execute({ target: join(dir, "bare.html") });
     assert.match(b, /\[gate DR-A4\]/, `裸 onclick 应命中 DR-A4：\n${b}`);
     assert.doesNotMatch(b, /\[gate CS-2\]/, `裸 onclick 不该报 CS-2（与 DR-A4 重叠）：\n${b}`);
+
+    // 元素级判定：minified 单行 HTML 里，旁边元素带 tabindex 也不该让 DR-A4 漏报（旧行级实现会漏）
+    writeFileSync(
+      join(dir, "minified.html"),
+      '<!DOCTYPE html><html><head><style>html{overflow-x:clip}:focus-visible{outline:2px solid #111}</style></head>'
+        + '<body><div onclick="go()">x</div><span tabindex="3">y</span></body></html>',
+    );
+    const c = await design_audit.execute({ target: join(dir, "minified.html") });
+    assert.match(c, /\[gate DR-A4\]/, `minified 单行里 DR-A4 不该漏报：\n${c}`);
+    assert.match(c, /\[gate DR-A8\]/, `同一行的正数 tabindex 也应照报：\n${c}`);
+
+    // JSX 形态：onClick={() => go()} 内含 ">"，属性扫描不该被截断
+    writeFileSync(join(dir, "jsx.tsx"), 'export const A = () => <div onClick={() => go()} role="button">x</div>;\n');
+    const d = await design_audit.execute({ target: join(dir, "jsx.tsx") });
+    assert.doesNotMatch(d, /\[gate DR-A4\]/, `带 role 的 JSX div 不该报 DR-A4：\n${d}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

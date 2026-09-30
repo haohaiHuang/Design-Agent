@@ -19,6 +19,7 @@
 | `receipt-phase8-upstream-gates-and-chart-readout-2026-09-30.md` | `回执-Phase8-上游-闸门修正与图表读数-2026-09-30.md` | 上游 Phase 8 回执：gate 2/24 同修法落地 + 环节 4 三条硬规则 + workflow.md/ui-quickfix.md 共享件改写 + 上游独占修复 `runNonTextContrastChecks` 缺 import（DR-6 自引入起从未真跑）+ 新守卫 pi-harness/tool-smoke |
 | `upstream-followup-phase9-em-numbering-and-shared-files-2026-09-30.md` | `上游跟进-Phase9-EM编号统一与共享件收口-2026-09-30.md` | Phase 9 工单：`motion.ts` 按共享文档改 EM 编号（EM-1→EM-3 / EM-4→EM-5 / EM-3→EM-11）+ `workflow.md` 补 EM-11 + `registry.md` 补 symlink 重装说明 + `SKILL.md:142` 五栏→六栏裁定；含 V1–V5 与 DSH 侧已完成的对照 |
 | `receipt-phase9-upstream-em-numbering-and-shared-files-2026-09-30.md` | `回执-Phase9-上游-EM编号统一与共享件收口-2026-09-30.md` | 上游 Phase 9 回执：`motion.ts` 按共享文档改号（EM-1→EM-3 / EM-4→EM-5 / will-change→**EM-17**，因 EM-11~EM-16 已被视觉层占用）+ `workflow.md` 补 EM-17 与编号段位句 + `registry.md` symlink 说明 + `SKILL.md` 六项必填；含门规三轴审查与 V1–V5 |
+| `upstream-followup-phase10-dra4-and-new-resource-row-2026-09-30.md` | `上游跟进-Phase10-DR-A4元素级与新资源行-2026-09-30.md` | Phase 10 工单：① DR-A4 改元素级解析（附可直接照抄的 `openTags` 扫描器 + 三条建议测试，修 minified 单行漏报）；② 新资源行 `emilkowalski/skills`（裁定「补」= EM-* gate 真源、C 区转译行）+ `interfaces.dev` 裁定「不补」（同型不装）；含 V1–V5 |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
@@ -69,7 +70,7 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 | 动效编号 | 上游 `motion.ts` 与共享文档编号不一致（EM-1/EM-4 撞号、will-change 无号） | **已对齐**（上游 `e4ae451` 改号；will-change 取 **EM-17**，因 EM-11~EM-16 属视觉层自查号）；`KNOWN_RULE_GAPS` 已清空 |
 | `gate 14` 覆盖 | DSH 旧实现只认 `transition-property:`，**漏掉 `transition: width .3s` 简写**（第三方夹具 05-tracejam-saas 上暴露） | **已对齐**（按上游实现改为解析 CSS 规则 + `(?<!border-)` 守卫 + accordion height 豁免，回归测试锁定） |
 | 文档层（无机器 gate） | 共享 `workflow.md` 里 EM-1（`transition: all`，由 gate 10 覆盖）、EM-4/EM-6~EM-10 属视觉层自查，无独立机器 gate | 非集合差异，记在此处；`KNOWN_RULE_GAPS` 只登记**编号集合**差异 |
-| `DR-A4` 行级判定 | 同一行出现 `role=`/`tabindex` 会整行跳过 → minified 单行 HTML 漏报（两侧同实现） | 已登记为已知限制，根治需元素级解析（属新工作） |
+| `DR-A4` 行级判定 | 同一行出现 `role=`/`tabindex` 会整行跳过 → minified 单行 HTML 漏报 | **DSH 已改元素级**（`checks/a11y.mjs`，含 `openTags` 扫描器与 minified/JSX 测试）；**上游待跟进**（Phase 10 工单 §1）——在此之前 minified 单行 HTML 上两侧**会分叉**（DSH 报、上游漏） |
 | 遗留待定 | `interfaces.dev` 与 `emilkowalski/skills` 是否各补独立资源行 | Phase 8 遗留，未裁定 |
 
 **基线沿革**

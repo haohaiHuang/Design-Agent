@@ -105,15 +105,18 @@ export function runA11yChecks(files) {
     }
 
     // ---- DR-A4: 非原生元素绑点击且无 role/tabindex → 键盘不可达 ----
-    for (const ln of grepLines(c, /<(div|span|li|td)\b[^>]*(onclick|onClick|@click)\s*=/)) {
-      const line = c.split("\n")[ln - 1];
-      if (/\brole\s*=|tabindex|tabIndex/.test(line)) continue;
+    // **元素级**判定（2026-09-30 起；旧版按行扫，同一行里出现 tabindex/role 会整行跳过，
+    // 于是 minified 的单行 HTML 全漏）。按开标签逐个取属性文本后判定——元素内没有 role/tabindex 才算。
+    for (const tag of openTags(c, "div|span|li|td")) {
+      const attrs = tag.attrs;
+      if (!/\b(onclick|onClick|@click)\s*=/.test(attrs)) continue;
+      if (/\brole\s*=|tabindex|tabIndex/.test(attrs)) continue;
       findings.push({
         gate: "DR-A4",
         rule: "non-native-interactive",
         severity: "error",
         message: "非原生元素绑定了点击事件但无 role/tabindex —— 键盘与屏幕阅读器完全不可达，且不支持 Cmd/Ctrl/中键。用 <button>（动作）或 <a href>（导航）。",
-        location: loc(f.path, ln),
+        location: loc(f.path, tag.line),
       });
     }
 
@@ -165,4 +168,37 @@ export function runA11yChecks(files) {
   }
 
   return findings;
+}
+
+/**
+ * 取出指定标签的**开标签**（属性文本 + 行号）。
+ * 逐字符扫描并跟踪引号与 `{}` 深度，因此能正确处理 JSX 的 `onClick={() => go()}`（内含 `>`），
+ * 也不会把属性值里的 `>` 当标签结束。
+ */
+function openTags(content, tagNames) {
+  const out = [];
+  const re = new RegExp(`<(${tagNames})\\b`, "gi");
+  for (const m of content.matchAll(re)) {
+    let i = m.index + m[0].length;
+    let depth = 0;
+    let quote = null;
+    for (; i < content.length; i++) {
+      const ch = content[i];
+      if (quote) {
+        if (ch === quote) quote = null;
+      } else if (ch === '"' || ch === "'") {
+        quote = ch;
+      } else if (ch === "{") {
+        depth++;
+      } else if (ch === "}") {
+        depth = Math.max(0, depth - 1);
+      } else if (ch === ">" && depth === 0) {
+        break;
+      }
+    }
+    const attrs = content.slice(m.index + m[0].length, i);
+    // 行级 grepLines 不再需要：行号按匹配位置数换行
+    out.push({ attrs, line: content.slice(0, m.index).split("\n").length });
+  }
+  return out;
 }
