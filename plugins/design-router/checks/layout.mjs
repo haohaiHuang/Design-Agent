@@ -7,6 +7,9 @@
 import { loc, grepLines, pageText, collectCssVars, propValueSpan, resolveVar, isSrOnlyIdiom } from "./types.mjs";
 
 const SPACING_OK = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72, 80, 96, 128, 160, 192];
+// 4pt 刻度只管**布局级**间距；< 8px 属元件内微调（徽标内边距、光学对齐、hairline 配套），不判违规。
+// 早期版本把 2/3/5/6px 也报 warn —— 2026-09-30 真实产物上一次跑出 24 条同类噪音，把唯一的 error 淹了。
+const MICRO_SPACING_MAX = 8;
 const RADIUS_OK = new Set([0, 2, 4, 6, 8, 12, 16, 24, 32, 999, 9999]);
 
 export function runLayoutChecks(files) {
@@ -18,16 +21,27 @@ export function runLayoutChecks(files) {
     const c = f.content;
 
     // ---- gate 2: 渐变（含 gradient-text）----
+    // 渐变文字的判据只有一条：**同一条规则块内**出现 background-clip: text（含 -webkit- 前缀）。
+    // 早期版本把「background-image: <渐变>」也算成渐变文字并报 error，于是把斜纹/纹理背景误报成
+    // 渐变文字（2026-09-30 真实产物复盘：一处 repeating-linear-gradient 纹理被判 error）。
+    // 纹理/背景渐变保留 warn（需约束集背书），只有 clip:text 惯用法才是 error。
+    const cssLines = c.split("\n");
+    const ruleBlockAt = (ln) => {
+      let s = ln - 1;
+      let e = ln - 1;
+      while (s > 0 && !cssLines[s].includes("{")) s--;
+      while (e < cssLines.length - 1 && !cssLines[e].includes("}")) e++;
+      return cssLines.slice(s, e + 1).join("\n");
+    };
     for (const ln of grepLines(c, /(linear|radial|conic)-gradient|background-clip\s*:\s*text/i)) {
-      const line = c.split("\n")[ln - 1];
-      const isText = /background-clip\s*:\s*text/i.test(line) || /background-image[^;]*(linear|radial|conic)-gradient/i.test(line);
+      const isText = /(-webkit-)?background-clip\s*:\s*text/i.test(ruleBlockAt(ln));
       findings.push({
         gate: "2",
         rule: "gradient",
         severity: isText ? "error" : "warn",
         message: isText
           ? "渐变文字（background-clip: text + gradient）。任何流派都禁止渐变文字。"
-          : "检测到渐变。无流派允许渐变文字；背景渐变需有约束集背书。",
+          : "检测到渐变（背景或纹理）。背景/纹理渐变需有约束集背书；渐变文字另有判定。",
         location: loc(f.path, ln),
       });
     }
@@ -84,7 +98,7 @@ export function runLayoutChecks(files) {
         if (!vals) continue;
         const bad = vals.filter((v) => {
           const n = parseInt(v);
-          return n !== 0 && !SPACING_OK.includes(n);
+          return n !== 0 && n >= MICRO_SPACING_MAX && !SPACING_OK.includes(n);
         });
         if (bad.length) {
           findings.push({

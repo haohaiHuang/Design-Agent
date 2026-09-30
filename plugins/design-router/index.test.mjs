@@ -376,3 +376,60 @@ test("design_quality：report 只写本地日志（路径可注入 temp dir，�
     rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+// ---- 2026-09-30 真实产物复盘回归：gate 2 误报 / gate 24 噪音 ----
+
+test("回归 gate 2：纹理渐变只 warn，只有 background-clip:text 才是渐变文字（error）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-grad-"));
+  const page = (css) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
+  try {
+    // ① 斜纹纹理（信源条/付费标记那类）：gate 2 应报 warn，不得报"渐变文字"
+    writeFileSync(join(dir, "texture.html"), page(".bar{background-image:repeating-linear-gradient(135deg, #000 0 5px, transparent 5px 10px);}"));
+    const tex = await design_audit.execute({ target: join(dir, "texture.html") });
+    const texLine = tex.split("\n").find((l) => /\[gate 2\]/.test(l)) ?? "";
+    assert.notEqual(texLine, "", "纹理渐变仍应被 gate 2 提示");
+    assert.doesNotMatch(texLine, /🔴|background-clip: text \+ gradient/, `纹理渐变不应判为渐变文字（error）：${texLine}`);
+    assert.match(texLine, /🟡/, `纹理渐变应为 warn：${texLine}`);
+
+    // ② 真渐变文字惯用法：background-clip:text + 渐变 → 仍必须 error
+    writeFileSync(join(dir, "textgrad.html"), page(".hero{-webkit-background-clip:text;background-clip:text;background-image:linear-gradient(90deg,#111,#999);color:transparent;}"));
+    const tg = await design_audit.execute({ target: join(dir, "textgrad.html") });
+    const tgLine = tg.split("\n").find((l) => /\[gate 2\]/.test(l)) ?? "";
+    assert.match(tgLine, /渐变文字/, `clip:text 惯用法必须报渐变文字：${tgLine}`);
+    assert.match(tgLine, /🔴/, `clip:text 惯用法应为 error：${tgLine}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 gate 24：<8px 元件内微调豁免，布局级非 4 倍数仍报", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-space-"));
+  const page = (css) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
+  try {
+    writeFileSync(join(dir, "micro.html"), page(".badge{padding:2px 6px;gap:3px;margin-top:5px}"));
+    const micro = await design_audit.execute({ target: join(dir, "micro.html") });
+    assert.doesNotMatch(micro, /\[gate 24\]/, `≤7px 微调不应报 gate 24：\n${micro}`);
+
+    writeFileSync(join(dir, "offscale.html"), page(".section{padding:20px 18px;gap:14px}"));
+    const off = await design_audit.execute({ target: join(dir, "offscale.html") });
+    const offLine = off.split("\n").find((l) => /\[gate 24\]/.test(l)) ?? "";
+    assert.match(offLine, /18px|14px/, `布局级非 4 倍数仍应报 gate 24：${offLine}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("环节 4 输出含人工核对硬规则（图表读数一致性）", async () => {
+  const { design_lookup } = tools();
+  const out = await design_lookup.execute({ branch: "A2", stage: 4 });
+  assert.match(out, /环节 4 校验硬规则/);
+  assert.match(out, /图上读数逐项对齐/);
+  assert.match(out, /百分比 × 360°/);
+  // 其它环节不应带上这段
+  const s1 = await design_lookup.execute({ branch: "A2", stage: 1 });
+  assert.doesNotMatch(s1, /图上读数逐项对齐/);
+});
