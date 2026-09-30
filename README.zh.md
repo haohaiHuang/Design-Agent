@@ -45,6 +45,21 @@ node docs/migrate-preset-0.2.0.mjs \
 
 然后**完全退出并重开**桌面端，新建会话的预设列表里就会出现「设计 Agent」。
 
+### 另一条等效路线：bundle 层（本机在用）
+
+上面走的是 **profile 用户层**（把 insert 行写进某个 profile 的 `cordis.patch.yml`）。
+同样的 insert 行也可以放在 **bundle 层** —— 见 [`presets/design-agent-preset/`](presets/design-agent-preset/)：
+它是一个可安装的 bundle（`Plugins → Add plugin`），插件行用**包名** `@local/dsh-design-router` 引用，
+所以 bundle 内**不含机器绝对路径**，可以跨机复制（代价：插件包要单独装一次）。
+
+| | bundle 层（`presets/design-agent-preset/`） | profile 用户层（`docs/migrate-preset-0.2.0.mjs`） |
+| --- | --- | --- |
+| 装法 | Plugins → Add plugin ×2（预设 + `plugins/design-router`） | 脚本 `--append <profile>/cordis.patch.yml` |
+| 插件引用 | 包名（无绝对路径，可跨机） | 脚本替换为绝对路径 |
+| 适用 | 多机复用、想随仓库一起版本化 | 单机、不便装 bundle |
+
+两条路线是同一条 insert 行，**不要同时用**（同一 `preset-<id>` 出现两次会让组合产生重复行）。
+
 两个格式变化要注意：① **插件行必须用绝对路径**（内联预设没有"预设目录"作相对基准，
 `./plugins/...` 会落到 profile 目录去）——迁移脚本会自动改写；② **桌面 profile 由 Electron 管理**，
 `cordis.patch.yml` 同时承载应用写入的设置，若某次设置变更把它整体重写，重跑一次 `--append` 即可。

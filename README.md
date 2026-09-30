@@ -59,6 +59,22 @@ Then **fully quit and reopen** the app; the preset appears in the new-session pr
 
 Two things that change with the inline format:
 
+### Equivalent route: the bundle layer (what this machine uses)
+
+The recipe above writes the `insert` row into a profile's **user layer** (`cordis.patch.yml`).
+The same row can live in a **bundle layer** instead — see [`presets/design-agent-preset/`](presets/design-agent-preset/):
+an installable bundle (`Plugins → Add plugin`) whose plugin row uses the **package name**
+`@local/dsh-design-router`, so the bundle contains **no machine absolute path** and can be copied across
+machines (cost: the plugin package is installed separately).
+
+| | Bundle layer (`presets/design-agent-preset/`) | Profile user layer (`docs/migrate-preset-0.2.0.mjs`) |
+| --- | --- | --- |
+| Install | Plugins → Add plugin ×2 (preset + `plugins/design-router`) | script `--append <profile>/cordis.patch.yml` |
+| Plugin reference | package name (no absolute path, portable) | script rewrites it to an absolute path |
+| Best for | multi-machine reuse, versioned with the repo | single machine, no bundle install |
+
+Both are the same `insert` row — **do not use both** (two rows for the same `preset-<id>` duplicate the composition).
+
 1. **The plugin row must use an absolute path.** An inline preset has no "preset directory", so
    `./plugins/design-router/index.mjs` would resolve against the *profile* directory. The migration script
    rewrites it to the absolute repo path (override with `--plugin`).
