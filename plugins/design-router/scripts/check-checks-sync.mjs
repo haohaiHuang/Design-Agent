@@ -38,11 +38,8 @@ const PI_CHECKS =
 
 /** 已登记的规则族差异（登记会腐烂：不再差异时脚本报"登记过期"） */
 const KNOWN_RULE_GAPS = {
-  "DR-A3": "上游 a11y 独有：图标按钮缺 accessible name（DSH 未移植，2026-09-30 登记，待裁定）",
-  "DR-A4": "上游 a11y 独有：非原生元素绑点击但无 role/tabindex（DSH 未移植，待裁定）",
-  "DR-A5": "上游 a11y 独有：hover 改可见性未包 @media (hover:hover)（DSH 未移植，待裁定）",
-  "DR-A7": "上游 a11y 独有：有 <nav> 但无 skip-to-content（DSH 未移植，待裁定）",
-  "DR-A8": "上游 a11y 独有：正数 tabindex（DSH 未移植，待裁定）",
+  // DR-A3/A4/A5/A7/A8 已于 2026-09-30 移植到 DSH（checks/a11y.mjs），登记随之删除 ——
+  // 删干净后脚本不再打印它们；若哪天又只剩单侧，会作为**未登记差异**让脚本退出 1。
   // EM-* 的口径分歧（2026-09-30 登记）：共享 workflow.md 的编号是
   //   EM-3 = UI 上 ease-in、EM-5 = UI 时长 >300ms；DSH 按文档实现。
   //   上游 motion.ts 把同样两件事编成 EM-1 / EM-4，并把 will-change 编成 EM-3（文档里没有这条）。
@@ -51,6 +48,7 @@ const KNOWN_RULE_GAPS = {
   "EM-1": "上游 motion.ts 独有（编号口径分歧）：进入方向 ease-in —— 共享文档与 DSH 记为 EM-3",
   "EM-4": "上游 motion.ts 独有（编号口径分歧）：进入时长 >300ms —— 共享文档与 DSH 记为 EM-5",
   "EM-5": "DSH 独有：UI 时长 >300ms（与共享文档 EM-5 一致）；上游同行为编号 EM-4",
+  "EM-11": "DSH 独有：will-change 用在非合成属性（2026-09-30 补齐，编号依共享文档口径）；上游 motion.ts 旧编号为 EM-3，待上游改编号后本条登记即可删除",
 };
 
 /**

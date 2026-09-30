@@ -82,3 +82,51 @@ export function isSrOnlyIdiom(line) {
   const hasHide = /clip(-path)?\s*:|overflow\s*:\s*hidden|position\s*:\s*absolute/i.test(line);
   return hasW && hasH && hasHide;
 }
+
+// ---------------------------------------------------------------- CSS 提取与解析
+// 移植自上游 checks/motion.ts（DSH 侧由 a11y 的 DR-A5 与 layout 的 EM-11 共用；两者都要按 @media 上下文逐规则判断）。
+
+/** 收集可解析的 CSS：<style> 块 + 行内 style="..." 声明；两者皆无时返回 null
+ *  （JS 对象字面量的 {} 会污染解析，所以 .tsx/.js 只在真的带样式时才解析） */
+export function extractCss(content, path, kind) {
+  const isCss = kind === "css" || /\.(css|scss|sass|less)$/i.test(path);
+  const parts = [];
+  if (isCss) {
+    parts.push(content);
+  } else {
+    parts.push(...[...content.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]));
+    parts.push(...[...content.matchAll(/style\s*=\s*"([^"]*)"/gi)].map((m) => `.inline{${m[1]}}`));
+  }
+  const joined = parts.join("\n").replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+  return joined.trim() ? joined : null;
+}
+
+/** 解析 CSS 为规则表（含 @media 等条件的继承栈 `at`） */
+export function parseCss(src, lineOffset = 0, at = []) {
+  const rules = [];
+  const nl = (i) => src.slice(0, i).split("\n").length;
+  let i = 0;
+  for (;;) {
+    const open = src.indexOf("{", i);
+    if (open === -1) break;
+    const selector = src.slice(i, open).trim().replace(/\s+/g, " ");
+    let depth = 1;
+    let j = open + 1;
+    while (j < src.length && depth > 0) {
+      if (src[j] === "{") depth++;
+      else if (src[j] === "}") depth--;
+      j++;
+    }
+    const body = src.slice(open + 1, j - 1);
+    const line = lineOffset + nl(open) - 1;
+    if (/^@keyframes\b/i.test(selector)) {
+      // 关键帧内容不按普通规则处理（DR-A5 不关心）
+    } else if (/^@(media|supports|layer|container|scope)\b/i.test(selector)) {
+      rules.push(...parseCss(body, lineOffset + nl(open), [...at, selector]).rules);
+    } else if (selector && !selector.startsWith("@")) {
+      rules.push({ selector, decls: body, line, at });
+    }
+    i = j;
+  }
+  return { rules };
+}

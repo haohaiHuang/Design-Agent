@@ -1,10 +1,11 @@
 /**
  * checks/layout.mjs — 布局/视觉纪律检查（移植自 design-router checks/layout.ts）
  *
- * 覆盖 hallmark gate 2 / 10 / 14 / 24 / 34 / 50 / 51 + design-references 环节4 圆角/渐变扫描。
+ * 覆盖 hallmark gate 2 / 10 / 14 / 24 / 34 / 50 / 51 + design-references 环节4 圆角/渐变扫描
+ * + 动效 EM-2 / EM-3 / EM-5 / EM-11（EM-11 于 2026-09-30 补齐，编号依共享 workflow.md）。
  * 全部为文本可判定；渲染类（gate 6/35/36/44/45）不在本模块。
  */
-import { loc, grepLines, pageText, collectCssVars, propValueSpan, resolveVar, isSrOnlyIdiom } from "./types.mjs";
+import { loc, grepLines, pageText, collectCssVars, propValueSpan, resolveVar, isSrOnlyIdiom, extractCss, parseCss } from "./types.mjs";
 
 const SPACING_OK = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72, 80, 96, 128, 160, 192];
 // 4pt 刻度只管**布局级**间距；< 8px 属元件内微调（徽标内边距、光学对齐、hairline 配套），不判违规。
@@ -255,6 +256,30 @@ export function runLayoutChecks(files) {
           message: `动效 EM-5: UI 动画时长 >300ms（${over.join(", ")}）无理由。UI 状态变化应在 300ms 内；>300ms 仅限叙事性/全屏过渡。`,
           location: loc(f.path, ln),
         });
+      }
+    }
+
+    // EM-11: will-change 用在非合成属性（滥用会吃显存并可能更慢）
+    // 编号依共享 workflow.md 的 EM 口径（EM-1..EM-10 已占用；upstream motion.ts 旧编号为 EM-3）。
+    const css11 = extractCss(c, f.path, f.kind);
+    if (css11) {
+      for (const r of parseCss(css11).rules) {
+        const m = r.decls.match(/(?:^|[;{\s])will-change\s*:\s*([^;}]+)/i);
+        if (!m) continue;
+        const COMPOSITED = new Set(["transform", "opacity", "filter", "scroll-position", "contents", "auto", "backdrop-filter"]);
+        const bad = m[1]
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter((propName) => propName && !COMPOSITED.has(propName));
+        if (bad.length) {
+          findings.push({
+            gate: "EM-11",
+            rule: "will-change-misuse",
+            severity: "warn",
+            message: `动效 EM-11: will-change: ${bad.join(", ")} 不是合成属性（只应用 transform/opacity/filter）。滥用会吃掉显存并可能更慢。`,
+            location: loc(f.path, r.line),
+          });
+        }
       }
     }
   }

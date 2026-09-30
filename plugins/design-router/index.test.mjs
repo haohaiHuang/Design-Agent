@@ -471,3 +471,84 @@ test("冒烟：6 个工具逐个真调，均返回非空文本且不抛异常", 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ---- 2026-09-30 补齐：DR-A 家族（移植自上游 a11y.ts）+ EM-11（will-change）----
+
+test("回归 DR-A 家族：5 条检查正例命中、反例静默", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-dra-"));
+  const page = (css, body) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n:focus-visible{outline:2px solid #4F46E5}\n${css}\n</style></head><body>${body}</body></html>`;
+  try {
+    // 正例：图标按钮无 accessible name；div 绑 onclick 无 role/tabindex；有 nav 无 skip；正数 tabindex
+    writeFileSync(
+      join(dir, "bad.html"),
+      page(
+        ".btn{padding:8px}",
+        // 逐元素分行：DR-A4 是行级判定，同一行里出现 tabindex/role 会整行跳过
+        //（上游同实现；minified 单行 HTML 会漏报，已在交接清单里登记为已知限制）
+        '<nav><a href="#x">x</a></nav>\n'
+          + '<button class="btn"><svg viewBox="0 0 24 24"><path d="M0 0"/></svg></button>\n'
+          + '<div onclick="go()">点我</div>\n<span tabindex="3">顺序外</span>',
+      ),
+    );
+    const bad = await design_audit.execute({ target: join(dir, "bad.html") });
+    for (const g of ["DR-A3", "DR-A4", "DR-A7", "DR-A8"]) {
+      assert.match(bad, new RegExp(`\\[gate ${g}\\]`), `应命中 ${g}：\n${bad}`);
+    }
+
+    // 反例：命名按钮 + role/tabindex 齐的非原生元素 + nav 配 skip 链接 + tabindex="0"
+    writeFileSync(
+      join(dir, "ok.html"),
+      page(
+        ".btn{padding:8px}",
+        '<a class="skip" href="#main">跳到主内容</a><nav><a href="#x">x</a></nav>'
+          + '<button class="btn" aria-label="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0"/></svg></button>'
+          + '<div role="button" tabindex="0" onclick="go()">点我</div><main id="main">正文</main>',
+      ),
+    );
+    const ok = await design_audit.execute({ target: join(dir, "ok.html") });
+    assert.doesNotMatch(ok, /\[gate DR-A/, `反例不该命中 DR-A 家族：\n${ok}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 EM-11：will-change 用在非合成属性才报", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-wc-"));
+  const page = (css) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
+  try {
+    writeFileSync(join(dir, "bad.html"), page(".a{will-change:left,transform}"));
+    const bad = await design_audit.execute({ target: join(dir, "bad.html") });
+    assert.match(bad, /\[gate EM-11\]/, `will-change:left 应命中 EM-11：\n${bad}`);
+    assert.match(bad, /left/);
+
+    writeFileSync(join(dir, "ok.html"), page(".a{will-change:transform;opacity:.9}"));
+    const ok = await design_audit.execute({ target: join(dir, "ok.html") });
+    assert.doesNotMatch(ok, /\[gate EM-11\]/, `合成属性不该命中 EM-11：\n${ok}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 CS-2 与 DR-A4 分工：role=button → CS-2；无 role 的 onclick → DR-A4（不重叠）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-cs2-"));
+  const page = (body) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n:focus-visible{outline:2px solid #4F46E5}\n</style></head><body>\n${body}\n</body></html>`;
+  try {
+    writeFileSync(join(dir, "role.html"), page('<div role="button" tabindex="0">x</div>'));
+    const a = await design_audit.execute({ target: join(dir, "role.html") });
+    assert.match(a, /\[gate CS-2\]/, `role=button 应命中 CS-2：\n${a}`);
+    assert.doesNotMatch(a, /\[gate DR-A4\]/, `有 role 时不该再报 DR-A4：\n${a}`);
+
+    writeFileSync(join(dir, "bare.html"), page('<div onclick="go()">x</div>'));
+    const b = await design_audit.execute({ target: join(dir, "bare.html") });
+    assert.match(b, /\[gate DR-A4\]/, `裸 onclick 应命中 DR-A4：\n${b}`);
+    assert.doesNotMatch(b, /\[gate CS-2\]/, `裸 onclick 不该报 CS-2（与 DR-A4 重叠）：\n${b}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

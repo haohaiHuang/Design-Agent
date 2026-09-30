@@ -57,8 +57,9 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 | 项 | 内容 | 处理 |
 | --- | --- | --- |
-| a11y 规则族 | 上游独有 `DR-A3`（图标按钮 accessible name）/`DR-A4`（非原生元素绑点击无 role/tabindex）/`DR-A5`（hover 改可见性未包 `@media (hover:hover)`）/`DR-A7`（有 `<nav>` 但无 skip-to-content）/`DR-A8`（正数 tabindex） | DSH 未移植；`check-checks-sync.mjs` 的 `KNOWN_RULE_GAPS` 已登记，未登记差异会让脚本退出 1 |
-| 动效编号口径 | 共享 `workflow.md`：EM-3 = UI 上 `ease-in`、EM-5 = UI 时长 >300ms（DSH 按文档实现）；上游 `motion.ts` 把这两件事编成 EM-1/EM-4，并把 `will-change` 编成 EM-3 | 同 id 不同语义，集合比对看不出，已写入 `KNOWN_RULE_GAPS` 注释；待裁定以哪套编号为准 |
+| a11y 规则族 | 上游独有 `DR-A3`/`DR-A4`/`DR-A5`/`DR-A7`/`DR-A8` | **已对齐**（2026-09-30 DSH 侧补齐到 `checks/a11y.mjs`，含移植过来的 `extractCss`/`parseCss`）；登记已从 `KNOWN_RULE_GAPS` 删除 |
+| `CS-2` 语义 | DSH 版原把 `<div onclick>` 也收进 CS-2，与 `DR-A4` 重叠（补齐后会同一行报 🔴+🟡）；上游版只管 `role="button"`，与 DR-A4 严格分工 | **已对齐**（DSH 改为只管 `role="button"` + 上游文案），并加回归测试锁分工 |
+| 动效编号口径 | 共享 `workflow.md`：EM-3 = UI 上 `ease-in`、EM-5 = UI 时长 >300ms（DSH 按文档实现，并已补 EM-11 = `will-change` 用在非合成属性）；上游 `motion.ts` 记为 EM-1/EM-4，并把 `will-change` 记为 EM-3 | 同 id 不同语义，集合比对看不出；**待上游 Phase 9 改编号**（EM-1→EM-3、EM-4→EM-5、EM-3→EM-11）。`KNOWN_RULE_GAPS` 已登记 EM-1/EM-4/EM-5/EM-11，改完删登记 |
 
 **基线沿革**
 

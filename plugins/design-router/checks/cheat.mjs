@@ -33,13 +33,17 @@ export function runCheatChecks(files) {
       });
     }
 
-    // ---- 2. <div> 当按钮（onclick 或 role=button）----
-    for (const ln of grepLines(c, /<div[^>]*\b(onclick|role=["']button)/i)) {
+    // ---- 2. <div> 当按钮（仅 role="button"）----
+    // 与 a11y 的 DR-A4 严格分工，不重叠（2026-09-30 与上游对齐；此前 DSH 版把 onclick 也收进来，
+    // 在 DR-A4 补齐后会让同一个 <div onclick> 同时报 🔴DR-A4 + 🟡CS-2）：
+    //   DR-A4（🔴）接管「有 onclick 但无 role/tabindex」= 键盘完全不可达
+    //   CS-2 （🟡）只管「已声明 role=button 的非原生控件」= 能键盘到达但非原生
+    for (const ln of grepLines(c, /<div[^>]*\brole=["']button/i)) {
       findings.push({
         gate: "CS-2",
         rule: "div-as-button",
         severity: "warn",
-        message: "<div> 当按钮用。用原生 <button>（免费获得键盘/语义/焦点行为）。",
+        message: '<div role="button"> 当按钮用。非原生控件需自己补齐键盘/焦点/禁用态；直接用 <button> 免费获得。',
         location: loc(f.path, ln),
       });
     }
