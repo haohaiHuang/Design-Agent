@@ -1,0 +1,3 @@
+# 本包只提供插件实现，由预设 bundle 用**包名**（@local/dsh-design-router）在自己的
+# config.plugins 里引用；它自己不挂任何行，所以这里的补丁层是空的。
+[]
