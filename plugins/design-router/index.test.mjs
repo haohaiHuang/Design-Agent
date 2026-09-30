@@ -433,3 +433,41 @@ test("环节 4 输出含人工核对硬规则（图表读数一致性）", async
   const s1 = await design_lookup.execute({ branch: "A2", stage: 1 });
   assert.doesNotMatch(s1, /图上读数逐项对齐/);
 });
+
+// ---- 工具级冒烟（补"调用了未 import 的 *Checks"这一类只有真跑才炸的漏洞）----
+// 上游 2026-09-30 在 index.ts 里发现 runNonTextContrastChecks 被调用但从未 import → design_audit
+// 一调就 ReferenceError，而静态覆盖比对看不出来。这里对**每个**工具都真跑一次（不是只查注册表）。
+
+test("冒烟：6 个工具逐个真调，均返回非空文本且不抛异常", async () => {
+  const T = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-smoke-"));
+  const logPath = join(dir, "quality.json");
+  process.env.DSH_DESIGN_ROUTER_QUALITY_LOG = logPath;
+  const html = join(dir, "ok.html");
+  const css = join(dir, "ok.css");
+  writeFileSync(html, '<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n.a{padding:16px;gap:8px}\n</style></head><body><p>x</p></body></html>');
+  writeFileSync(css, ".a{color:#111827;background:#ffffff}\n");
+  try {
+    const calls = {
+      design_route: { query: "做一个 SaaS 落地页" },
+      design_lookup: { branch: "A2", stage: 1 },
+      design_diversity: {
+        c1: "色#4F46E5/Inter/8pt | 桶minimal/refero",
+        c2: "色#111111/衬线/杂志栏 | 桶editorial/zine",
+        c3: "色#FF6B00/等宽/粗野栅格 | 桶brutalist/logggos",
+      },
+      design_audit: { target: html },
+      design_contrast: { target: css },
+      design_quality: { action: "query", slug: "all" },
+    };
+    for (const [name, args] of Object.entries(calls)) {
+      assert.equal(typeof T[name].execute, "function", `${name}.execute 应为函数`);
+      const out = await T[name].execute(args);
+      assert.equal(typeof out, "string", `${name} 应返回文本`);
+      assert.ok(out.trim().length > 0, `${name} 返回了空文本`);
+    }
+  } finally {
+    delete process.env.DSH_DESIGN_ROUTER_QUALITY_LOG;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -254,6 +254,7 @@
      [...document.querySelectorAll('*')].filter(el => el.getBoundingClientRect().right > innerWidth + 1)
        .map(el => [el.tagName, Math.round(el.getBoundingClientRect().right), el.className]);
      ```
+   - **图表读数逐项对齐（机器闸门完全看不见）**：闸门只读 CSS/文本，**几何与数值编码不在检查面内**——闸门全绿不等于图对。每个图的每一段（弧长 / 扇区 / 柱高 / 点位 / 占比条）都要量一遍是否等于标签里的数字。典型陷阱：半环 / 仪表盘按「百分比 × 360°」取端点 → 读数约为标签值的 2 倍，且值弧与轨道不同心（接缝处可见折点）。顺带核**定义域是否收紧**：曲线挤在画布下 1/3、轴范围远大于数据波动 = 纵向空间被浪费，收紧 y 域或降图高。
    - **多视口 + 关键状态**：桌面 / 平板 / 窄屏各一档；只截图不够，同时 dump 关键元素的计算样式（字号、行高、圆角、颜色、字体族是否命中目标族）。
    - **视觉模型的结论必须回源码核对**：本地视觉模型会**凭空报出**圆角、阴影、渐变、纹理这类"看起来该有"的东西（实测两例：报出"亚麻纹理"而原图纯平；报出"8px 圆角 / 轻微阴影 / 线性渐变"而源码 grep 计数为 0）。凡是"有没有某属性"这类可判定问题，一律用 `grep`/计算样式定论，视觉模型只用于"气质/观感"这类无法 grep 的判断。
    - **移动端渲染通道（踩过的坑）**：**禁用 `Google Chrome --headless --window-size=375`**。Chrome 有最小窗口宽度（实测 `innerWidth` 被抬到 **500**），拿到的是"更宽布局被裁到 375"的假图——它会让窄屏结论全错，而图看着正常。可用通道（**按序试**，每换一条都先跑自检）：① `chrome-headless-shell`（Playwright 缓存 `ms-playwright/chromium_headless_shell-*/…`，实测 `--window-size=375` 下 `innerWidth` 真为 375）；② **iframe 预览壳**：外层页面写死 `width:375px` 的 iframe 承载被测页面，最稳、零依赖，推荐；③ **PDF 中转**：`ego-browser` 的 `Page.printToPDF` 出 PDF 再用 `pdftoppm` 转 PNG（本机实测：系统 Chrome 无头 `Trace/BPT trap`、`screencapture` 无屏幕录制权限、`ego-browser` 的 CDP 截图接口超时，三条常见路径都不通时这条稳定可用）；④ 自检：渲染后先断言 `innerWidth` 等于目标宽，不等就换通道，别继续分析截图；把本机最终可用的通道与坑位写进产物目录（如 `designs/shots/README.md`）供下一轮复用。

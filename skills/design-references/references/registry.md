@@ -61,7 +61,7 @@
 
 > **路由短名单是各仓库自有策划**：本仓库 `ROUTES`（`scripts/build-registry.mjs`）只收「`主` 层级 + 需求特征命中项」，是策划结果而非全量索引（全量目录是本文件）。**不追求与 DSH 侧一致**；跨仓回流只回流**资源行与通用规则**，路由各自主张。
 
-改 registry.md 后重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json；禁止手改 registry.json。
+改**技能树任一文件**（`registry.md` / `workflow.md` / `ui-quickfix.md` / `SKILL.md` …——共享件也算）后都要重跑 `node scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json / manifest.json 指纹；禁止手改这两个生成物。
 
 ---
 

@@ -16,6 +16,7 @@
 | `receipt-phase6-upstream-extra-pools-2026-09-29.md` | `回执-Phase6-上游-EXTRA池键序与校验漏挂-2026-09-29.md` | 上游 Phase 6 回执：任务相关池移出 `design_lookup`（D1 修根因）、`kill-ai-slop` 补挂、新增 `checks/pool-scope.test.mjs` 端到端断言 |
 | `receipt-phase7-upstream-source-rot-and-guards-2026-09-29.md` | `回执-Phase7-上游-pi侧收口-2026-09-29.md` | 上游 Phase 7 回执：emil 动效真源路径修正（**动了共享件** registry.md/workflow.md）、树指纹垃圾类补全、登记过期检测、下限判据分工说明 |
 | `upstream-followup-gates-and-chart-readout-2026-09-30.md` | `上游跟进-闸门误报修正与环节4图表读数核对-2026-09-30.md` | 真实产物复盘产出的上游跟进清单：`checks/layout.ts` 的 gate 2 判据收窄 + gate 24 微调豁免（精确改法 + 建议测试），以及 `workflow.md` §环节 4 → 1c 要补的「图表读数逐项对齐」人工核对项（含共享件契约后果与 V1–V5 验收） |
+| `receipt-phase8-upstream-gates-and-chart-readout-2026-09-30.md` | `回执-Phase8-上游-闸门修正与图表读数-2026-09-30.md` | 上游 Phase 8 回执：gate 2/24 同修法落地 + 环节 4 三条硬规则 + workflow.md/ui-quickfix.md 共享件改写 + 上游独占修复 `runNonTextContrastChecks` 缺 import（DR-6 自引入起从未真跑）+ 新守卫 pi-harness/tool-smoke |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
@@ -44,12 +45,20 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 | 量 | 值 |
 | --- | --- |
-| 技能树指纹 | `sha256:800b810967d6b9ad`（9 处副本一致） |
-| `registry.md` 文件指纹 | `sha256:bd0b1bac614833bcedebca7c50171de491941115609422cda1ff1f907a230d70` |
-| `workflow.md` 文件指纹 | `sha256:86ff81bbb11e56fe2c5f0f7d96ff56aceff4f8e767a40b5074d82bbd198b06b4` |
+| 技能树指纹 | `sha256:b891206f88ee2a0d`（9 处副本一致） |
+| `registry.md` 文件指纹 | `sha256:6a2b577083ffbccf553a2b13637bf755dda9a7a393d16a8038a5dd5c0e26c3e3` |
+| `workflow.md` 文件指纹 | `sha256:037369c24904c67332e7e4172dc778ebcb5766c86c090abfc9fa3e46c8a61c08` |
+| `ui-quickfix.md` 文件指纹 | `sha256:1858c2fe1080bf38d7272cc8a928d9f87c44cb1a1dd0d328d3afeb4a5901f507` |
 | `registryGenerated` | 上游 `428f9d917785` / DSH `524ac50ea211`（不同属预期） |
 | 资源条目 | 两侧均 **103** |
-| EXTRA 池 | 各自主张（**非契约**）；2026-09-29 两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
+| EXTRA 池 | 各自主张（**非契约**）；2026-09-29 起两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
+
+**已知差异（登记在案，不算漂移）**
+
+| 项 | 内容 | 处理 |
+| --- | --- | --- |
+| a11y 规则族 | 上游独有 `DR-A3`（图标按钮 accessible name）/`DR-A4`（非原生元素绑点击无 role/tabindex）/`DR-A5`（hover 改可见性未包 `@media (hover:hover)`）/`DR-A7`（有 `<nav>` 但无 skip-to-content）/`DR-A8`（正数 tabindex） | DSH 未移植；`check-checks-sync.mjs` 的 `KNOWN_RULE_GAPS` 已登记，未登记差异会让脚本退出 1 |
+| 动效编号口径 | 共享 `workflow.md`：EM-3 = UI 上 `ease-in`、EM-5 = UI 时长 >300ms（DSH 按文档实现）；上游 `motion.ts` 把这两件事编成 EM-1/EM-4，并把 `will-change` 编成 EM-3 | 同 id 不同语义，集合比对看不出，已写入 `KNOWN_RULE_GAPS` 注释；待裁定以哪套编号为准 |
 
 **基线沿革**
 
@@ -59,6 +68,7 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 | Phase 5 | `b188827d92fc0094` | `8b6d51e4…` | `cfbd65fc5e50` / `22ab4157ed14` | 上游补齐 `logoExtra` 5 个 logo 源 |
 | **Phase 6** | `b188827d92fc0094` | `8b6d51e4…` | `0204dbab6441` / `524ac50ea211` | 任务相关池移出 `design_lookup`（D1/D2/D4） |
 | **Phase 7** | **`800b810967d6b9ad`** | **`bd0b1bac614833bc…`** | **`428f9d917785`** / `524ac50ea211` | 上游修正 emil 动效真源路径（共享件变更）+ 树指纹垃圾类补全 |
+| **Phase 8** | **`b891206f88ee2a0d`** | **`6a2b577083ffbccf…`**（+ `workflow.md` `037369c2…`、`ui-quickfix.md` `1858c2fe…`） | `428f9d917785` / `524ac50ea211` | 闸门误报修正落两侧 + 环节 4 图表读数核对（共享件 workflow/ui-quickfix/registry 协议文案变更） |
 
 > 归档的切片/回执里的基线值属**当时**证据，不再逐个改写；以此表为当前权威值。
 
