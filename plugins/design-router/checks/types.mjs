@@ -84,7 +84,7 @@ export function isSrOnlyIdiom(line) {
 }
 
 // ---------------------------------------------------------------- CSS 提取与解析
-// 移植自上游 checks/motion.ts（DSH 侧由 a11y 的 DR-A5 与 layout 的 EM-11 共用；两者都要按 @media 上下文逐规则判断）。
+// 移植自上游 checks/motion.ts（DSH 侧由 a11y 的 DR-A5 与 layout 的 EM-17 共用；两者都要按 @media 上下文逐规则判断）。
 
 /** 收集可解析的 CSS：<style> 块 + 行内 style="..." 声明；两者皆无时返回 null
  *  （JS 对象字面量的 {} 会污染解析，所以 .tsx/.js 只在真的带样式时才解析） */
@@ -104,6 +104,7 @@ export function extractCss(content, path, kind) {
 /** 解析 CSS 为规则表（含 @media 等条件的继承栈 `at`） */
 export function parseCss(src, lineOffset = 0, at = []) {
   const rules = [];
+  const keyframes = [];
   const nl = (i) => src.slice(0, i).split("\n").length;
   let i = 0;
   for (;;) {
@@ -120,13 +121,16 @@ export function parseCss(src, lineOffset = 0, at = []) {
     const body = src.slice(open + 1, j - 1);
     const line = lineOffset + nl(open) - 1;
     if (/^@keyframes\b/i.test(selector)) {
-      // 关键帧内容不按普通规则处理（DR-A5 不关心）
+      // 关键帧单列（gate 14 要按帧检查布局属性动画）
+      keyframes.push({ name: selector.replace(/^@keyframes\s+/i, "").trim(), body, line });
     } else if (/^@(media|supports|layer|container|scope)\b/i.test(selector)) {
-      rules.push(...parseCss(body, lineOffset + nl(open), [...at, selector]).rules);
+      const inner = parseCss(body, lineOffset + nl(open), [...at, selector]);
+      rules.push(...inner.rules);
+      keyframes.push(...inner.keyframes);
     } else if (selector && !selector.startsWith("@")) {
       rules.push({ selector, decls: body, line, at });
     }
     i = j;
   }
-  return { rules };
+  return { rules, keyframes };
 }

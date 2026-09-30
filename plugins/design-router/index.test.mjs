@@ -472,7 +472,7 @@ test("冒烟：6 个工具逐个真调，均返回非空文本且不抛异常", 
   }
 });
 
-// ---- 2026-09-30 补齐：DR-A 家族（移植自上游 a11y.ts）+ EM-11（will-change）----
+// ---- 2026-09-30 补齐：DR-A 家族（移植自上游 a11y.ts）+ EM-17（will-change）----
 
 test("回归 DR-A 家族：5 条检查正例命中、反例静默", async () => {
   const { design_audit } = tools();
@@ -514,7 +514,7 @@ test("回归 DR-A 家族：5 条检查正例命中、反例静默", async () => 
   }
 });
 
-test("回归 EM-11：will-change 用在非合成属性才报", async () => {
+test("回归 EM-17：will-change 用在非合成属性才报", async () => {
   const { design_audit } = tools();
   const dir = mkdtempSync(join(tmpdir(), "dr-wc-"));
   const page = (css) =>
@@ -522,12 +522,12 @@ test("回归 EM-11：will-change 用在非合成属性才报", async () => {
   try {
     writeFileSync(join(dir, "bad.html"), page(".a{will-change:left,transform}"));
     const bad = await design_audit.execute({ target: join(dir, "bad.html") });
-    assert.match(bad, /\[gate EM-11\]/, `will-change:left 应命中 EM-11：\n${bad}`);
+    assert.match(bad, /\[gate EM-17\]/, `will-change:left 应命中 EM-17：\n${bad}`);
     assert.match(bad, /left/);
 
     writeFileSync(join(dir, "ok.html"), page(".a{will-change:transform;opacity:.9}"));
     const ok = await design_audit.execute({ target: join(dir, "ok.html") });
-    assert.doesNotMatch(ok, /\[gate EM-11\]/, `合成属性不该命中 EM-11：\n${ok}`);
+    assert.doesNotMatch(ok, /\[gate EM-17\]/, `合成属性不该命中 EM-17：\n${ok}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -548,6 +548,31 @@ test("回归 CS-2 与 DR-A4 分工：role=button → CS-2；无 role 的 onclick
     const b = await design_audit.execute({ target: join(dir, "bare.html") });
     assert.match(b, /\[gate DR-A4\]/, `裸 onclick 应命中 DR-A4：\n${b}`);
     assert.doesNotMatch(b, /\[gate CS-2\]/, `裸 onclick 不该报 CS-2（与 DR-A4 重叠）：\n${b}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("回归 gate 14：transition 简写也认（含 border- 守卫与 accordion 豁免）", async () => {
+  const { design_audit } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-g14-"));
+  const page = (css) =>
+    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
+  try {
+    // 正例：简写 transition 动画 width（旧实现只认 transition-property，会漏）
+    writeFileSync(join(dir, "shorthand.html"), page(".card{transition:width .3s ease}"));
+    const a = await design_audit.execute({ target: join(dir, "shorthand.html") });
+    assert.match(a, /\[gate 14\]/, `transition 简写动画 width 应命中 gate 14：\n${a}`);
+
+    // 正例：@keyframes 帧内动画 height（非 accordion）
+    writeFileSync(join(dir, "kf.html"), page("@keyframes grow{from{height:0}to{height:120px}}\n.panel{animation:grow .4s}"));
+    const b = await design_audit.execute({ target: join(dir, "kf.html") });
+    assert.match(b, /\[gate 14\]/, `keyframes 动画 height 应命中 gate 14：\n${b}`);
+
+    // 反例：border-width（?<!border- 守卫）与 accordion 的 height 豁免
+    writeFileSync(join(dir, "ok.html"), page(".input{transition:border-width .2s}\n.accordion-panel{transition:height .3s}"));
+    const c = await design_audit.execute({ target: join(dir, "ok.html") });
+    assert.doesNotMatch(c, /\[gate 14\]/, `border-width / accordion height 不该命中 gate 14：\n${c}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

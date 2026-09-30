@@ -18,6 +18,7 @@
 | `upstream-followup-gates-and-chart-readout-2026-09-30.md` | `上游跟进-闸门误报修正与环节4图表读数核对-2026-09-30.md` | 真实产物复盘产出的上游跟进清单：`checks/layout.ts` 的 gate 2 判据收窄 + gate 24 微调豁免（精确改法 + 建议测试），以及 `workflow.md` §环节 4 → 1c 要补的「图表读数逐项对齐」人工核对项（含共享件契约后果与 V1–V5 验收） |
 | `receipt-phase8-upstream-gates-and-chart-readout-2026-09-30.md` | `回执-Phase8-上游-闸门修正与图表读数-2026-09-30.md` | 上游 Phase 8 回执：gate 2/24 同修法落地 + 环节 4 三条硬规则 + workflow.md/ui-quickfix.md 共享件改写 + 上游独占修复 `runNonTextContrastChecks` 缺 import（DR-6 自引入起从未真跑）+ 新守卫 pi-harness/tool-smoke |
 | `upstream-followup-phase9-em-numbering-and-shared-files-2026-09-30.md` | `上游跟进-Phase9-EM编号统一与共享件收口-2026-09-30.md` | Phase 9 工单：`motion.ts` 按共享文档改 EM 编号（EM-1→EM-3 / EM-4→EM-5 / EM-3→EM-11）+ `workflow.md` 补 EM-11 + `registry.md` 补 symlink 重装说明 + `SKILL.md:142` 五栏→六栏裁定；含 V1–V5 与 DSH 侧已完成的对照 |
+| `receipt-phase9-upstream-em-numbering-and-shared-files-2026-09-30.md` | `回执-Phase9-上游-EM编号统一与共享件收口-2026-09-30.md` | 上游 Phase 9 回执：`motion.ts` 按共享文档改号（EM-1→EM-3 / EM-4→EM-5 / will-change→**EM-17**，因 EM-11~EM-16 已被视觉层占用）+ `workflow.md` 补 EM-17 与编号段位句 + `registry.md` symlink 说明 + `SKILL.md` 六项必填；含门规三轴审查与 V1–V5 |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
@@ -46,21 +47,30 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 | 量 | 值 |
 | --- | --- |
-| 技能树指纹 | `sha256:b891206f88ee2a0d`（9 处副本一致） |
-| `registry.md` 文件指纹 | `sha256:6a2b577083ffbccf553a2b13637bf755dda9a7a393d16a8038a5dd5c0e26c3e3` |
-| `workflow.md` 文件指纹 | `sha256:037369c24904c67332e7e4172dc778ebcb5766c86c090abfc9fa3e46c8a61c08` |
+| 技能树指纹 | `sha256:fe9d20b20e956ee6`（9 处副本一致） |
+| `registry.md` 文件指纹 | `sha256:c8ddcfbbdfaf8f1be25ee1a0e6a8b39ed88030a25934e286a030792daf5f7cba` |
+| `workflow.md` 文件指纹 | `sha256:2591764d116d15816b1196ee3beb944b62c59dfbed1c7e8f6874657694e014f1` |
 | `ui-quickfix.md` 文件指纹 | `sha256:1858c2fe1080bf38d7272cc8a928d9f87c44cb1a1dd0d328d3afeb4a5901f507` |
+| `SKILL.md` 文件指纹 | `sha256:32f3592abd7c985a680c24e78e6e956aec5bb65bdee842f51ae1ca1b91679c7f`（**在技能树指纹覆盖范围内**，改动它同样要同步各副本） |
 | `registryGenerated` | 上游 `428f9d917785` / DSH `524ac50ea211`（不同属预期） |
 | 资源条目 | 两侧均 **103** |
-| EXTRA 池 | 各自主张（**非契约**）；2026-09-29 起两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
+| EXTRA 池 | 各自主张（**非契约**）；两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
+
+**共享件清单（2026-09-30 起）**：`skills/design-references/` 的**整棵树**都算共享件（`references/*` + `SKILL.md`），
+改任一个都要重跑生成器 + 重装各平台副本（`./install-design-router.sh --all-platforms`，注意 symlink 目标只算一份），
+并由 DSH 整文件复制同步后比对技能树指纹。
 
 **已知差异（登记在案，不算漂移）**
 
 | 项 | 内容 | 处理 |
 | --- | --- | --- |
-| a11y 规则族 | 上游独有 `DR-A3`/`DR-A4`/`DR-A5`/`DR-A7`/`DR-A8` | **已对齐**（2026-09-30 DSH 侧补齐到 `checks/a11y.mjs`，含移植过来的 `extractCss`/`parseCss`）；登记已从 `KNOWN_RULE_GAPS` 删除 |
-| `CS-2` 语义 | DSH 版原把 `<div onclick>` 也收进 CS-2，与 `DR-A4` 重叠（补齐后会同一行报 🔴+🟡）；上游版只管 `role="button"`，与 DR-A4 严格分工 | **已对齐**（DSH 改为只管 `role="button"` + 上游文案），并加回归测试锁分工 |
-| 动效编号口径 | 共享 `workflow.md`：EM-3 = UI 上 `ease-in`、EM-5 = UI 时长 >300ms（DSH 按文档实现，并已补 EM-11 = `will-change` 用在非合成属性）；上游 `motion.ts` 记为 EM-1/EM-4，并把 `will-change` 记为 EM-3 | 同 id 不同语义，集合比对看不出；**待上游 Phase 9 改编号**（EM-1→EM-3、EM-4→EM-5、EM-3→EM-11）。`KNOWN_RULE_GAPS` 已登记 EM-1/EM-4/EM-5/EM-11，改完删登记 |
+| a11y 规则族 | 上游独有 `DR-A3`/`DR-A4`/`DR-A5`/`DR-A7`/`DR-A8` | **已对齐**（DSH 补齐到 `checks/a11y.mjs`，`extractCss`/`parseCss` 移入 `types.mjs` 共用） |
+| `CS-2` 语义 | DSH 版原把 `<div onclick>` 也收进 CS-2，与 `DR-A4` 重叠 | **已对齐**（只管 `role="button"` + 上游文案，回归测试锁分工） |
+| 动效编号 | 上游 `motion.ts` 与共享文档编号不一致（EM-1/EM-4 撞号、will-change 无号） | **已对齐**（上游 `e4ae451` 改号；will-change 取 **EM-17**，因 EM-11~EM-16 属视觉层自查号）；`KNOWN_RULE_GAPS` 已清空 |
+| `gate 14` 覆盖 | DSH 旧实现只认 `transition-property:`，**漏掉 `transition: width .3s` 简写**（第三方夹具 05-tracejam-saas 上暴露） | **已对齐**（按上游实现改为解析 CSS 规则 + `(?<!border-)` 守卫 + accordion height 豁免，回归测试锁定） |
+| 文档层（无机器 gate） | 共享 `workflow.md` 里 EM-1（`transition: all`，由 gate 10 覆盖）、EM-4/EM-6~EM-10 属视觉层自查，无独立机器 gate | 非集合差异，记在此处；`KNOWN_RULE_GAPS` 只登记**编号集合**差异 |
+| `DR-A4` 行级判定 | 同一行出现 `role=`/`tabindex` 会整行跳过 → minified 单行 HTML 漏报（两侧同实现） | 已登记为已知限制，根治需元素级解析（属新工作） |
+| 遗留待定 | `interfaces.dev` 与 `emilkowalski/skills` 是否各补独立资源行 | Phase 8 遗留，未裁定 |
 
 **基线沿革**
 
@@ -71,6 +81,7 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 | **Phase 6** | `b188827d92fc0094` | `8b6d51e4…` | `0204dbab6441` / `524ac50ea211` | 任务相关池移出 `design_lookup`（D1/D2/D4） |
 | **Phase 7** | **`800b810967d6b9ad`** | **`bd0b1bac614833bc…`** | **`428f9d917785`** / `524ac50ea211` | 上游修正 emil 动效真源路径（共享件变更）+ 树指纹垃圾类补全 |
 | **Phase 8** | **`b891206f88ee2a0d`** | **`6a2b577083ffbccf…`**（+ `workflow.md` `037369c2…`、`ui-quickfix.md` `1858c2fe…`） | `428f9d917785` / `524ac50ea211` | 闸门误报修正落两侧 + 环节 4 图表读数核对（共享件 workflow/ui-quickfix/registry 协议文案变更） |
+| **Phase 9** | **`fe9d20b20e956ee6`** | **`c8ddcfbbdfaf8f1b…`**（+ `workflow.md` `2591764d…`、`SKILL.md` `32f3592a…`） | `428f9d917785` / `524ac50ea211` | 动效编号向文档对齐（EM-1→EM-3 / EM-4→EM-5 / will-change→EM-17）+ 共享文档补 EM-17 与编号段位句 + symlink 重装说明 + 六项必填 |
 
 > 归档的切片/回执里的基线值属**当时**证据，不再逐个改写；以此表为当前权威值。
 

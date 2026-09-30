@@ -36,20 +36,17 @@ const PI_CHECKS =
   process.argv[2] ||
   join(homedir(), "my-pi-skills", "extensions", "design-router", "checks");
 
-/** 已登记的规则族差异（登记会腐烂：不再差异时脚本报"登记过期"） */
-const KNOWN_RULE_GAPS = {
-  // DR-A3/A4/A5/A7/A8 已于 2026-09-30 移植到 DSH（checks/a11y.mjs），登记随之删除 ——
-  // 删干净后脚本不再打印它们；若哪天又只剩单侧，会作为**未登记差异**让脚本退出 1。
-  // EM-* 的口径分歧（2026-09-30 登记）：共享 workflow.md 的编号是
-  //   EM-3 = UI 上 ease-in、EM-5 = UI 时长 >300ms；DSH 按文档实现。
-  //   上游 motion.ts 把同样两件事编成 EM-1 / EM-4，并把 will-change 编成 EM-3（文档里没有这条）。
-  //   即：**集合并集还会漏掉"同 id 不同语义"**（EM-3 两侧都有但含义不同），脚本只能报集合差异，
-  //   语义错位要靠这行登记 + 人读；待裁定以哪套编号为准。
-  "EM-1": "上游 motion.ts 独有（编号口径分歧）：进入方向 ease-in —— 共享文档与 DSH 记为 EM-3",
-  "EM-4": "上游 motion.ts 独有（编号口径分歧）：进入时长 >300ms —— 共享文档与 DSH 记为 EM-5",
-  "EM-5": "DSH 独有：UI 时长 >300ms（与共享文档 EM-5 一致）；上游同行为编号 EM-4",
-  "EM-11": "DSH 独有：will-change 用在非合成属性（2026-09-30 补齐，编号依共享文档口径）；上游 motion.ts 旧编号为 EM-3，待上游改编号后本条登记即可删除",
-};
+/**
+ * 已登记的规则族差异（登记会腐烂：不再差异时脚本报"登记过期"）。
+ *
+ * 2026-09-30 两份登记先后清空，可作范式：
+ *   · DR-A3/A4/A5/A7/A8 —— DSH 移植补齐后删除（a11y.mjs）
+ *   · EM-1/EM-4/EM-5/EM-17 —— 上游 `e4ae451` 按共享 workflow.md 改号后（EM-1→EM-3、EM-4→EM-5、
+ *     will-change→EM-17）两侧编号完全一致，四条登记一并删除。
+ * 注意本表只登记**编号集合**差异；文档层面的"某条 EM 没有机器 gate"（如 EM-1 由 gate 10 覆盖、
+ * EM-4/EM-6~EM-10 属视觉层自查）不是集合差异，记在 docs/cross-repo/README.md 的「已知差异」表里。
+ */
+const KNOWN_RULE_GAPS = {};
 
 /**
  * 提取实际使用的 gate 标识（排除类型定义、注释里的字符串）。

@@ -2,7 +2,7 @@
  * checks/layout.mjs — 布局/视觉纪律检查（移植自 design-router checks/layout.ts）
  *
  * 覆盖 hallmark gate 2 / 10 / 14 / 24 / 34 / 50 / 51 + design-references 环节4 圆角/渐变扫描
- * + 动效 EM-2 / EM-3 / EM-5 / EM-11（EM-11 于 2026-09-30 补齐，编号依共享 workflow.md）。
+ * + 动效 EM-2 / EM-3 / EM-5 / EM-17（EM-17 于 2026-09-30 补齐；共享 workflow.md 的 EM-11~EM-16 是视觉层自查号，故 will-change 取 EM-17）。
  * 全部为文本可判定；渲染类（gate 6/35/36/44/45）不在本模块。
  */
 import { loc, grepLines, pageText, collectCssVars, propValueSpan, resolveVar, isSrOnlyIdiom, extractCss, parseCss } from "./types.mjs";
@@ -12,6 +12,28 @@ const SPACING_OK = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 56, 64, 72,
 // 早期版本把 2/3/5/6px 也报 warn —— 2026-09-30 真实产物上一次跑出 24 条同类噪音，把唯一的 error 淹了。
 const MICRO_SPACING_MAX = 8;
 const RADIUS_OK = new Set([0, 2, 4, 6, 8, 12, 16, 24, 32, 999, 9999]);
+// accordion 豁免（craft 段：height 动画仅 accordion 合法）—— 移植自上游 motion.ts
+const ACCORDION_SEL = /accordion|collaps|details|disclos|expand|reveal|faq/i;
+/** 解析 @keyframes 的各帧（label + 声明）—— 移植自上游 motion.ts */
+function kfSteps(body) {
+  const out = [];
+  let i = 0;
+  for (;;) {
+    const open = body.indexOf("{", i);
+    if (open === -1) break;
+    const label = body.slice(i, open).trim();
+    let d = 1;
+    let j = open + 1;
+    while (j < body.length && d > 0) {
+      if (body[j] === "{") d++;
+      else if (body[j] === "}") d--;
+      j++;
+    }
+    out.push({ label, decls: body.slice(open + 1, j - 1) });
+    i = j;
+  }
+  return out;
+}
 
 export function runLayoutChecks(files) {
   const findings = [];
@@ -58,31 +80,38 @@ export function runLayoutChecks(files) {
       });
     }
 
-    // ---- gate 14: 动画布局属性 ----
-    const LAYOUT_PROPS = /\b(width|height|top|left|margin|padding)\b/i;
-    for (const ln of grepLines(c, /transition-property\s*:/i)) {
-      const line = c.split("\n")[ln - 1];
-      const m = line.match(/transition-property\s*:\s*([^;]+)/i);
-      if (m && LAYOUT_PROPS.test(m[1])) {
+    // ---- gate 14: 过渡/关键帧动画布局属性（与上游 layout.ts 对齐）----
+    // 2026-09-30 交叉校验发现：DSH 旧版只认 `transition-property:` 裸声明，**漏掉最常见的
+    // `transition: width .3s` 简写**（第三方夹具 05-tracejam-saas 上上游报得出、DSH 报不出）。
+    // 现按上游实现改为解析 CSS 规则：简写 transition + transition-property 合并判定，
+    // 加 `(?<!border-)` 守卫（border-width 不算布局动画）与 height 的 accordion 豁免。
+    const css14 = extractCss(c, f.path, f.kind);
+    if (css14) {
+      const { rules: rs14, keyframes: kf14 } = parseCss(css14);
+      const LAYOUT_PROPS = /(?<!border-)\b(width|height|top|left|margin|padding)\b/i;
+      const push14 = (what, line) =>
         findings.push({
           gate: "14",
           rule: "animate-layout-prop",
           severity: "warn",
-          message: `transition-property 动画布局属性：${m[1].trim()}（width/height/top/left/margin/padding）。改动画 transform/opacity。`,
-          location: loc(f.path, ln),
+          message: `${what}（width/height/top/left/margin/padding 触发 layout 与整层 repaint）。改动画 transform/opacity（clip-path 可豁免）。`,
+          location: loc(f.path, line),
         });
+      for (const r of rs14) {
+        const decl =
+          (r.decls.match(/(?:^|[;{\s])transition\s*:\s*([^;}]+)/i)?.[1] ?? "") +
+          " " +
+          (r.decls.match(/transition-property\s*:\s*([^;}]+)/i)?.[1] ?? "");
+        const hit = decl.match(LAYOUT_PROPS);
+        if (!hit) continue;
+        if (hit[1].toLowerCase() === "height" && ACCORDION_SEL.test(r.selector)) continue;
+        push14(`<${r.selector}> 过渡动画布局属性 ${hit[1]}`, r.line);
       }
-    }
-    for (const m of c.matchAll(/@keyframes\s+[\w-]+\s*\{([^}]*)\}/g)) {
-      const hit = m[1].match(LAYOUT_PROPS);
-      if (hit) {
-        findings.push({
-          gate: "14",
-          rule: "animate-layout-prop",
-          severity: "warn",
-          message: `@keyframes 帧内动画布局属性：${hit[0]}。改动画 transform/opacity。`,
-          location: loc(f.path),
-        });
+      for (const kf of kf14) {
+        const hit = kfSteps(kf.body).map((s) => s.decls).join(" ").match(LAYOUT_PROPS);
+        if (!hit) continue;
+        if (hit[1].toLowerCase() === "height" && ACCORDION_SEL.test(kf.name)) continue;
+        push14(`动画 <${kf.name}> 帧内动画布局属性 ${hit[1]}`, kf.line);
       }
     }
 
@@ -259,8 +288,9 @@ export function runLayoutChecks(files) {
       }
     }
 
-    // EM-11: will-change 用在非合成属性（滥用会吃显存并可能更慢）
-    // 编号依共享 workflow.md 的 EM 口径（EM-1..EM-10 已占用；upstream motion.ts 旧编号为 EM-3）。
+    // EM-17: will-change 用在非合成属性（滥用会吃显存并可能更慢）
+    // 编号依共享 workflow.md 的 EM 口径：机器层 EM-1~EM-10 已占用、视觉层 EM-11~EM-16 另有所指，故取 EM-17
+    //（upstream motion.ts 旧编号为 EM-3，2026-09-30 已随上游 e4ae451 一并改为 EM-17）。
     const css11 = extractCss(c, f.path, f.kind);
     if (css11) {
       for (const r of parseCss(css11).rules) {
@@ -273,10 +303,10 @@ export function runLayoutChecks(files) {
           .filter((propName) => propName && !COMPOSITED.has(propName));
         if (bad.length) {
           findings.push({
-            gate: "EM-11",
+            gate: "EM-17",
             rule: "will-change-misuse",
             severity: "warn",
-            message: `动效 EM-11: will-change: ${bad.join(", ")} 不是合成属性（只应用 transform/opacity/filter）。滥用会吃掉显存并可能更慢。`,
+            message: `动效 EM-17: will-change: ${bad.join(", ")} 不是合成属性（只应用 transform/opacity/filter）。滥用会吃掉显存并可能更慢。`,
             location: loc(f.path, r.line),
           });
         }
