@@ -20,6 +20,7 @@
 | `upstream-followup-phase9-em-numbering-and-shared-files-2026-09-30.md` | `上游跟进-Phase9-EM编号统一与共享件收口-2026-09-30.md` | Phase 9 工单：`motion.ts` 按共享文档改 EM 编号（EM-1→EM-3 / EM-4→EM-5 / EM-3→EM-11）+ `workflow.md` 补 EM-11 + `registry.md` 补 symlink 重装说明 + `SKILL.md:142` 五栏→六栏裁定；含 V1–V5 与 DSH 侧已完成的对照 |
 | `receipt-phase9-upstream-em-numbering-and-shared-files-2026-09-30.md` | `回执-Phase9-上游-EM编号统一与共享件收口-2026-09-30.md` | 上游 Phase 9 回执：`motion.ts` 按共享文档改号（EM-1→EM-3 / EM-4→EM-5 / will-change→**EM-17**，因 EM-11~EM-16 已被视觉层占用）+ `workflow.md` 补 EM-17 与编号段位句 + `registry.md` symlink 说明 + `SKILL.md` 六项必填；含门规三轴审查与 V1–V5 |
 | `upstream-followup-phase10-dra4-and-new-resource-row-2026-09-30.md` | `上游跟进-Phase10-DR-A4元素级与新资源行-2026-09-30.md` | Phase 10 工单：① DR-A4 改元素级解析（附可直接照抄的 `openTags` 扫描器 + 三条建议测试，修 minified 单行漏报）；② 新资源行 `emilkowalski/skills`（裁定「补」= EM-* gate 真源、C 区转译行）+ `interfaces.dev` 裁定「不补」（同型不装）；含 V1–V5 |
+| `receipt-phase10-upstream-dra4-and-new-resource-row-2026-09-30.md` | `回执-Phase10-上游-DR-A4元素级与新资源行-2026-09-30.md` | 上游 Phase 10 回执：DR-A4 元素级 + **指出工单参考实现 `\b@click` 的缺陷并修**（含 data-onclick 误报/大写漏报）+ 新增资源行 `emilkowalski-skills`（103→104）+ 顺手修三处既有文本缺陷；含与 DSH 的逐夹具对跑表 |
 
 > 归档件与工作区原件**逐字节相同**（未做任何改写）；仅文件名改为 ASCII，映射见上表。
 > 工作区原件仍在 `~/Desktop/DSH/Chat/`。
@@ -48,13 +49,13 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 | 量 | 值 |
 | --- | --- |
-| 技能树指纹 | `sha256:fe9d20b20e956ee6`（9 处副本一致） |
-| `registry.md` 文件指纹 | `sha256:c8ddcfbbdfaf8f1be25ee1a0e6a8b39ed88030a25934e286a030792daf5f7cba` |
+| 技能树指纹 | `sha256:5c462378b7a2b0ab`（9 处副本一致） |
+| `registry.md` 文件指纹 | `sha256:2b405555a257849aba443f8f6bd49e4056037541177646748729cb063767ab79` |
 | `workflow.md` 文件指纹 | `sha256:2591764d116d15816b1196ee3beb944b62c59dfbed1c7e8f6874657694e014f1` |
 | `ui-quickfix.md` 文件指纹 | `sha256:1858c2fe1080bf38d7272cc8a928d9f87c44cb1a1dd0d328d3afeb4a5901f507` |
 | `SKILL.md` 文件指纹 | `sha256:32f3592abd7c985a680c24e78e6e956aec5bb65bdee842f51ae1ca1b91679c7f`（**在技能树指纹覆盖范围内**，改动它同样要同步各副本） |
-| `registryGenerated` | 上游 `428f9d917785` / DSH `524ac50ea211`（不同属预期） |
-| 资源条目 | 两侧均 **103** |
+| `registryGenerated` | 上游 `6c6a53d65e6c` / DSH `b14f02fc1b97`（不同属预期） |
+| 资源条目 | 两侧均 **104**（Phase 10 新增 `emilkowalski-skills`） |
 | EXTRA 池 | 各自主张（**非契约**）；两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
 
 **共享件清单（2026-09-30 起）**：`skills/design-references/` 的**整棵树**都算共享件（`references/*` + `SKILL.md`），
@@ -70,8 +71,8 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 | 动效编号 | 上游 `motion.ts` 与共享文档编号不一致（EM-1/EM-4 撞号、will-change 无号） | **已对齐**（上游 `e4ae451` 改号；will-change 取 **EM-17**，因 EM-11~EM-16 属视觉层自查号）；`KNOWN_RULE_GAPS` 已清空 |
 | `gate 14` 覆盖 | DSH 旧实现只认 `transition-property:`，**漏掉 `transition: width .3s` 简写**（第三方夹具 05-tracejam-saas 上暴露） | **已对齐**（按上游实现改为解析 CSS 规则 + `(?<!border-)` 守卫 + accordion height 豁免，回归测试锁定） |
 | 文档层（无机器 gate） | 共享 `workflow.md` 里 EM-1（`transition: all`，由 gate 10 覆盖）、EM-4/EM-6~EM-10 属视觉层自查，无独立机器 gate | 非集合差异，记在此处；`KNOWN_RULE_GAPS` 只登记**编号集合**差异 |
-| `DR-A4` 行级判定 | 同一行出现 `role=`/`tabindex` 会整行跳过 → minified 单行 HTML 漏报 | **DSH 已改元素级**（`checks/a11y.mjs`，含 `openTags` 扫描器与 minified/JSX 测试）；**上游待跟进**（Phase 10 工单 §1）——在此之前 minified 单行 HTML 上两侧**会分叉**（DSH 报、上游漏） |
-| 遗留待定 | `interfaces.dev` 与 `emilkowalski/skills` 是否各补独立资源行 | Phase 8 遗留，未裁定 |
+| `DR-A4` 判定粒度 | 原为行级 → minified 单行 HTML 漏报；且工单参考正则 `\b@click` 自带缺陷（Vue 漏报）、`\bonclick` 误命中 `data-onclick`、大写 `ONCLICK` 漏报 | **两侧已对齐**（都改元素级 + 否定式后顾正则 `(?<![-\w])(?:@click|onclick)\s*=` / `(?<![-\w])(?:role\s*=|tabindex\b)`）；7 类属性形态逐夹具一致 |
+| 资源行裁定（Phase 10 结清） | `emilkowalski/skills` → **补**（EM-* gate 真源，C 区转译行，slug `emilkowalski-skills`，挂 `C2·2`）；`interfaces.dev` → **不补**（已挂在 interfaces cheat-sheet 行来源栏，同型不装） | 已落地；资源数 103→104 |
 
 **基线沿革**
 
@@ -83,6 +84,7 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 | **Phase 7** | **`800b810967d6b9ad`** | **`bd0b1bac614833bc…`** | **`428f9d917785`** / `524ac50ea211` | 上游修正 emil 动效真源路径（共享件变更）+ 树指纹垃圾类补全 |
 | **Phase 8** | **`b891206f88ee2a0d`** | **`6a2b577083ffbccf…`**（+ `workflow.md` `037369c2…`、`ui-quickfix.md` `1858c2fe…`） | `428f9d917785` / `524ac50ea211` | 闸门误报修正落两侧 + 环节 4 图表读数核对（共享件 workflow/ui-quickfix/registry 协议文案变更） |
 | **Phase 9** | **`fe9d20b20e956ee6`** | **`c8ddcfbbdfaf8f1b…`**（+ `workflow.md` `2591764d…`、`SKILL.md` `32f3592a…`） | `428f9d917785` / `524ac50ea211` | 动效编号向文档对齐（EM-1→EM-3 / EM-4→EM-5 / will-change→EM-17）+ 共享文档补 EM-17 与编号段位句 + symlink 重装说明 + 六项必填 |
+| **Phase 10** | **`5c462378b7a2b0ab`** | **`2b405555a257849a…`**（workflow/ui-quickfix/SKILL 未变） | `6c6a53d65e6c` / `b14f02fc1b97` | DR-A4 改元素级（两侧）+ 新增 `emilkowalski/skills` 资源行（103→104，挂 `C2·2`） |
 
 > 归档的切片/回执里的基线值属**当时**证据，不再逐个改写；以此表为当前权威值。
 

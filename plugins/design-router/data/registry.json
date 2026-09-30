@@ -1,5 +1,5 @@
 {
-  "generated": "524ac50ea211",
+  "generated": "b14f02fc1b97",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -932,9 +932,21 @@
       "form": "规则",
       "level": "次",
       "scenarios": "网页动效（动效原则/纪律——不贡献视觉「候选方向」，只定「为什么动/怎么动」；C2 环节 2 约束）",
-      "fallback": "→ GitHub 直读（`STANDARDS.md`） → 官网直读（静态文档） → 人工应用转译进约束集",
+      "fallback": "→ GitHub 直读（`skills/review-animations/STANDARDS.md`） → 官网直读（静态文档） → 人工应用转译进约束集",
       "source": "源 `https://github.com/emilkowalski/skills`（`skills/review-animations/STANDARDS.md`：频率表/缓动决策序/时长表/物理感，EM-* 机器子集真源）；官网 `https://www.fluidfunctionalism.com/`",
       "slug": "fluid-functionalism",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "emilkowalski/skills（动效工程技能集：`review-animations` 的 `STANDARDS.md` = 频率表/缓动决策序/时长表/物理感，即 **EM-* 机器 gate 的真源**；`animate` 实现指导 / `animation-vocabulary` 术语 / `emil-design-eng` 界面工程品味 / `performance-cheatsheet` 性能）",
+      "role": "C",
+      "form": "转译",
+      "level": "次",
+      "scenarios": "网页动效（C2 环节 2 约束：动效标准/实现纪律/术语；机器子集见 EM-*）",
+      "fallback": "→ GitHub 直读（`skills/review-animations/STANDARDS.md` 等） → 人工转译进约束集",
+      "source": "源 `https://github.com/emilkowalski/skills`",
+      "slug": "emilkowalski-skills",
       "bucket": null,
       "quality": "未评估"
     },
@@ -1438,7 +1450,8 @@
       ],
       "2": [
         "fluid-functionalism",
-        "interfaces-cheat-sheet"
+        "interfaces-cheat-sheet",
+        "emilkowalski-skills"
       ],
       "3": [
         "motion-lib",

@@ -559,6 +559,17 @@ test("回归 CS-2 与 DR-A4 分工：role=button → CS-2；无 role 的 onclick
     assert.match(c, /\[gate DR-A4\]/, `minified 单行里 DR-A4 不该漏报：\n${c}`);
     assert.match(c, /\[gate DR-A8\]/, `同一行的正数 tabindex 也应照报：\n${c}`);
 
+    // 属性正则三种形态（2026-09-30 与上游对齐）：
+    //   Vue `@click` 必须命中（旧 `\b@click` 永不成立 → 漏报）
+    //   `data-onclick` 不得误命中（否定式后顾）
+    //   大写 `ONCLICK` 必须命中（/i）
+    writeFileSync(join(dir, "vue.html"), page('<div @click="go()">x</div>'));
+    assert.match(await design_audit.execute({ target: join(dir, "vue.html") }), /\[gate DR-A4\]/, "Vue @click 应命中 DR-A4");
+    writeFileSync(join(dir, "dataattr.html"), page('<div data-onclick="go()">x</div>'));
+    assert.doesNotMatch(await design_audit.execute({ target: join(dir, "dataattr.html") }), /\[gate DR-A4\]/, "data-onclick 不该命中 DR-A4");
+    writeFileSync(join(dir, "upper.html"), page('<DIV ONCLICK="go()">x</DIV>'));
+    assert.match(await design_audit.execute({ target: join(dir, "upper.html") }), /\[gate DR-A4\]/, "大写 ONCLICK 应命中 DR-A4");
+
     // JSX 形态：onClick={() => go()} 内含 ">"，属性扫描不该被截断
     writeFileSync(join(dir, "jsx.tsx"), 'export const A = () => <div onClick={() => go()} role="button">x</div>;\n');
     const d = await design_audit.execute({ target: join(dir, "jsx.tsx") });

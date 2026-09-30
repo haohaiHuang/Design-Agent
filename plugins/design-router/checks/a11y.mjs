@@ -107,10 +107,16 @@ export function runA11yChecks(files) {
     // ---- DR-A4: 非原生元素绑点击且无 role/tabindex → 键盘不可达 ----
     // **元素级**判定（2026-09-30 起；旧版按行扫，同一行里出现 tabindex/role 会整行跳过，
     // 于是 minified 的单行 HTML 全漏）。按开标签逐个取属性文本后判定——元素内没有 role/tabindex 才算。
+    // 属性正则用带否定式后顾的写法（2026-09-30 与上游对齐；工单里的 `\b(…|@click)` 自带缺陷：
+    // `@` 是非词字符 → `\b@click` 永不成立，Vue 模板漏报；且 `\bonclick` 会误命中 `data-onclick`）：
+    //   CLICK_ATTR   `(?<![-\w])` 排除 data-onclick，`/i` 兼容大写 ONCLICK，`@click` 正常命中
+    //   KEYBOARD_ATTR 排除 data-tabindex="x" 这类干扰
+    const CLICK_ATTR = /(?<![-\w])(?:@click|onclick)\s*=/i;
+    const KEYBOARD_ATTR = /(?<![-\w])(?:role\s*=|tabindex\b)/i;
     for (const tag of openTags(c, "div|span|li|td")) {
       const attrs = tag.attrs;
-      if (!/\b(onclick|onClick|@click)\s*=/.test(attrs)) continue;
-      if (/\brole\s*=|tabindex|tabIndex/.test(attrs)) continue;
+      if (!CLICK_ATTR.test(attrs)) continue;
+      if (KEYBOARD_ATTR.test(attrs)) continue;
       findings.push({
         gate: "DR-A4",
         rule: "non-native-interactive",
