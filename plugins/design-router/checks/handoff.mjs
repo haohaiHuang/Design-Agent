@@ -14,6 +14,10 @@
  *   HC-2 跨件数值一致    —— 文书 vs 参考原型的色值/圆角/字号/字距/时长是否互斥
  *   HC-3 对比度可复算    —— 文书引用的 N.NN:1 用文档自己定义的令牌重算，对不上即报
  *   HC-4 验收可跑性      —— §7 里把本 Agent 的 DSH 工具当 shell 命令用、又没标归属/替代法
+ *   HC-5 证据新鲜度      —— 文书/取证是否早于原型最后改动（真机复跑实测：report 10:38 < theme.css 10:45，
+ *                          文书却写成"修复后实测" → 第三方无基准）
+ *   HC-6 未定义令牌      —— 被 var(--x) 引用却任何地方都没定义的令牌（真机实测：`--paper-2` 用了没定义
+ *                          → 照提示词产出无效 CSS；`--r3` 幽灵令牌）
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
@@ -112,6 +116,11 @@ export function runHandoffChecks(opts = {}) {
   const docs = files.filter((f) => f.endsWith(".md"));
   const protos = files.filter((f) => f.endsWith(".html") && !/preview-shell|iframe-shell|probe/i.test(basename(f)));
   const docText = docs.map((f) => readIfFile(f) || "").join("\n");
+  const cssTextAll = walk(designsDir)
+    .concat(existsSync(join(root, "project")) ? walk(join(root, "project")) : [])
+    .filter((f) => f.endsWith(".css") || f.endsWith(".html"))
+    .map((f) => readIfFile(f) || "")
+    .join("\n");
   const protoText = protos.map((f) => readIfFile(f) || "").join("\n");
 
   // ---------- HC-1 引用路径可达 ----------
@@ -269,6 +278,50 @@ export function runHandoffChecks(opts = {}) {
         location: t,
       });
     }
+  }
+
+  // ---------- HC-5 证据新鲜度 ----------
+  // 只在"声称是修复后结果"的文书/取证上判：DECISION.md、修改方向.md、verify/*、render-report*
+  const newest = (arr) => arr.reduce((m, f) => Math.max(m, statSync(f).mtimeMs || 0), 0);
+  const protoMtime = newest(protos);
+  const claimDocs = docs.filter((f) => /DECISION\.md$|修改方向\.md$/.test(f));
+  const evidence = files.filter((f) => /\/verify\/|render-report|final-render|state-recheck|interaction-states/.test(f));
+  if (protoMtime > 0) {
+    for (const f of [...claimDocs, ...evidence]) {
+      const t = statSync(f).mtimeMs || 0;
+      if (t > 0 && t < protoMtime) {
+        const lag = Math.round((protoMtime - t) / 1000);
+        // 文书里**点名引用**了这份过期取证 = 拿旧值当"修复后实测" → error；
+        // 只是静静躺着的旧文件 → warn
+        const cited = claimDocs.some((d) => (readIfFile(d) || "").includes(basename(f)));
+        findings.push({
+          gate: "HC-5",
+          rule: "stale-evidence",
+          severity: cited ? "error" : "warn",
+          message: `${basename(f)} 比参考原型最后改动早 ${lag}s——记录的很可能是**改动前**的值${cited ? "，却被文书当作\"修复后实测\"引用" : ""}。返工后必须重渲染/重算并覆盖（真机复跑就是这么坏的）`,
+          location: basename(f),
+        });
+      }
+    }
+  }
+
+  // ---------- HC-6 未定义令牌 ----------
+  const allText = docText + "\n" + protoText;
+  const defined = new Set();
+  for (const m of allText.matchAll(/--([a-z0-9-]+)\s*:/g)) defined.add(m[1]);
+  for (const m of cssTextAll.matchAll(/--([a-z0-9-]+)\s*:/g)) defined.add(m[1]);
+  const undefinedRefs = new Set();
+  for (const m of allText.matchAll(/var\(\s*--([a-z0-9-]+)\s*\)/g)) {
+    if (!defined.has(m[1])) undefinedRefs.add(m[1]);
+  }
+  if (undefinedRefs.size) {
+    findings.push({
+      gate: "HC-6",
+      rule: "undefined-token",
+      severity: "error",
+      message: `引用了未定义的令牌：${[...undefinedRefs].map((t) => "--" + t).join(", ")}——照此产出的是无效 CSS（真机复跑：\`--paper-2\` 用了没定义、\`--r3\` 幽灵令牌）`,
+      location: "DECISION.md",
+    });
   }
 
   return findings;

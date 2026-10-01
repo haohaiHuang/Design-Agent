@@ -95,6 +95,33 @@ const F2 = runHandoffChecks({ designsDir: designs, projectDir: project });
 const errs2 = F2.filter((f) => f.severity === "error");
 check("修好后 0 项 error", errs2.length === 0, errs2.map((f) => `[${f.gate}] ${f.message}`).join(" | "));
 
+// ---- HC-5 证据新鲜度 / HC-6 未定义令牌 ----
+import { utimesSync } from "node:fs";
+mkdirSync(join(designs, "verify"), { recursive: true });
+writeFileSync(join(designs, "verify", "render-report.json"), '{"note":"修复前旧值"}');
+writeFileSync(join(designs, "reference-landing.html"), '<!DOCTYPE html><html><style>h1{color:#0f1011}</style><body><h1>x</h1></body></html>\n');
+// 把取证设成"比原型旧 600 秒"，并在文书里点名引用它（模拟真机：报告早于最终 css 却被当修复后实测）
+const old = new Date(Date.now() - 600_000);
+utimesSync(join(designs, "verify", "render-report.json"), old, old);
+writeFileSync(
+  join(designs, "DECISION.md"),
+  [
+    "# DECISION.md",
+    "## 3. 约束集",
+    "- 调色板：`--paper:#f5f4ed`、`--ink:#0f1011`",
+    "- 正文对比度 `--paper` on `--ink` = 17.27:1",
+    "修复后实测见 `verify/render-report.json`。",
+    "禁用态用 `var(--paper-2)`。",
+    "## 7. 开发交接提示词",
+    "验收：有 DSH 插件时跑 `design_audit project/`（本 Agent 的 DSH 工具，不是 shell 命令）。",
+  ].join("\n"),
+);
+const F3 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-5 抓到被引用的过期取证（error）", F3.some((f) => f.gate === "HC-5" && f.severity === "error"),
+  F3.filter((f) => f.gate === "HC-5").map((f) => f.message).join(" | "));
+check("HC-6 抓到未定义令牌 var(--paper-2)", F3.some((f) => f.gate === "HC-6" && f.severity === "error"),
+  F3.filter((f) => f.gate === "HC-6").map((f) => f.message).join(" | "));
+
 rmSync(root, { recursive: true, force: true });
 console.log(`\nℹ tests ${pass + fail}\nℹ pass ${pass}\nℹ fail ${fail}`);
 process.exit(fail === 0 ? 0 : 1);
