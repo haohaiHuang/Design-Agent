@@ -150,7 +150,7 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 
 ```
 plugins/design-router/
-├── index.mjs          # Plugin entry: registers 6 tools (5 read-only + 1 local-log writer)
+├── index.mjs          # Plugin entry: registers 7 tools (6 read-only + 1 local-log writer)
 ├── checks/            # Ported checkers (TS→JS): typography/layout/a11y/copy/contrast/cheat/kill-slop/assets/types
 │   └── kill-slop.test.mjs  # KS-* regression test (node checks/kill-slop.test.mjs)
 └── data/
@@ -258,7 +258,7 @@ cd <my-pi-skills>/extensions/design-router/checks && node run-tests.mjs    # ups
 ### Repository structure
 
 ```
-├── plugins/design-router/     # Deterministic-tool plugin (6 tools, zero runtime deps)
+├── plugins/design-router/     # Deterministic-tool plugin (7 tools, zero runtime deps)
 ├── presets/my-agent/          # DSH preset (agent.cordis.yml + preset.yml)
 ├── skills/
 │   ├── design-references/     # Routing skill (DSH-adapted)

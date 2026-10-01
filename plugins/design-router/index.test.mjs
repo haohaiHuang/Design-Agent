@@ -24,13 +24,14 @@ function tools() {
   return Object.fromEntries(reg.map((t) => [t.name, t]));
 }
 
-test("注册 6 个工具，5 只读 + 1 写入", () => {
+test("注册 7 个工具，6 只读 + 1 写入", () => {
   const byName = tools();
   const names = Object.keys(byName).sort();
   assert.deepEqual(names, [
     "design_audit",
     "design_contrast",
     "design_diversity",
+    "design_handoff_check",
     "design_lookup",
     "design_quality",
     "design_route",
