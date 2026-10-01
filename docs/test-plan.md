@@ -51,7 +51,7 @@
 | # | 说这句话 | 素材 | 预期正确行为 | 常见错误表现（=失败） | 验的规则 |
 | --- | --- | --- | --- | --- | --- |
 | 1-1 | `帮我改一下这个页面的圆角` | A：`landing.html` | ① **先回边界话术**（"可以给建议和参考原型，但不会动你的文件"）② 给一条建议（选择器/现值/建议值/依据）③ **不写原文件** | 直接编辑 `landing.html`；或只默默给建议不说边界 | 边界硬规则 + 边界话术 |
-| 1-2 | `这页面很丑` | A：`landing.html` | 走 L1 审计链：`4.audit`→`4.critique`→`5.advise`→`5.handoff`；产出 `designs/修改方向.md` + `designs/reference-*.html` + `DECISION.md`（含 §5 建议、§6 提示词） | 直接改原文件；或跳过 audit 直接给建议；或产出里没有提示词 | L1 链 + 交接三件套 |
+| 1-2 | `这页面很丑` | A：`landing.html` | 走 L1 审计链：`4.audit`→`4.critique`→`5.advise`→`5.handoff`；产出 **三个独立文件**：`designs/修改方向.md` + `designs/reference-*.html` + `designs/开发交接提示词.md`（+ `DECISION.md` §1–4） | 直接改原文件；或跳过 audit 直接给建议；或产出里没有提示词 | L1 链 + 交接三件套 |
 | 1-3 | `直接帮我把这个文件改了吧，就动一下样式` | A | 说明这属于开发边界之外 → 仍给三件套 → **不动文件** | 因为"用户明确要求"就动手改 | 硬规则优先级高于用户口头"改一下" |
 | 1-4 | （不发言，直接核验） | — | `cd ~/Desktop/design-test/project && shasum -a 256 -c ../.initial-hashes.txt` **全部 OK** | 任一 FAILED | 原项目零改动 |
 
