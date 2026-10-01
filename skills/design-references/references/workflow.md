@@ -1,7 +1,7 @@
 # 环节操作手册 — 五环节动作序列 × 资源调用 × 退化链
 
 > 配合 SKILL.md 路由使用。每环节：目标 → 动作序列 → 资源调用（主→次→兜底）→ 产物格式 → 退化链。
-> 方法论来源：事实验证门（环节0 5b）/ 品牌资产门（环节1 1a）/ 候选“看得见”+并排展示（环节1 9a）提炼自 huashu-design（~/.agents/skills/huashu-design）与 baoyu-design（~/.agents/skills/baoyu-design）——两 skill 不装 Pi，方法论以规则形式归位本文件。
+> 方法论来源：事实验证门（环节0 5b）/ 品牌资产门（环节1 1a）/ 候选“看得见”+并排展示（环节1 9a）提炼自 huashu-design 与 baoyu-design 两技能——两 skill 不装 Pi，方法论以规则形式归位本文件。
 > 铁律 1：参考必须转译成约束（环节 2），不"看一眼"就产出。
 > 铁律 2：信息不全先问询（≤3 问），禁止跳过环节 0。
 > 铁律 3：**每个环节产出必须先展示给用户确认，确认后才进下一环节。禁止连续产出多份设计稿再让用户一起看。**
@@ -86,7 +86,7 @@
 5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测或 dembrandt 验证升级；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
-8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
+8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；如不在 PATH 按其全局 bin 目录调用）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
    - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ 直接 `openpencil analyze/variables/info` 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）
    - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
    验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
@@ -257,7 +257,8 @@
    - **图表读数逐项对齐（机器闸门完全看不见）**：闸门只读 CSS/文本，**几何与数值编码不在检查面内**——闸门全绿不等于图对。每个图的每一段（弧长 / 扇区 / 柱高 / 点位 / 占比条）都要量一遍是否等于标签里的数字。典型陷阱：半环 / 仪表盘按「百分比 × 360°」取端点 → 读数约为标签值的 2 倍，且值弧与轨道不同心（接缝处可见折点）。顺带核**定义域是否收紧**：曲线挤在画布下 1/3、轴范围远大于数据波动 = 纵向空间被浪费，收紧 y 域或降图高。
    - **多视口 + 关键状态**：桌面 / 平板 / 窄屏各一档；只截图不够，同时 dump 关键元素的计算样式（字号、行高、圆角、颜色、字体族是否命中目标族）。
    - **视觉模型的结论必须回源码核对**：本地视觉模型会**凭空报出**圆角、阴影、渐变、纹理这类"看起来该有"的东西（实测两例：报出"亚麻纹理"而原图纯平；报出"8px 圆角 / 轻微阴影 / 线性渐变"而源码 grep 计数为 0）。凡是"有没有某属性"这类可判定问题，一律用 `grep`/计算样式定论，视觉模型只用于"气质/观感"这类无法 grep 的判断。
-   - **移动端渲染通道（踩过的坑）**：**禁用 `Google Chrome --headless --window-size=375`**。Chrome 有最小窗口宽度（实测 `innerWidth` 被抬到 **500**），拿到的是"更宽布局被裁到 375"的假图——它会让窄屏结论全错，而图看着正常。可用通道（**按序试**，每换一条都先跑自检）：① `chrome-headless-shell`（Playwright 缓存 `ms-playwright/chromium_headless_shell-*/…`，实测 `--window-size=375` 下 `innerWidth` 真为 375）；② **iframe 预览壳**：外层页面写死 `width:375px` 的 iframe 承载被测页面，最稳、零依赖，推荐；③ **PDF 中转**：`ego-browser` 的 `Page.printToPDF` 出 PDF 再用 `pdftoppm` 转 PNG（本机实测：系统 Chrome 无头 `Trace/BPT trap`、`screencapture` 无屏幕录制权限、`ego-browser` 的 CDP 截图接口超时，三条常见路径都不通时这条稳定可用）；④ 自检：渲染后先断言 `innerWidth` 等于目标宽，不等就换通道，别继续分析截图；把本机最终可用的通道与坑位写进产物目录（如 `designs/shots/README.md`）供下一轮复用。
+   - **移动端渲染通道（踩过的坑）**：**禁用 `Google Chrome --headless --window-size=375`**。Chrome 有最小窗口宽度（实测 `innerWidth` 被抬到 **500**），拿到的是"更宽布局被裁到 375"的假图——它会让窄屏结论全错，而图看着正常。可用通道（**按序试**，每换一条都先跑自检）：① `chrome-headless-shell`（Playwright 缓存 `ms-playwright/chromium_headless_shell-*/…`，实测 `--window-size=375` 下 `innerWidth` 真为 375）；② **iframe 预览壳**：外层页面写死 `width:375px` 的 iframe 承载被测页面，最稳、零依赖，推荐；③ **PDF 中转**：`ego-browser` 的 `Page.printToPDF` 出 PDF 再用 `pdftoppm` 转 PNG（实测：系统 Chrome 无头 `Trace/BPT trap`、`screencapture` 无屏幕录制权限、`ego-browser` 的 CDP 截图接口超时，三条常见路径都不通时这条稳定可用；**注：这里是“拿截图”的兜底，纯 HTML→PDF 成品导出走下一条，不必绕 CDP**）；④ 自检：渲染后先断言 `innerWidth` 等于目标宽，不等就换通道，别继续分析截图；把本机最终可用的通道与坑位写进产物目录（如 `designs/shots/README.md`）供下一轮复用。
+   - **成品导出（HTML → PDF，与上面的截图通道分开，别互相借用）**：`"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf=out.pdf page.html`（2026-09-30 实测通过，当时 Chrome 154；Playwright 缓存的 `chrome-headless-shell` 同命令亦可；**另一台机器要复测**）。**实测结论**：默认就印背景色/背景图（**不需要** `print-color-adjust: exact`——早期误记，实为探针落在页边白区）、认 `@page{size:A4}`（输出 594.96×841.92pt）、`page-break-*` 分页与 `@page` 页码计数器（`@bottom-center{content: counter(page) "/" counter(pages)}`）都能渲染。**坑**：旧旗标 `--print-to-pdf-no-header` 已失效（页眉日期照印），必须用 `--no-pdf-header-footer`。WeasyPrint **不必装**（kami `references/production.md` 写的是它）——只有需要 Chrome 不支持的高级排版（多栏平衡/自动目录/PDF 书签）时才上。导出后照例核一遍：`pdfinfo` 看页数/页幅、`pdftoppm` 渲染目视、`pdftotext` 核文字是否齐。
    - **截图非空自检**：路径写错时截图会是一张纯灰图而毫无报错。加一条机器判据——**灰度/颜色种类数 > 8** 才算有效截图（实测抓到过两张全灰的"移动端截图"）。
    - **刻意保留的证据块要打豁免标记**：引用证据 / 现状复现 / 正误对照 里会**故意**出现原来的 13px 圆角、渐变按钮、编造指标，`design_audit` 会照报。用行内标记 `slop-ignore: <理由>` 明确豁免（写在被标注行上方或行尾的注释里；适用该行或所在的 `{ }` 块），**必须带非空理由**，空理由不生效；工具会在结论里列明豁免了几项，便于复核。
 2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
@@ -333,15 +334,24 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 **环节 4 达标即视为设计完成，进入收尾**，不再向下滑入开发：
 
 - **交付物**：设计产物（HTML 原型/demo/幻灯片/信息图/动画）+ **设计规范文档 `designs/DECISION.md`**。归档到项目 designs/ 等子目录。
-- **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，四段结构：
+- **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，五段结构（第 5 段仅在“要转开发”时写）：
   ```
   # DECISION.md — 设计决策与页面规范
   ## 1. Brief（环节 0）      场景分支/格式/受众/目标/硬约束
   ## 2. 候选与选择理由（环节 1）  2-3 候选（token 草稿+理由）+ 用户选定项与理由
   ## 3. 页面规范/约束集（环节 2） 最终确认的 ≤10 条约束，每条带来源标注
   ## 4. 校验结果（环节 4）    design_audit 输出 + Kami 三查对照 + PASS/FAIL
+  ## 5. 开发交接规格（仅转开发时写）  六类字段，见下
   ```
   规范供开发交接直接用，候选理由供追溯；该文档即开发交接包的主体。
+- **§5 开发交接规格的六类字段（仅“要转开发”才写，不转开发不写）**——借 design-ops `handoff-spec` 骨架（上游未装，内容已内化到本段，不另建第二个交接物）：
+  1. **视觉规格**：间距/尺寸/色（写 token 名不写 hex）/字阶/圆角/阴影/响应式断点行为
+  2. **交互规格**：各状态清单（default / hover / focus-visible / active / disabled / loading / error / success 中适用的）+ 动效参数（属性/时长/缓动，直接引约束集的 EM-* 数值）+ 键盘交互
+  3. **内容规格**：字符上限与截断、动态内容 min/max、empty/loading/error 文案
+  4. **资产交付**：字体文件、图标（SVG 命名约定）、图片分辨率与格式变体
+  5. **边界情况**：最短/最长内容、各断点行为、a11y（ARIA / 键盘可达 / 读屏）
+  6. **实现注记**：可复用组件、数据结构假设、API 依赖、性能注意
+  **详略分界**：产物为 HTML/CSS 时，1–2 类可直接指向源码/token 文件（不重抄数值）；产物为静态图/Figma（.fig/.pen）时才需写全精确值（即真正的 redline 场景）。
 - **默认不进入开发**：设计完成 ≠ 开始开发。除非用户**显式**要求（"开始开发/实现上线/继续做下去"），否则本流程止于设计交付——不写生产代码、不搭后端、不做工程化。
 - **转开发的条件与方式**：用户要求开发时，`designs/DECISION.md` 作为开发交接包（含设计文件清单），建议交给开发 Agent/流程执行；不默认自己动手写生产代码。
 - **收尾动作**：确认交付物齐全归档（designs/）+ DECISION.md 已生成 → 极简总结（做了什么、caveats、下一步可选方向，含"如需开发可转交"）。

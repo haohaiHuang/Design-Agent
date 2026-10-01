@@ -61,7 +61,7 @@
 
 > **路由短名单是各仓库自有策划**：本仓库 `ROUTES`（`scripts/build-registry.mjs`）只收「`主` 层级 + 需求特征命中项」，是策划结果而非全量索引（全量目录是本文件）。**不追求与 DSH 侧一致**；跨仓回流只回流**资源行与通用规则**，路由各自主张。
 
-改**技能树任一文件**（`registry.md` / `workflow.md` / `ui-quickfix.md` / `SKILL.md` …——共享件也算）后都要重跑 `node extensions/design-router/scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json / manifest.json 指纹；禁止手改这两个生成物。改完还要重装各平台副本：`./install-design-router.sh --all-platforms`（**pi 侧 `~/.pi/agent/skills/design-references` 是 symlink，指向真身 `~/.agents/skills/design-references`——数「要更新几处副本」时它只算一份，写 symlink 路径即写真身**）。
+改**技能树任一文件**（`registry.md` / `workflow.md` / `ui-quickfix.md` / `SKILL.md` …——共享件也算）后都要重跑 `node extensions/design-router/scripts/build-registry.mjs`（或 `/design-router reload`）同步 registry.json / manifest.json 指纹；禁止手改这两个生成物。改完还要重装各平台副本：`./install-design-router.sh --all-platforms`（**各平台副本由脚本按自身 TARGETS 分发；共享层 `~/.agents/skills/design-references` 是真身，各 agent 侧可能是软链，数「要更新几处副本」时别重复计**）。
 
 ---
 
@@ -73,7 +73,7 @@
 | Zine 风格库（52 个 AI 海报技能风格配方） | 转译 | 主 | 海报 / 杂志 | → 本地文件直读（无退化） | 本地目录 `~/Desktop/Design/zine-style-references/`（上游合集 README + 样图）；上游合集 `https://github.com/tluy/skill-zine-summary` |
 | 海报构图词典（32 种构图：焦点/平衡/几何骨架/动势/分割/网格/图文关系/破格节奏；每条含视线路径/适合/避坑/提示词标签/双渲染；+ 11 项验收清单） | 转译 | 次 | 海报（构图候选池：按内容量×情绪选主构图） | → 本地文件直读（无退化） | 本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书 |
 | VoltAgent awesome-claude-design（68 个真实产品 DESIGN.md 合集） | 直引 | 次 | 网页 / Mac | → 仓库直读 | `https://github.com/VoltAgent/awesome-claude-design` |
-| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
+| dembrandt（URL→设计 token 提取 CLI：真浏览器渲染读 computed styles，产颜色/字体/间距/圆角/阴影/动效/组件 + DESIGN.md/DTCG/Tailwind/WCAG 多格式） | 工具 | 主 | APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时） | → hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对 | npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`；如不在 PATH，按其全局 bin 目录调用）；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/` |
 | Beautiful UI（AI-native 界面范式） | 转译 | 次 | APP | → 官网浏览 → web_search | `https://beautifului.dev/`（原 `.ai` 域名已失效） |
 | Aceternity UI（落地页组件/区块范式） | 转译 | 次 | 网页 | → 官网浏览 → web_search | `https://ui.aceternity.com/` |
 | 21st.dev（shadcn/ui 组件市场） | 转译 | 次 | 网页 | → 官网浏览 | `https://21st.dev/` |
@@ -158,7 +158,8 @@
 
 | 资源 | 形态 | 层级 | 适用场景 | 退化链 | 精确来源 |
 | --- | --- | --- | --- | --- | --- |
-| kami 技能（WeasyPrint 排版 → HTML/PDF） | 工具 | 主 | 文档 / 海报排版 / 网页 | → 手写 HTML 遵循令牌 | `https://github.com/tw93/Kami` |
+| kami 技能（排版骨架 / 视觉语言 → HTML 产物） | 骨架 | 主 | 文档 / 海报排版 / 网页 | → 手写 HTML 遵循令牌（文件导出见下条「文档导出」） | `https://github.com/tw93/Kami`（其 `references/production.md` 写 HTML→PDF 走 WeasyPrint；文件导出改走下条退化链） |
+| 文档导出（HTML → PDF / PPTX） | 工具 | 主 | 文档 / 海报 / PPT 交付（产物为文件时） | → **Chrome headless CLI**（实测通过）：`chrome --headless=new --disable-gpu --print-to-pdf=out.pdf --no-pdf-header-footer page.html`（macOS 的 chrome = `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`）——默认就印背景色/背景图（不必 `print-color-adjust`）、认 `@page{size:A4}`、分页与 `@page` 页码计数器均渲染；**旧旗标 `--print-to-pdf-no-header` 已失效，必须用 `--no-pdf-header-footer`** → 需 Chrome 不支持的高级排版（多栏平衡/自动目录/PDF 书签）才 `pip install weasyprint` → 需真 .pptx 文件时 `pip install python-pptx`，否则走 `guizang-ppt-skill`（HTML 演示形态） | Chrome 154 实测（`--headless=new`）；Playwright 的 `chrome-headless-shell` 同命令亦可用（备用）；校验用 `pdf` 技能（pdftoppm 渲染目视审查 / pdftotext 取字 / pdfinfo 查页幅页数）+ pypdf（合并/拆分/取页）；kami `references/production.md` Part 1 写的是 WeasyPrint，改走本退化链 |
 | huashu-design（HTML 高保真原型/幻灯片/动画） | 工具 | 主 | 网页 / 通用 | → kami / 手写 HTML | `https://github.com/alchaincyf/huashu-design` |
 | baoyu-design（HTML 设计产物：mockup/deck/落地页） | 工具 | 次 | 网页 / 通用 | → huashu-design | 仓库 `https://github.com/JimLiu/baoyu-design`（注意：非 baoyu-ai，npm 无包） |
 | frontend-design（anthropics/skills） | 工具 | 次 | 网页 / Mac | → 手写 HTML/CSS | `https://github.com/anthropics/skills`（skill 路径 `skills/frontend-design/`） |
@@ -184,7 +185,7 @@
 | huashu 5 维评审（设计成品多维度审查） | 规则 | 主 | 网页 / 通用 | → Kami 三查 + 人工评审 | `https://github.com/alchaincyf/huashu-design`（5 维评审章节） |
 | Zine 风格一致性自检（对照选定风格族的色板/质感/排版核对） | 规则 | 次 | 海报 / 杂志 | → 人工对照 style-families.md | 本地 `~/Desktop/Design/zine-style-references/style-families.md` |
 | design-qa-checklist（UI QA 清单） | 规则 | 主 | APP（交互可用性） | → 手动过导航/状态/反馈三问 | skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`） |
-| 设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/` |
+| 设计研究 UX 方法（design-research 组 12 个已装：affinity-diagram / card-sort-analysis / diary-study-plan / empathy-map / interview-script / jobs-to-be-done / journey-map / research-repository / summarize-interview / survey-design / usability-test-plan / user-persona；上游共 14，未装 behavioural-analytics / qual-quant-triangulation） | 规则 | 主 | APP / 网页（UX 调研） | → 手动走方法步骤 | 同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`（slug `design-research-methods`） |
 | logo-generator 图形质量底线（元素 ≤5-6 / 留白 ≥40% / 线宽 2.5-4px / 单焦点 / 缩放 16-512） | 规则 | 次 | logo / App Icon / 品牌图形 | → 上游仓库 → 原则人工应用 | 源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md` |
 | hallmark slop-test 58 gates（去 AI 味**验收**：视觉/结构/动效/多样性/布局安全/排版/输入态/对比度/导航页脚/诚实文案/chrome/token 纪律/响应式非谈判项） | 规则 | 次 | 网页 / 通用（产出后校验；机器可判定子集已由 design_audit 合并执行，pi/DSH 同源） | → skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底） | `https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`） |
 | kill-ai-slop 反 AI slop 检测 patterns 转译（KS-* 子集：cozy 暖洗色 / 默认语义彩虹 / 单色状态框 / 衬线乱入 UI / AI 文案腔（含中文词组）；补 hallmark 58 gates 未机器化/未覆盖的 tells；与 gates 重合部分（渐变/卡中卡/编造指标等）不转译） | 规则 | 次 | 网页 / 通用（产出后校验；机器子集 KS-* 已由 pi 版 design_audit 合并执行，DSH 版未移植——命中为 warn 级疑似，需人工 Triage；品牌/编辑语境可豁免） | → 无（机器直接执行）→ 模型按环节 4 Triage 确认 | 官网 `https://killaislop.com/`（含多语言 slop 图鉴）；仓库 `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释） |
@@ -198,7 +199,8 @@
 | R·海报场景·主 | 已有 Zine 风格库 | 无缺 | — |
 | R·杂志场景·主 | 已有 Zine 风格库 | 无缺 | — |
 | R·Mac 场景·主 | refero 已覆盖（2000+ 产品含桌面） | 无缺 | — |
-| R·UX 研究方法 | ✅ 已补（design-research 组 11 个方法） | 无缺 | — |
+| R·UX 研究方法 | ✅ 已补（design-research 组 12 个方法，上游 14） | 待评估：缺 2 个（量化侧） | behavioural-analytics / qual-quant-triangulation |
+| R·跳册引用（技能 description 指向未安装的技能，5 处） | ✅ 已核查 | 4 处不装、按方法手工执行；**handoff-spec 已内化为 `designs/DECISION.md` §5 开发交接规格**（2026-09-30 定，不装独立技能） | ux-strategy: information-architecture / experience-map；prototyping-testing: user-flow-diagram / test-scenario；design-ops: handoff-spec——注意与 matt-pocock 的 `handoff` 同名不同能力（后者把**对话**交给下一个 agent，`disable-model-invocation: true`，程序侧仅 `/skill:handoff` 手动调） |
 | C·APP 场景·约束模板 | ✅ 已补（design-md-skill：Google spec 生成器，支持 --no-figma） | 无缺 | — |
 | V·APP 场景·校验 | ✅ 已补（design-qa-checklist） | 无缺 | — |
 | E·Mac 场景·执行 | 依赖通用工具，无原生 SwiftUI 执行链 | 待评估 | frontend-design / 原生 |
@@ -207,8 +209,9 @@
 
 | 资源 | 裁定 |
 | --- | --- |
-| Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能）：design-qa-checklist + design-research 组 11 个 |
-| s-a-s-k-i-a/design-md-skill | ✅ 安装（Google spec 生成器，替代 wenyen-hsu 版） |
+| Owl-Listener/designer-skills | ✅ 精选安装（非同型全装，只取缺口子技能）：design-qa-checklist + design-research 组 12 个（上游 14；未取 behavioural-analytics / qual-quant-triangulation） |
+| s-a-s-k-i-a/design-md-skill | ✅ 安装（Google spec 生成器，替代 wenyen-hsu 版）；其 SKILL.md 在仓库根，无 `skills/` 目录，settings.json 的 packages 机制收不到（`collectManifestFiles` 只扫 `<pkg>/skills/`），加 filter 也无效，**需手动分发（本机装法见私有清单仓）**；已修 `${CLAUDE_SKILL_DIR}` 为该技能内相对路径 |
+| op7418/guizang-ppt-skill | ✅ 安装（B3·环节 3 网页 PPT 主路径）；同样根级 SKILL.md，**需手动挂载（本机装法见私有清单仓）**：保留 packages 登记仅供 `pi update` 刷新缓存 |
 | wenyen-hsu/design-md-skill | ⛔ 不装（无 SKILL.md + Figma 依赖，已被 s-a-s-k-i-a 版替代） |
 | VoltAgent awesome-claude-design | ⛔ 不装（与 refero 同型：R 查询类）；仅登记，需要时拉到 Design 文件夹作离线补充 |
 | anthropics brand-guidelines / theme-factory / algorithmic-art | ⛔ 不装（增强非补缺）；仅登记，按需再装 |

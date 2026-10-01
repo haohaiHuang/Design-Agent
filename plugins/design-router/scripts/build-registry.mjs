@@ -112,6 +112,8 @@ const SLUG_BY_KEYWORD = [
   ["interfaces-cheat-sheet", "interfaces cheat-sheet 约束集"],
   // E 执行工具
   ["kami-skill", "kami 技能"],
+  // 2026-09-30 上游新增：HTML→PDF/PPTX 成品导出退化链（Chrome headless，旗标已修正）
+  ["doc-export", "文档导出"],
   ["huashu-design", "huashu-design（HTML 高保真原型"],
   ["baoyu-design", "baoyu-design"],
   ["frontend-design", "frontend-design"],
@@ -418,7 +420,8 @@ const ROUTES = {
     ],
     "3": [
       "gpt-image-2",
-      "kami-skill"
+      "kami-skill",
+      "doc-export"
     ],
     "4": [
       "zine-consistency",
@@ -456,7 +459,8 @@ const ROUTES = {
       "kami-skeleton"
     ],
     "3": [
-      "guizang-ppt-skill"
+      "guizang-ppt-skill",
+      "doc-export"
     ],
     "4": []
   },
@@ -529,7 +533,8 @@ const ROUTES = {
       "kami-skeleton"
     ],
     "3": [
-      "kami-skill"
+      "kami-skill",
+      "doc-export"
     ],
     "4": [
       "kami-sancha"

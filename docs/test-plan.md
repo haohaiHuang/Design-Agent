@@ -15,16 +15,13 @@
    脚本会打印初始文件哈希，并提示测试结束后如何核验"原项目文件未被改动"。
 
 2. **新建会话**，Agent 预设选「**设计 Agent**」（不是默认预设——否则测的是别的 agent）。
-   > ⚠️ **DSH 0.2.0+（桌面端）必读**：0.2.0 移除了预设目录扫描（`agent-preset-registry` 的 config
-   > 只有 `default`/`selectedDefault`，没有 roots），放在 `~/.dsh/.agent-presets/` 的自定义预设
-   > **不会出现在列表里**。必须先装进 profile 的 patch 层：
-   > ```bash
-   > node docs/migrate-preset-0.2.0.mjs \
-   >   --src presets/my-agent/agent.cordis.yml \
-   >   --plugin "$PWD/plugins/design-router/index.mjs" \
-   >   --append ~/.dsh/profiles/desktop/cordis.patch.yml
-   > ```
-   > 然后**完全退出并重开**桌面端。详见 [README「DSH 0.2.0+」](README.md)。
+   > ⚠️ **DSH 0.2.0+（桌面端）必读**：0.2.0 移除了预设目录扫描，自定义预设必须装成 **bundle**。
+   > 桌面端：侧栏 **Plugins → Add plugin**，把这两个目录的**绝对路径**各装一次，然后 **Enable now**：
+   > `presets/design-agent-preset`（预设）与 `plugins/design-router`（插件包，预设按包名引用它）。
+   > 装完**完全退出并重开**桌面端，预设列表出现「设计 Agent」（id `my-agent`）。
+   >
+   > 单机替代路线（不装 bundle）：`node docs/migrate-preset-0.2.0.mjs --src presets/my-agent/agent.cordis.yml --plugin "$PWD/plugins/design-router/index.mjs" --append ~/.dsh/profiles/desktop/cordis.patch.yml`。
+   > **两条路线只能选一条**（同时装会出现两个「设计 Agent」）。详见 [README「DSH 0.2.0+」](README.md)。
    > （0.1.x CLI/web 仍用目录机制，无需此步。）
 
 3. **工作目录设为测试目录** `~/Desktop/design-test`（或它下面的 project/）。

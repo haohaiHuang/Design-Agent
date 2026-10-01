@@ -1,5 +1,5 @@
 {
-  "generated": "b14f02fc1b97",
+  "generated": "b1777681dbbc",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -57,7 +57,7 @@
       "level": "主",
       "scenarios": "APP / 网页 / Mac（环节 1 候选验证升级路径：需精确 token 直引 / JS 重站点 / hallmark_study_fetch 或 defuddle 不足时）",
       "fallback": "→ hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对",
-      "source": "npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`）；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
+      "source": "npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`；如不在 PATH，按其全局 bin 目录调用）；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
       "slug": "dembrandt",
       "bucket": null,
       "quality": "未评估"
@@ -951,14 +951,26 @@
       "quality": "未评估"
     },
     {
-      "name": "kami 技能（WeasyPrint 排版 → HTML/PDF）",
+      "name": "kami 技能（排版骨架 / 视觉语言 → HTML 产物）",
+      "role": "E",
+      "form": "骨架",
+      "level": "主",
+      "scenarios": "文档 / 海报排版 / 网页",
+      "fallback": "→ 手写 HTML 遵循令牌（文件导出见下条「文档导出」）",
+      "source": "`https://github.com/tw93/Kami`（其 `references/production.md` 写 HTML→PDF 走 WeasyPrint；文件导出改走下条退化链）",
+      "slug": "kami-skill",
+      "bucket": null,
+      "quality": "未评估"
+    },
+    {
+      "name": "文档导出（HTML → PDF / PPTX）",
       "role": "E",
       "form": "工具",
       "level": "主",
-      "scenarios": "文档 / 海报排版 / 网页",
-      "fallback": "→ 手写 HTML 遵循令牌",
-      "source": "`https://github.com/tw93/Kami`",
-      "slug": "kami-skill",
+      "scenarios": "文档 / 海报 / PPT 交付（产物为文件时）",
+      "fallback": "→ **Chrome headless CLI**（实测通过）：`chrome --headless=new --disable-gpu --print-to-pdf=out.pdf --no-pdf-header-footer page.html`（macOS 的 chrome = `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`）——默认就印背景色/背景图（不必 `print-color-adjust`）、认 `@page{size:A4}`、分页与 `@page` 页码计数器均渲染；**旧旗标 `--print-to-pdf-no-header` 已失效，必须用 `--no-pdf-header-footer`** → 需 Chrome 不支持的高级排版（多栏平衡/自动目录/PDF 书签）才 `pip install weasyprint` → 需真 .pptx 文件时 `pip install python-pptx`，否则走 `guizang-ppt-skill`（HTML 演示形态）",
+      "source": "Chrome 154 实测（`--headless=new`）；Playwright 的 `chrome-headless-shell` 同命令亦可用（备用）；校验用 `pdf` 技能（pdftoppm 渲染目视审查 / pdftotext 取字 / pdfinfo 查页幅页数）+ pypdf（合并/拆分/取页）；kami `references/production.md` Part 1 写的是 WeasyPrint，改走本退化链",
+      "slug": "doc-export",
       "bucket": null,
       "quality": "未评估"
     },
@@ -1203,13 +1215,13 @@
       "quality": "未评估"
     },
     {
-      "name": "设计研究 UX 方法（interview/empathy/journey/affinity/usability 等 11 个）",
+      "name": "设计研究 UX 方法（design-research 组 12 个已装：affinity-diagram / card-sort-analysis / diary-study-plan / empathy-map / interview-script / jobs-to-be-done / journey-map / research-repository / summarize-interview / survey-design / usability-test-plan / user-persona；上游共 14，未装 behavioural-analytics / qual-quant-triangulation）",
       "role": "V",
       "form": "规则",
       "level": "主",
       "scenarios": "APP / 网页（UX 调研）",
       "fallback": "→ 手动走方法步骤",
-      "source": "同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`",
+      "source": "同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`（slug `design-research-methods`）",
       "slug": "design-research-methods",
       "bucket": null,
       "quality": "未评估"
@@ -1358,7 +1370,8 @@
       ],
       "3": [
         "gpt-image-2",
-        "kami-skill"
+        "kami-skill",
+        "doc-export"
       ],
       "4": [
         "zine-consistency",
@@ -1395,7 +1408,8 @@
         "kami-skeleton"
       ],
       "3": [
-        "guizang-ppt-skill"
+        "guizang-ppt-skill",
+        "doc-export"
       ],
       "4": []
     },
@@ -1466,7 +1480,8 @@
         "kami-skeleton"
       ],
       "3": [
-        "kami-skill"
+        "kami-skill",
+        "doc-export"
       ],
       "4": [
         "kami-sancha"
