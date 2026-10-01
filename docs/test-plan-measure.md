@@ -4,7 +4,13 @@
 > 本机会话是 08-27（铁律 10 之前）、另一台机器的真机记录是 09-23 / 版本 `a4b62e1`。
 > 在那之上做优化判断，等于猜。这份计划只做一件事：**拿到当前构建的真实数据**。
 
-工作区：`~/Desktop/design-agent-test`（`bash docs/test-fixtures/make-fixtures.sh ~/Desktop/design-agent-test` 生成）
+工作区：`~/Desktop/design-agent-page`（`bash docs/test-fixtures/make-realistic-site.sh` 生成）
+
+> ⚠️ **2026-10-01 修素材（第四轮）**：前三轮用的是 `make-fixtures.sh` 的**碎片页**——`landing.html` 只有 15 行、
+> 没有 `nav/header/footer/`布局骨架。结果是「这页面很丑」天然变成**重建结构**，与「逐项补丁清单」的交付格式冲突
+> （第三轮盲测的阻塞项①：清单第 17 项要改原页面根本不存在的 `.nav`）。**这个矛盾是素材诱导的**。
+> 新的 `make-realistic-site.sh` 生成**结构完整**的落地页（header/nav + hero + features + proof + pricing + footer，
+> 实测 audit 检出 24 项 / 18 个 gate），用于 audit / 交接类测试；旧脚本保留给**定位类**测试（它的三通道文件名设计仍有用）。
 产物根：**工作区根的 `designs/`**（不是 `project/designs/`——早前脚本建错位置，已修）
 
 ## 一、三个任务（一任务 = 一个新会话）
