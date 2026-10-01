@@ -1,5 +1,9 @@
 # 当前版本实测记录（T1 / T2）
 
+> 🧹 **2026-10-01 清理**：`~/Desktop/design-agent-*` 下的测试工作区与证据目录（4 轮 evidence + `design-agent-test`
+> + `design-agent-page`，共 9.8M / 240 文件）**已按用户要求删除**。本文档保留全部结论与数字；需要复现时用
+> `docs/test-fixtures/make-realistic-site.sh`（或 `make-fixtures.sh`）重新生成工作区即可。
+
 > 测量计划见 [`test-plan-measure.md`](test-plan-measure.md)。工作区 `~/Desktop/design-agent-test`。
 > 被测：桌面端 bundle 安装（`@local/dsh-design-agent-preset` + `@local/dsh-design-router`），2026-10-01。
 > **与此前记录的差别**：本机旧会话是 08-27、另一台机器实测是 09-23 / `a4b62e1`，都早于当前改动。
