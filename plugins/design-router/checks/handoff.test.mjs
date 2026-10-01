@@ -122,6 +122,34 @@ check("HC-5 抓到被引用的过期取证（error）", F3.some((f) => f.gate ==
 check("HC-6 抓到未定义令牌 var(--paper-2)", F3.some((f) => f.gate === "HC-6" && f.severity === "error"),
   F3.filter((f) => f.gate === "HC-6").map((f) => f.message).join(" | "));
 
+// ---- HC-8 反向断言（检查失明）----
+mkdirSync(join(project, "src"), { recursive: true });
+writeFileSync(
+  join(project, "src", "page.html"),
+  '<div style="transition:all .3s;background:linear-gradient(90deg,#5e6ad2,#8b5cf6)">x</div>\n',
+);
+mkdirSync(join(designs, "shots"), { recursive: true });
+writeFileSync(join(designs, "reference-x.html"), "<div class=ok>y</div>\n");
+writeFileSync(
+  join(designs, "DECISION.md"),
+  [
+    "# DECISION.md",
+    "## 3. 约束集",
+    "- 调色板：`--paper:#f5f4ed`、`--ink:#0f1011`",
+    "## 7. 开发交接提示词",
+    "- 全项目 grep：`linear-gradient` → 0 处；`transition: all` → 0 处；`nonexistent-thing-xyz` → 0 处",
+  ].join("\n"),
+);
+const F4 = runHandoffChecks({ designsDir: designs, projectDir: project });
+const hc8 = F4.filter((f) => f.gate === "HC-8");
+check("HC-8 抓到『只差写法』的失明验收（transition: all）",
+  hc8.some((f) => f.rule === "acceptance-blind-typo" && f.severity === "error"),
+  JSON.stringify(hc8.map((f) => f.message)));
+check("HC-8 不误报有效验收（linear-gradient 在项目里能命中）",
+  !hc8.some((f) => f.message.includes("linear-gradient")));
+check("HC-8 对'本就针对新增项'的模式只报 warn",
+  hc8.some((f) => f.rule === "acceptance-blind" && f.severity === "warn" && f.message.includes("nonexistent-thing-xyz")));
+
 rmSync(root, { recursive: true, force: true });
 console.log(`\nℹ tests ${pass + fail}\nℹ pass ${pass}\nℹ fail ${fail}`);
 process.exit(fail === 0 ? 0 : 1);

@@ -18,6 +18,9 @@
  *                          文书却写成"修复后实测" → 第三方无基准）
  *   HC-6 未定义令牌      —— 被 var(--x) 引用却任何地方都没定义的令牌（真机实测：`--paper-2` 用了没定义
  *                          → 照提示词产出无效 CSS；`--r3` 幽灵令牌）
+ *   HC-8 反向断言        —— "要求 X 为 0"的模式先在【改前项目】上跑一遍：命中 0 = 这条验收查不到
+ *                          任何东西（真机实测：验收写 `transition: all`〔带空格〕而项目里是
+ *                          `transition:all .3s` → 该禁令完全失明）
  *   HC-7 验收自洽性      —— 把 §7 里的 grep 型验收命令抽出来**逐条实跑**：命令本身能不能跑、
  *                          会不会被注释/子串假阳、断言是否可能恒真（真机实测：`999px` 禁令被
  *                          `.skip{left:-9999px}` 命中；`transition:all` 命中注释；`.doc-row` 计数 `0===0`）
@@ -270,13 +273,21 @@ export function runHandoffChecks(opts = {}) {
   }
 
   // ---------- HC-4 验收可跑性 ----------
+  // 只看"工具名第一次出现的地方"会误报（真机实测：§4.1 标题里的 `design_audit` 没有归属，
+  // 但 §7 g) 里明确写了"这是本 Agent 的 DSH 工具，不是 shell 命令"→ 归属是有的）。
+  // 判据改为：该工具名**任何一个**出现处附近有归属或替代法，即通过。
+  const ATTR = /DSH\s*(?:插件\s*)?工具|本 Agent 的工具|不是 shell|技能内部工具|第三方环境通常没有/;
+  const ALT = /替代|无该工具|人工逐条核对|若没有|没有该工具/;
   for (const t of DS_TOOLS) {
-    const idx = docText.indexOf(`\`${t}`);
-    if (idx < 0) continue;
-    const near = docText.slice(Math.max(0, idx - 120), idx + 200);
-    const attributed = /DSH (?:插件 )?工具|本 Agent 的工具|不是 shell|技能内部工具/.test(near);
-    const alternative = /替代|无该工具|人工逐条核对|若没有/.test(near);
-    if (!attributed && !alternative) {
+    const name = "`" + t;
+    const idxs = [];
+    for (let i = docText.indexOf(name); i >= 0; i = docText.indexOf(name, i + 1)) idxs.push(i);
+    if (idxs.length === 0) continue;
+    const ok = idxs.some((i) => {
+      const near = docText.slice(Math.max(0, i - 200), i + 220);
+      return ATTR.test(near) || ALT.test(near);
+    });
+    if (!ok) {
       findings.push({
         gate: "HC-4",
         rule: "tool-unattributed",
@@ -332,57 +343,103 @@ export function runHandoffChecks(opts = {}) {
   }
 
   // ---------- HC-7 验收自洽性 ----------
-  // 真机实测（第三/五轮）：第三方最重的一条是"验收自相矛盾"——命令没被跑过就写进交付物。
-  // 真实写法是 `` `999px` → 0 处 `` 这种（不是 grep 'x' target），所以按这个形态抽：
-  //   「反引号里的模式」+ 其后 40 字符内出现「0 处 / 必须为 0 / → 0」
-  // 然后把该模式**实跑到参考原型上**：命中 = 视觉基准自己就过不了这条验收 → error。
-  // 若只在注释里命中（剥注释后为空）= 会被朴素 grep 误报 → warn。
+  // 真机实测（第 6 轮）：验收的真实写法是**列表式**——
+  //   "h) 反向核对（…均应为 0 处）：`linear-gradient`；`transition: all`；`999px`；…"
+  //   即"0 处"标记在**列表之前**。所以抽取按**行**做：该行含零标记 → 取该行所有反引号模式。
+  //   同时排除 JS 断言片段（`right > innerWidth` 这类是浏览器里跑的，不是 grep 模式）。
+  const zeroPatterns = [];
   const promptIdx = docText.search(/##\s*7\.|开发交接提示词/);
   if (promptIdx >= 0) {
     const section = docText.slice(promptIdx);
-    for (const m of section.matchAll(/`([^`\n]{3,60})`([^`\n]{0,40})/g)) {
-      const pat = m[1].trim();
-      const tail = m[2] || "";
-      if (!/(0\s*处|必须为\s*0|→\s*0|应为\s*0|应当为\s*0)/.test(tail)) continue;
-      if (/^[\u4e00-\u9fa5]+$/.test(pat)) continue; // 纯中文词不是模式
-      if (/^--[a-z0-9-]+$/.test(pat) || /^#[0-9a-fA-F]{3,8}$/.test(pat)) continue; // 令牌/色值另有检查
+    const zeroMarker = /(均?应?为\s*0\s*处|必须为\s*0|→\s*0\s*处|为\s*0\s*处)/;
+    const isJsLike = (x) =>
+      /(===|!==|=>|\bdocument\b|querySelector|getComputedStyle|innerWidth|getBoundingClientRect|\breturn\b|\bconst\b|\blet\b|\bfunction\b|window\.|\.length|\[\s*\.\.\.)/.test(x);
+    for (const line of section.split("\n")) {
+      if (!zeroMarker.test(line)) continue;
+      for (const m of line.matchAll(/`([^`\n]{3,60})`/g)) {
+        const pat = m[1].trim();
+        if (isJsLike(pat)) continue;
+        if (/^[\u4e00-\u9fa5]+$/.test(pat)) continue;
+        if (/^--[a-z0-9-]+$/.test(pat) || /^#[0-9a-fA-F]{3,8}$/.test(pat)) continue;
+        zeroPatterns.push(pat);
+      }
+    }
+  }
+  for (const pat of new Set(zeroPatterns)) {
+    let re = null;
+    try {
+      re = new RegExp(pat);
+    } catch {
+      findings.push({
+        gate: "HC-7",
+        rule: "acceptance-regex-host-dependent",
+        severity: "warn",
+        message: `验收模式 \`${pat}\` 无法用 JS 正则编译，可能依赖特定 grep 语法（BSD grep 无 -P）——改成可移植写法或给等价替代`,
+        location: "§7",
+      });
+      continue;
+    }
+    for (const proto of protos) {
+      const raw = readIfFile(proto) || "";
+      const stripped = raw
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/^\s*\/\/.*$/gm, "");
+      if (re.test(stripped)) {
+        findings.push({
+          gate: "HC-7",
+          rule: "acceptance-self-conflict",
+          severity: "error",
+          message: `验收要求 \`${pat}\` 为 0，但**视觉基准自己命中**（${basename(proto)}）——基准过不了自己的验收，第三方的"通过"不可信`,
+          location: basename(proto),
+        });
+      } else if (re.test(raw)) {
+        findings.push({
+          gate: "HC-7",
+          rule: "acceptance-comment-false-positive",
+          severity: "warn",
+          message: `验收要求 \`${pat}\` 为 0：只在**注释**里命中（剥注释后为空）——朴素 grep 会误报，验收里要写明"剥注释后再匹配"`,
+          location: basename(proto),
+        });
+      }
+    }
+  }
+
+  // ---------- HC-8 反向断言（检查失明）----------
+  // 真机实测（第 6 轮第三方头号问题之一）：验收写 `transition: all`（带空格）→ 在改前项目上命中 0，
+  // 而项目里就是 `transition:all .3s`。**一条永远命中 0 的禁令等于没有禁令**，但没人会发现，
+  // 因为它"看起来通过了"。判据：要求为 0 的模式，必须在**改前项目**上真能命中（说明它查的是现存问题）。
+  if (existsSync(projectDir)) {
+    const projTexts = walk(projectDir)
+      .filter((f) => /\.(html|css|js|mjs|tsx|vue|md)$/.test(f))
+      .map((f) => readIfFile(f) || "");
+    const norm = (x) => x.replace(/\s+/g, "");
+    for (const pat of new Set(zeroPatterns)) {
       let re = null;
       try {
         re = new RegExp(pat);
       } catch {
-        // 正则在本地 grep 里可能仍可用（如 BSD 无 -P）；这里只提示，不当 error
+        continue; // 编译不了的情况 HC-7 已单独报
+      }
+      if (projTexts.some((t) => re.test(t))) continue; // 能命中 = 这条验收有效
+      // 命中 0：是"只差空白/写法"，还是"本就针对新增代码"？
+      const loose = projTexts.some((t) => t && norm(t).includes(norm(pat)));
+      if (loose) {
         findings.push({
-          gate: "HC-7",
-          rule: "acceptance-regex-host-dependent",
-          severity: "warn",
-          message: `验收模式 \`${pat}\` 无法用 JS 正则编译，可能依赖特定 grep 语法（BSD grep 无 -P）——改成可移植写法或给等价替代`,
+          gate: "HC-8",
+          rule: "acceptance-blind-typo",
+          severity: "error",
+          message: `验收失明：\`${pat}\` 在改前项目上命中 0，但**去掉空白后能命中**——模式与目标只差写法（真机实例：\`transition: all\` 查不到 \`transition:all\`）。该禁令等于没写，改成 \`transition:\\s*all\` 之类`,
           location: "§7",
         });
-        continue;
-      }
-      for (const proto of protos) {
-        const raw = readIfFile(proto) || "";
-        const stripped = raw
-          .replace(/\/\*[\s\S]*?\*\//g, "")
-          .replace(/<!--[\s\S]*?-->/g, "")
-          .replace(/^\s*\/\/.*$/gm, "");
-        if (re.test(stripped)) {
-          findings.push({
-            gate: "HC-7",
-            rule: "acceptance-self-conflict",
-            severity: "error",
-            message: `验收要求 \`${pat}\` 为 0，但**视觉基准自己命中**（${basename(proto)}）——基准过不了自己的验收，第三方的"通过"不可信`,
-            location: basename(proto),
-          });
-        } else if (re.test(raw)) {
-          findings.push({
-            gate: "HC-7",
-            rule: "acceptance-comment-false-positive",
-            severity: "warn",
-            message: `验收要求 \`${pat}\` 为 0：只在**注释**里命中（剥注释后为空）——朴素 grep 会误报，验收里要写明"剥注释后再匹配"`,
-            location: basename(proto),
-          });
-        }
+      } else {
+        findings.push({
+          gate: "HC-8",
+          rule: "acceptance-blind",
+          severity: "warn",
+          message: `验收 \`${pat}\` 在改前项目上命中 0——若它本意是查出项目里现存的问题，则这条查不到任何东西；若它约束的是新增代码，请在验收里注明"新增项"`,
+          location: "§7",
+        });
       }
     }
   }
