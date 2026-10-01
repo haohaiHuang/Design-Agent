@@ -644,7 +644,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_handoff_check",
     description:
-      "交付物一致性机械核对（只读不改，HC-1~HC-6）：检查 designs/ 下的文书与参考原型是否自洽——① 引用路径是否可达（含裸文件名/包外引用）② 文书 vs 原型的色值/字号 clamp/字距/时长是否互斥 ③ 文书引用的对比度数字能否用其自身令牌复算 ④ §7 是否把本 Agent 的 DSH 工具当 shell 命令用而未标归属/替代法 ⑤ **证据新鲜度**：文书/取证是否早于原型最后改动（真机实测过：报告早 7 分钟却被当「修复后实测」）⑥ **未定义令牌**：被 var() 引用却任何地方都没定义（照此产出无效 CSS）。**调用时机：调用 present 声明交付物之前必跑；有 error 级就先修再 present。**",
+      "交付物一致性机械核对（只读不改，HC-1~HC-7）：检查 designs/ 下的文书与参考原型是否自洽——① 引用路径是否可达（含裸文件名/包外引用）② 文书 vs 原型的色值/字号 clamp/字距/时长是否互斥 ③ 文书引用的对比度数字能否用其自身令牌复算 ④ §7 是否把本 Agent 的 DSH 工具当 shell 命令用而未标归属/替代法 ⑤ **证据新鲜度**：文书/取证是否早于原型最后改动（真机实测过：报告早 7 分钟却被当「修复后实测」）⑥ **未定义令牌**：被 var() 引用却任何地方都没定义（照此产出无效 CSS）⑦ **验收自洽性**：把 §7 里「`模式` → 0 处」这类验收抽出来实跑到视觉基准上，基准自己命中 = 基准过不了自己的验收（真机实测：`999px` 被 `.skip{left:-9999px}` 命中）。**调用时机：调用 present 声明交付物之前必跑；有 error 级就先修再 present。**",
     parameters: {
       target: { type: "string", required: true, description: "designs 目录绝对路径（工作区根的 designs/）" },
       project: { type: "string", required: false, description: "原项目目录（默认取 designs 的同级 project/），用于解析令牌与路径可达性" },

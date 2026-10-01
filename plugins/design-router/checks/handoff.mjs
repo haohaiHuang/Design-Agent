@@ -18,6 +18,9 @@
  *                          文书却写成"修复后实测" → 第三方无基准）
  *   HC-6 未定义令牌      —— 被 var(--x) 引用却任何地方都没定义的令牌（真机实测：`--paper-2` 用了没定义
  *                          → 照提示词产出无效 CSS；`--r3` 幽灵令牌）
+ *   HC-7 验收自洽性      —— 把 §7 里的 grep 型验收命令抽出来**逐条实跑**：命令本身能不能跑、
+ *                          会不会被注释/子串假阳、断言是否可能恒真（真机实测：`999px` 禁令被
+ *                          `.skip{left:-9999px}` 命中；`transition:all` 命中注释；`.doc-row` 计数 `0===0`）
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
@@ -114,8 +117,12 @@ export function runHandoffChecks(opts = {}) {
   const projectDir = opts.projectDir || join(root, "project");
   const files = walk(designsDir);
   const docs = files.filter((f) => f.endsWith(".md"));
-  const protos = files.filter((f) => f.endsWith(".html") && !/preview-shell|iframe-shell|probe/i.test(basename(f)));
   const docText = docs.map((f) => readIfFile(f) || "").join("\n");
+  // 路径可达性要扫的不止 .md：真机实测漏过一处——reference-*.html 里写了 designs/修改方向.md（不存在）。
+  // 但**数值/令牌比对仍只用 .md**，否则原型自己的色值会被当成"文书里也有"，HC-2 就失效了。
+  const refDocs = files.filter((f) => /\.(md|html)$/.test(f));
+  const refText = refDocs.map((f) => readIfFile(f) || "").join("\n");
+  const protos = files.filter((f) => f.endsWith(".html") && !/preview-shell|iframe-shell|probe/i.test(basename(f)));
   const cssTextAll = walk(designsDir)
     .concat(existsSync(join(root, "project")) ? walk(join(root, "project")) : [])
     .filter((f) => f.endsWith(".css") || f.endsWith(".html"))
@@ -126,7 +133,7 @@ export function runHandoffChecks(opts = {}) {
   // ---------- HC-1 引用路径可达 ----------
   const refRe = /(?:designs|project)\/[A-Za-z0-9_./\u4e00-\u9fa5-]+/g;
   const seen = new Set();
-  for (const ref of docText.match(refRe) || []) {
+  for (const ref of refText.match(refRe) || []) {
     const clean = ref.replace(/[)>,;`"'。，；）]+$/, "");
     if (seen.has(clean)) continue;
     seen.add(clean);
@@ -141,7 +148,7 @@ export function runHandoffChecks(opts = {}) {
     }
   }
   for (const name of BARE_DOC_NAMES) {
-    if (!docText.includes(name)) continue;
+    if (!refText.includes(name)) continue;
     if (files.some((f) => basename(f) === name)) continue; // 随包交付则可达
     findings.push({
       gate: "HC-1",
@@ -322,6 +329,62 @@ export function runHandoffChecks(opts = {}) {
       message: `引用了未定义的令牌：${[...undefinedRefs].map((t) => "--" + t).join(", ")}——照此产出的是无效 CSS（真机复跑：\`--paper-2\` 用了没定义、\`--r3\` 幽灵令牌）`,
       location: "DECISION.md",
     });
+  }
+
+  // ---------- HC-7 验收自洽性 ----------
+  // 真机实测（第三/五轮）：第三方最重的一条是"验收自相矛盾"——命令没被跑过就写进交付物。
+  // 真实写法是 `` `999px` → 0 处 `` 这种（不是 grep 'x' target），所以按这个形态抽：
+  //   「反引号里的模式」+ 其后 40 字符内出现「0 处 / 必须为 0 / → 0」
+  // 然后把该模式**实跑到参考原型上**：命中 = 视觉基准自己就过不了这条验收 → error。
+  // 若只在注释里命中（剥注释后为空）= 会被朴素 grep 误报 → warn。
+  const promptIdx = docText.search(/##\s*7\.|开发交接提示词/);
+  if (promptIdx >= 0) {
+    const section = docText.slice(promptIdx);
+    for (const m of section.matchAll(/`([^`\n]{3,60})`([^`\n]{0,40})/g)) {
+      const pat = m[1].trim();
+      const tail = m[2] || "";
+      if (!/(0\s*处|必须为\s*0|→\s*0|应为\s*0|应当为\s*0)/.test(tail)) continue;
+      if (/^[\u4e00-\u9fa5]+$/.test(pat)) continue; // 纯中文词不是模式
+      if (/^--[a-z0-9-]+$/.test(pat) || /^#[0-9a-fA-F]{3,8}$/.test(pat)) continue; // 令牌/色值另有检查
+      let re = null;
+      try {
+        re = new RegExp(pat);
+      } catch {
+        // 正则在本地 grep 里可能仍可用（如 BSD 无 -P）；这里只提示，不当 error
+        findings.push({
+          gate: "HC-7",
+          rule: "acceptance-regex-host-dependent",
+          severity: "warn",
+          message: `验收模式 \`${pat}\` 无法用 JS 正则编译，可能依赖特定 grep 语法（BSD grep 无 -P）——改成可移植写法或给等价替代`,
+          location: "§7",
+        });
+        continue;
+      }
+      for (const proto of protos) {
+        const raw = readIfFile(proto) || "";
+        const stripped = raw
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/<!--[\s\S]*?-->/g, "")
+          .replace(/^\s*\/\/.*$/gm, "");
+        if (re.test(stripped)) {
+          findings.push({
+            gate: "HC-7",
+            rule: "acceptance-self-conflict",
+            severity: "error",
+            message: `验收要求 \`${pat}\` 为 0，但**视觉基准自己命中**（${basename(proto)}）——基准过不了自己的验收，第三方的"通过"不可信`,
+            location: basename(proto),
+          });
+        } else if (re.test(raw)) {
+          findings.push({
+            gate: "HC-7",
+            rule: "acceptance-comment-false-positive",
+            severity: "warn",
+            message: `验收要求 \`${pat}\` 为 0：只在**注释**里命中（剥注释后为空）——朴素 grep 会误报，验收里要写明"剥注释后再匹配"`,
+            location: basename(proto),
+          });
+        }
+      }
+    }
   }
 
   return findings;
