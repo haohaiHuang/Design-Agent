@@ -53,8 +53,8 @@
 - **审计迭代场景（无约束集）** → 先按技能 `references/ui-quickfix.md` 的**方向锁五维**从现有产物 infer 方向，再喂给 critic；moodboard 可省。infer 不出 → 降级 huashu 5 维自评并**明示降级**
 
 **`5.handoff` 双形态**
-- **从零新建** → `DECISION.md`（按共享技能 `workflow.md` 的 §1–5；转开发时写 §5 开发交接规格）+ `present` 声明交付物（**不产出**开发交接提示词）
-- **改现有产物** → 三个独立文件：`designs/修改方向.md` + `designs/reference-*.html` + `designs/开发交接提示词.md`（**不往 `DECISION.md` 加段**）
+- **从零新建** → `DECISION.md`（§1-4，转开发时加 §5 开发交接规格）+ `present` 声明交付物（**不产出**开发交接提示词）
+- **改现有产物** → `DECISION.md` §6 修改建议 + §7 开发交接提示词 + `reference-*.html`
 
 ## 四、两个解耦机制
 
