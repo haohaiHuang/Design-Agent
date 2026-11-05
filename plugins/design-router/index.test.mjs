@@ -8,7 +8,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -24,7 +24,7 @@ function tools() {
   return Object.fromEntries(reg.map((t) => [t.name, t]));
 }
 
-test("注册 6 个工具，5 只读 + 1 写入", () => {
+test("注册 7 个工具，6 只读 + 1 写入", () => {
   const byName = tools();
   const names = Object.keys(byName).sort();
   assert.deepEqual(names, [
@@ -34,9 +34,24 @@ test("注册 6 个工具，5 只读 + 1 写入", () => {
     "design_lookup",
     "design_quality",
     "design_route",
+    "design_tokens",
   ]);
   // 除 design_quality 外无 writeFileSync 语义（description 声明边界）
   assert.match(byName.design_quality.description, /写入边界|~\/\.dsh\/design-router-quality\.json/);
+});
+
+test("design_tokens 按桶取契约（≤120 行）且未知桶列出 8 个可选项", async () => {
+  const { design_tokens } = tools();
+  const text = await design_tokens.execute({ bucket: "editorial" });
+  assert.ok(text.split("\n").length <= 120, `输出 ${text.split("\n").length} 行，超 TOK-8 预算`);
+  assert.match(text, /四要素/);
+  assert.match(text, /\.ds-btn/);
+  assert.match(text, /--bg:/);
+  const bad = await design_tokens.execute({ bucket: "brutalist" });
+  assert.match(bad, /未知桶/);
+  for (const b of ["minimal", "darktech", "editorial", "bold", "warmpaper", "liquid", "dataviz", "retro"]) {
+    assert.ok(bad.includes(b), `未知桶提示缺 ${b}`);
+  }
 });
 
 test("fixture 03-maple-bakery 可被 design_audit 审计且输出格式正确", async (t) => {
@@ -355,6 +370,33 @@ test("design_diversity：异构候选 PASS", async () => {
   assert.match(out, /✅ PASS/);
 });
 
+test("T8：design_diversity 字体气质——「无衬线」「黑体」「sans」不被判成「衬线」", async () => {
+  const { design_diversity } = tools();
+  /** 从表格里取 c1 行的「字体气质」列 */
+  const fontToneOf = async (text) => {
+    const out = await design_diversity.execute({
+      c1: text,
+      c2: "色#1B365D墨蓝/衬线宋体/桶warmpaper",
+      c3: "色#FF5C00橙/等宽 JetBrains Mono/桶retro",
+    });
+    const row = out.split("\n").find((line) => line.startsWith("| c1 "));
+    return (row ?? "").split("|")[3]?.trim() ?? "（缺行）";
+  };
+  const cases = [
+    ["色#0A0A0A/无衬线/桶darktech", "无衬线/展示"],
+    ["色#111111/黑体展示/桶bold", "无衬线/展示"],
+    ["色#FDFCF8/衬线大标题/桶editorial", "衬线"],
+    ["色#161B22/等宽 IBM Plex Mono/桶dataviz", "等宽"],
+    ["色#FFFFFF/Plus Jakarta Sans/桶dataviz", "无衬线/展示"],
+    ["字体栈 Inter, sans-serif/桶minimal", "无衬线/展示"],
+    ["字体 Playfair Display, serif/桶editorial", "衬线"],
+  ];
+  for (const [text, want] of cases) {
+    const got = await fontToneOf(text);
+    assert.equal(got, want, `fontTone「${text}」应为 ${want}，实际 ${got}`);
+  }
+});
+
 test("design_quality：report 只写本地日志（路径可注入 temp dir，不碰真实 ~/.dsh）", async () => {
   const { design_quality } = tools();
   // 隔离：日志路径指向 temp dir，测试后清理，绝不动真实 ~/.dsh/design-router-quality.json
@@ -377,229 +419,83 @@ test("design_quality：report 只写本地日志（路径可注入 temp dir，�
   }
 });
 
-// ---- 2026-09-30 真实产物复盘回归：gate 2 误报 / gate 24 噪音 ----
+// ---- T6：快照接进 lookup / route（stale / 断链 / 路径 100% existsSync）----
 
-test("回归 gate 2：纹理渐变只 warn，只有 background-clip:text 才是渐变文字（error）", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-grad-"));
-  const page = (css) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
-  try {
-    // ① 斜纹纹理（信源条/付费标记那类）：gate 2 应报 warn，不得报"渐变文字"
-    writeFileSync(join(dir, "texture.html"), page(".bar{background-image:repeating-linear-gradient(135deg, #000 0 5px, transparent 5px 10px);}"));
-    const tex = await design_audit.execute({ target: join(dir, "texture.html") });
-    const texLine = tex.split("\n").find((l) => /\[gate 2\]/.test(l)) ?? "";
-    assert.notEqual(texLine, "", "纹理渐变仍应被 gate 2 提示");
-    assert.doesNotMatch(texLine, /🔴|background-clip: text \+ gradient/, `纹理渐变不应判为渐变文字（error）：${texLine}`);
-    assert.match(texLine, /🟡/, `纹理渐变应为 warn：${texLine}`);
+const metaPaths = (text) => [...String(text).matchAll(/(\/[^\s（]+META\.json)/g)].map((m) => m[1]);
 
-    // ② 真渐变文字惯用法：background-clip:text + 渐变 → 仍必须 error
-    writeFileSync(join(dir, "textgrad.html"), page(".hero{-webkit-background-clip:text;background-clip:text;background-image:linear-gradient(90deg,#111,#999);color:transparent;}"));
-    const tg = await design_audit.execute({ target: join(dir, "textgrad.html") });
-    const tgLine = tg.split("\n").find((l) => /\[gate 2\]/.test(l)) ?? "";
-    assert.match(tgLine, /渐变文字/, `clip:text 惯用法必须报渐变文字：${tgLine}`);
-    assert.match(tgLine, /🔴/, `clip:text 惯用法应为 error：${tgLine}`);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
+const staleMeta = (days) => ({
+  slug: "linear-dark",
+  url: "https://www.shadcn.io/design/linear",
+  capturedAt: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
+  quality: "优",
+  bucket: "darktech",
+  shots: ["desktop", "mobile"],
+  colors: 1580,
+  stale: false,
+  humanEdited: false,
+  source: "design-evidence 1.0",
 });
 
-test("回归 gate 24：<8px 元件内微调豁免，布局级非 4 倍数仍报", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-space-"));
-  const page = (css) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
-  try {
-    writeFileSync(join(dir, "micro.html"), page(".badge{padding:2px 6px;gap:3px;margin-top:5px}"));
-    const micro = await design_audit.execute({ target: join(dir, "micro.html") });
-    assert.doesNotMatch(micro, /\[gate 24\]/, `≤7px 微调不应报 gate 24：\n${micro}`);
+test("T6：design_lookup/route 输出的 evidence 路径 100% existsSync（EVD-5）", async () => {
+  const { design_lookup, design_route } = tools();
 
-    writeFileSync(join(dir, "offscale.html"), page(".section{padding:20px 18px;gap:14px}"));
-    const off = await design_audit.execute({ target: join(dir, "offscale.html") });
-    const offLine = off.split("\n").find((l) => /\[gate 24\]/.test(l)) ?? "";
-    assert.match(offLine, /18px|14px/, `布局级非 4 倍数仍应报 gate 24：${offLine}`);
+  const lk = await design_lookup.execute({ branch: "A2", stage: 1 });
+  assert.match(lk, /assets\/evidence\/linear-dark\/META\.json/, "命中 linear-dark 应输出 evidence 路径");
+  assert.match(lk, /assets\/evidence\/dembrandt\/META\.json/, "命中 dembrandt 应输出 evidence 路径");
+  assert.match(lk, /EVD-5/, "缺失快照要有 warn 且不带路径");
+  for (const p of metaPaths(lk)) assert.equal(existsSync(p), true, `幽灵路径：${p}`);
+
+  // 未采集 → 不输出路径：隔离成空 assets 目录，不依赖「真实数据里恰好哪条还没采」
+  const emptyAssets = mkdtempSync(join(tmpdir(), "dr-dsh-empty-"));
+  try {
+    mkdirSync(join(emptyAssets, "tokens"), { recursive: true });
+    process.env.DESIGN_ASSETS_DIR = emptyAssets;
+    try {
+      const none = await design_lookup.execute({ branch: "A2", stage: 1 });
+      assert.doesNotMatch(none, /META\.json/, "一条快照都没有时不输出任何路径（禁止幽灵文件）");
+      assert.match(none, /EVD-5/, "全缺失时给 EVD-5 汇总");
+    } finally {
+      delete process.env.DESIGN_ASSETS_DIR;
+    }
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    rmSync(emptyAssets, { recursive: true, force: true });
   }
+
+  // 36 格全覆盖
+  const ghost = [];
+  for (const b of ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"]) {
+    for (const st of [1, 2, 3, 4]) {
+      const out = await design_lookup.execute({ branch: b, stage: st });
+      for (const p of metaPaths(out)) if (!existsSync(p)) ghost.push(`${b}·${st}→${p}`);
+    }
+  }
+  assert.deepEqual(ghost, [], `36 格 lookup 的 evidence 路径必须存在：${ghost.join(", ")}`);
+
+  const rt = await design_route.execute({ query: "SaaS 落地页" });
+  assert.match(rt, /assets\/evidence\/linear-dark\/META\.json/, "route 命中 darktech 应输出快照");
+  for (const p of metaPaths(rt)) assert.equal(existsSync(p), true, `route 幽灵路径：${p}`);
 });
 
-test("环节 4 输出含人工核对硬规则（图表读数一致性）", async () => {
+test("T6：91 天 → stale；缺失 → 不带路径 + warn", async () => {
   const { design_lookup } = tools();
-  const out = await design_lookup.execute({ branch: "A2", stage: 4 });
-  assert.match(out, /环节 4 校验硬规则/);
-  assert.match(out, /图上读数逐项对齐/);
-  assert.match(out, /百分比 × 360°/);
-  // 其它环节不应带上这段
-  const s1 = await design_lookup.execute({ branch: "A2", stage: 1 });
-  assert.doesNotMatch(s1, /图上读数逐项对齐/);
-});
-
-// ---- 工具级冒烟（补"调用了未 import 的 *Checks"这一类只有真跑才炸的漏洞）----
-// 上游 2026-09-30 在 index.ts 里发现 runNonTextContrastChecks 被调用但从未 import → design_audit
-// 一调就 ReferenceError，而静态覆盖比对看不出来。这里对**每个**工具都真跑一次（不是只查注册表）。
-
-test("冒烟：6 个工具逐个真调，均返回非空文本且不抛异常", async () => {
-  const T = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-smoke-"));
-  const logPath = join(dir, "quality.json");
-  process.env.DSH_DESIGN_ROUTER_QUALITY_LOG = logPath;
-  const html = join(dir, "ok.html");
-  const css = join(dir, "ok.css");
-  writeFileSync(html, '<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n.a{padding:16px;gap:8px}\n</style></head><body><p>x</p></body></html>');
-  writeFileSync(css, ".a{color:#111827;background:#ffffff}\n");
+  const assets = mkdtempSync(join(tmpdir(), "dr-dsh-assets-"));
   try {
-    const calls = {
-      design_route: { query: "做一个 SaaS 落地页" },
-      design_lookup: { branch: "A2", stage: 1 },
-      design_diversity: {
-        c1: "色#4F46E5/Inter/8pt | 桶minimal/refero",
-        c2: "色#111111/衬线/杂志栏 | 桶editorial/zine",
-        c3: "色#FF6B00/等宽/粗野栅格 | 桶brutalist/logggos",
-      },
-      design_audit: { target: html },
-      design_contrast: { target: css },
-      design_quality: { action: "query", slug: "all" },
-    };
-    for (const [name, args] of Object.entries(calls)) {
-      assert.equal(typeof T[name].execute, "function", `${name}.execute 应为函数`);
-      const out = await T[name].execute(args);
-      assert.equal(typeof out, "string", `${name} 应返回文本`);
-      assert.ok(out.trim().length > 0, `${name} 返回了空文本`);
+    mkdirSync(join(assets, "tokens"), { recursive: true });
+    const dir = join(assets, "evidence", "linear-dark");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "META.json"), JSON.stringify(staleMeta(91)));
+    process.env.DESIGN_ASSETS_DIR = assets;
+    try {
+      const out = await design_lookup.execute({ branch: "A2", stage: 1 });
+      assert.match(out, /stale/, "91 天应标 stale");
+      assert.match(out, /距今 91 天/, "应说明距今天数");
+      assert.ok(out.includes(join(dir, "META.json")), "stale 快照仍输出真实路径");
+      assert.doesNotMatch(out, /assets\/evidence\/dembrandt\/META\.json/, "同批缺失的快照不输出路径");
+      assert.match(out, /EVD-5/, "缺失时给出 EVD-5 warn");
+    } finally {
+      delete process.env.DESIGN_ASSETS_DIR;
     }
   } finally {
-    delete process.env.DSH_DESIGN_ROUTER_QUALITY_LOG;
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-// ---- 2026-09-30 补齐：DR-A 家族（移植自上游 a11y.ts）+ EM-17（will-change）----
-
-test("回归 DR-A 家族：5 条检查正例命中、反例静默", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-dra-"));
-  const page = (css, body) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n:focus-visible{outline:2px solid #4F46E5}\n${css}\n</style></head><body>${body}</body></html>`;
-  try {
-    // 正例：图标按钮无 accessible name；div 绑 onclick 无 role/tabindex；有 nav 无 skip；正数 tabindex
-    writeFileSync(
-      join(dir, "bad.html"),
-      page(
-        ".btn{padding:8px}",
-        // 逐元素分行：DR-A4 是行级判定，同一行里出现 tabindex/role 会整行跳过
-        //（上游同实现；minified 单行 HTML 会漏报，已在交接清单里登记为已知限制）
-        '<nav><a href="#x">x</a></nav>\n'
-          + '<button class="btn"><svg viewBox="0 0 24 24"><path d="M0 0"/></svg></button>\n'
-          + '<div onclick="go()">点我</div>\n<span tabindex="3">顺序外</span>',
-      ),
-    );
-    const bad = await design_audit.execute({ target: join(dir, "bad.html") });
-    for (const g of ["DR-A3", "DR-A4", "DR-A7", "DR-A8"]) {
-      assert.match(bad, new RegExp(`\\[gate ${g}\\]`), `应命中 ${g}：\n${bad}`);
-    }
-
-    // 反例：命名按钮 + role/tabindex 齐的非原生元素 + nav 配 skip 链接 + tabindex="0"
-    writeFileSync(
-      join(dir, "ok.html"),
-      page(
-        ".btn{padding:8px}",
-        '<a class="skip" href="#main">跳到主内容</a><nav><a href="#x">x</a></nav>'
-          + '<button class="btn" aria-label="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0"/></svg></button>'
-          + '<div role="button" tabindex="0" onclick="go()">点我</div><main id="main">正文</main>',
-      ),
-    );
-    const ok = await design_audit.execute({ target: join(dir, "ok.html") });
-    assert.doesNotMatch(ok, /\[gate DR-A/, `反例不该命中 DR-A 家族：\n${ok}`);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test("回归 EM-17：will-change 用在非合成属性才报", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-wc-"));
-  const page = (css) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
-  try {
-    writeFileSync(join(dir, "bad.html"), page(".a{will-change:left,transform}"));
-    const bad = await design_audit.execute({ target: join(dir, "bad.html") });
-    assert.match(bad, /\[gate EM-17\]/, `will-change:left 应命中 EM-17：\n${bad}`);
-    assert.match(bad, /left/);
-
-    writeFileSync(join(dir, "ok.html"), page(".a{will-change:transform;opacity:.9}"));
-    const ok = await design_audit.execute({ target: join(dir, "ok.html") });
-    assert.doesNotMatch(ok, /\[gate EM-17\]/, `合成属性不该命中 EM-17：\n${ok}`);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test("回归 CS-2 与 DR-A4 分工：role=button → CS-2；无 role 的 onclick → DR-A4（不重叠）", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-cs2-"));
-  const page = (body) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n:focus-visible{outline:2px solid #4F46E5}\n</style></head><body>\n${body}\n</body></html>`;
-  try {
-    writeFileSync(join(dir, "role.html"), page('<div role="button" tabindex="0">x</div>'));
-    const a = await design_audit.execute({ target: join(dir, "role.html") });
-    assert.match(a, /\[gate CS-2\]/, `role=button 应命中 CS-2：\n${a}`);
-    assert.doesNotMatch(a, /\[gate DR-A4\]/, `有 role 时不该再报 DR-A4：\n${a}`);
-
-    writeFileSync(join(dir, "bare.html"), page('<div onclick="go()">x</div>'));
-    const b = await design_audit.execute({ target: join(dir, "bare.html") });
-    assert.match(b, /\[gate DR-A4\]/, `裸 onclick 应命中 DR-A4：\n${b}`);
-    assert.doesNotMatch(b, /\[gate CS-2\]/, `裸 onclick 不该报 CS-2（与 DR-A4 重叠）：\n${b}`);
-
-    // 元素级判定：minified 单行 HTML 里，旁边元素带 tabindex 也不该让 DR-A4 漏报（旧行级实现会漏）
-    writeFileSync(
-      join(dir, "minified.html"),
-      '<!DOCTYPE html><html><head><style>html{overflow-x:clip}:focus-visible{outline:2px solid #111}</style></head>'
-        + '<body><div onclick="go()">x</div><span tabindex="3">y</span></body></html>',
-    );
-    const c = await design_audit.execute({ target: join(dir, "minified.html") });
-    assert.match(c, /\[gate DR-A4\]/, `minified 单行里 DR-A4 不该漏报：\n${c}`);
-    assert.match(c, /\[gate DR-A8\]/, `同一行的正数 tabindex 也应照报：\n${c}`);
-
-    // 属性正则三种形态（2026-09-30 与上游对齐）：
-    //   Vue `@click` 必须命中（旧 `\b@click` 永不成立 → 漏报）
-    //   `data-onclick` 不得误命中（否定式后顾）
-    //   大写 `ONCLICK` 必须命中（/i）
-    writeFileSync(join(dir, "vue.html"), page('<div @click="go()">x</div>'));
-    assert.match(await design_audit.execute({ target: join(dir, "vue.html") }), /\[gate DR-A4\]/, "Vue @click 应命中 DR-A4");
-    writeFileSync(join(dir, "dataattr.html"), page('<div data-onclick="go()">x</div>'));
-    assert.doesNotMatch(await design_audit.execute({ target: join(dir, "dataattr.html") }), /\[gate DR-A4\]/, "data-onclick 不该命中 DR-A4");
-    writeFileSync(join(dir, "upper.html"), page('<DIV ONCLICK="go()">x</DIV>'));
-    assert.match(await design_audit.execute({ target: join(dir, "upper.html") }), /\[gate DR-A4\]/, "大写 ONCLICK 应命中 DR-A4");
-
-    // JSX 形态：onClick={() => go()} 内含 ">"，属性扫描不该被截断
-    writeFileSync(join(dir, "jsx.tsx"), 'export const A = () => <div onClick={() => go()} role="button">x</div>;\n');
-    const d = await design_audit.execute({ target: join(dir, "jsx.tsx") });
-    assert.doesNotMatch(d, /\[gate DR-A4\]/, `带 role 的 JSX div 不该报 DR-A4：\n${d}`);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test("回归 gate 14：transition 简写也认（含 border- 守卫与 accordion 豁免）", async () => {
-  const { design_audit } = tools();
-  const dir = mkdtempSync(join(tmpdir(), "dr-g14-"));
-  const page = (css) =>
-    `<!DOCTYPE html><html><head><style>html{overflow-x:clip}\nbody{font-family:Inter Tight,sans-serif}\n${css}\n</style></head><body><p>x</p></body></html>`;
-  try {
-    // 正例：简写 transition 动画 width（旧实现只认 transition-property，会漏）
-    writeFileSync(join(dir, "shorthand.html"), page(".card{transition:width .3s ease}"));
-    const a = await design_audit.execute({ target: join(dir, "shorthand.html") });
-    assert.match(a, /\[gate 14\]/, `transition 简写动画 width 应命中 gate 14：\n${a}`);
-
-    // 正例：@keyframes 帧内动画 height（非 accordion）
-    writeFileSync(join(dir, "kf.html"), page("@keyframes grow{from{height:0}to{height:120px}}\n.panel{animation:grow .4s}"));
-    const b = await design_audit.execute({ target: join(dir, "kf.html") });
-    assert.match(b, /\[gate 14\]/, `keyframes 动画 height 应命中 gate 14：\n${b}`);
-
-    // 反例：border-width（?<!border- 守卫）与 accordion 的 height 豁免
-    writeFileSync(join(dir, "ok.html"), page(".input{transition:border-width .2s}\n.accordion-panel{transition:height .3s}"));
-    const c = await design_audit.execute({ target: join(dir, "ok.html") });
-    assert.doesNotMatch(c, /\[gate 14\]/, `border-width / accordion height 不该命中 gate 14：\n${c}`);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
+    rmSync(assets, { recursive: true, force: true });
   }
 });

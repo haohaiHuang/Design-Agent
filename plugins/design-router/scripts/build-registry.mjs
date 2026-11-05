@@ -69,7 +69,6 @@ const SLUG_BY_KEYWORD = [
   ["dash-ui", "Dash UI"],
   ["linear-dark", "Linear（高端极简"],
   ["ghostty", "Ghostty"],
-  ["emilkowalski-skills", "emilkowalski/skills"],
   ["fluid-functionalism", "Fluid Functionalism"],
   // DSH 书签导入（2026-08-28）
   ["recent-design", "Recent Design"],
@@ -513,8 +512,7 @@ const ROUTES = {
     ],
     "2": [
       "fluid-functionalism",
-      "interfaces-cheat-sheet",
-      "emilkowalski-skills"
+      "interfaces-cheat-sheet"
     ],
     "3": [
       "motion-lib",

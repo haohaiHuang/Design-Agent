@@ -4,8 +4,8 @@
  * 定位：把 design-references 的确定性层（registry 查询、机器化检查）从"模型读
  * markdown 后自己 grep"升级为确定性工具。由 my-agent 预设挂载（相对路径）。
  *
- * 工具清单（6 个）：design_lookup / design_route / design_diversity /
- * design_audit / design_contrast（5 个只读）+ design_quality（含 1 个写入动作：
+ * 工具清单（7 个）：design_lookup / design_route / design_diversity / design_tokens /
+ * design_audit / design_contrast（6 个只读）+ design_quality（含 1 个写入动作：
  * 仅写本地质量日志 ~/.dsh/design-router-quality.json，不入 git、不碰工作区）。
  *
  * 移植自 my-pi-skills extensions/design-router（pi extension → DSH Cordis 插件）：
@@ -27,9 +27,28 @@ import { runContrastChecks, runNonTextContrastChecks } from "./checks/contrast.m
 import { runCheatChecks } from "./checks/cheat.mjs";
 import { runKillSlopChecks } from "./checks/kill-slop.mjs";
 import { runAssetChecks } from "./checks/assets.mjs";
+import { runMotionChecks } from "./checks/motion.mjs";
+import { renderDesignTokens, findAssetsDir, BUCKETS as TOKEN_BUCKETS } from "./scripts/design-tokens.mjs";
+import { formatEvidence, readEvidence } from "./checks/evidence.mjs";
 
 const name = "design-router";
 const inject = ["tools"];
+
+// ---------- 快照（T6：证据接进 lookup/route，路径必须真实存在） ----------
+/** assets 未安装时返回 null：lookup/route 照常工作，只是没有快照可展示 */
+function resolveAssetsDir() {
+  try {
+    return findAssetsDir();
+  } catch {
+    return null;
+  }
+}
+/** 缺失资源的汇总提示：只报 slug，绝不输出路径（EVD-5） */
+function missingEvidenceNote(missing) {
+  const head = missing.slice(0, 8).join("、");
+  const more = missing.length > 8 ? ` 等 ${missing.length} 个` : "";
+  return `🟡 EVD-5 快照未覆盖：${missing.length} 个资源暂无快照（${head}${more}），不输出路径；用 scripts/design-evidence.mjs 按质量≥良采集。`;
+}
 
 // ---------- registry 加载 ----------
 function loadRegistry() {
@@ -275,7 +294,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_lookup",
     description:
-      "查询 design-references 资源注册表（R调研源/C约束模板/E执行工具/V校验标准 × 主/次/兜底层级），按分支×环节返回资源+退化链+精确来源。分支 A1/A2/A3/B1/B2/B3/C1/C2/C3，环节 1调研/2约束/3产出/4校验。设计任务流程中需要'这一步该查什么资源'时使用。",
+      "查询 design-references 资源注册表（R调研源/C约束模板/E执行工具/V校验标准 × 主/次/兜底层级），按分支×环节返回资源+退化链+精确来源。命中的资源若已有快照，额外输出 evidence 的 META 真实路径（capturedAt >90 天标 stale；缺失只 warn、绝不输出不存在的路径）。分支 A1/A2/A3/B1/B2/B3/C1/C2/C3，环节 1调研/2约束/3产出/4校验。设计任务流程中需要'这一步该查什么资源'时使用。",
     parameters: {
       branch: { type: "string", required: true, description: "场景分支：A1(APP)/A2(网页)/A3(Mac)/B1(海报)/B2(杂志插图)/B3(PPT)/C1(组件素材)/C2(动效)/C3(文档排版)" },
       stage: { type: "number", required: true, description: "五环节：1 调研 / 2 约束 / 3 产出 / 4 校验（0 意图澄清无资源）" },
@@ -317,15 +336,34 @@ function apply(ctx) {
         return "";
       };
       const lines = [`## ${branch} · 环节 ${stage} 资源`, ""];
+      // T6：命中的资源若已有快照，输出**真实存在**的 META 路径（EVD-5）；没有就不带字段
+      const assetsDir = resolveAssetsDir();
+      const evidence = [];
+      const missing = [];
       for (const r of sorted) {
-        lines.push(
+        const block = [
           `### ${r.name} ${bucketName(r.bucket)} ${qualityTag(r)}`,
           `- 角色: ${r.role} · 形态: ${r.form} · 层级: ${r.level}`,
           `- 适用: ${r.scenarios}`,
           `- 退化链: ${r.fallback}`,
           `- 来源: ${r.source}`,
-          "",
-        );
+        ];
+        if (assetsDir) {
+          const ev = readEvidence(assetsDir, r.slug || "");
+          if (ev.ok) {
+            evidence.push(ev);
+            block.push(`- 快照: ${formatEvidence(ev)}`);
+          } else {
+            missing.push(r.slug || "(无 slug)");
+          }
+        }
+        block.push("");
+        lines.push(...block);
+      }
+      if (!assetsDir) {
+        lines.push("🟡 快照不可用：未找到 design-references/assets（EVD-5：不输出路径）", "");
+      } else if (missing.length) {
+        lines.push(missingEvidenceNote(missing), "");
       }
       if (stage === 1) {
         const buckets = [...new Set(hits.map((r) => r.bucket).filter(Boolean))];
@@ -341,16 +379,6 @@ function apply(ctx) {
           "",
         );
       }
-      if (stage === 4) {
-        lines.push(
-          "## 环节 4 校验硬规则（机器闸门之外，必须人工过一遍）",
-          "1. **图上读数逐项对齐**：每个图的每一段（弧长 / 扇区 / 柱高 / 点位 / 占比条）都量一遍，是否等于它标签里的数字。",
-          "   典型陷阱：半环 / 仪表盘按「百分比 × 360°」取端点 → 读数约为标签值的 2 倍，且值弧与轨道不同心（接缝处可见折点）。",
-          "2. **定义域是否收紧**：曲线挤在画布下 1/3、轴范围远大于数据波动 = 纵向空间被浪费；收紧 y 域或降图高。",
-          "3. 机器闸门只覆盖 CSS / 文本规则（slop gates / 对比度 / 4pt 刻度…），**几何与渲染正确性不在检查面内**——闸门全绿不等于图对。",
-          "",
-        );
-      }
       lines.push("铁律：参考必须转译成约束（环节2），不'看一眼'就产出。用户精选资产优先于外部参考。");
       return lines.join("\n");
     },
@@ -360,7 +388,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_route",
     description:
-      "按需求特征（品类/气质/内容类型关键词）返回推荐风格桶组合（主桶必查 + 次桶按需）+ 每桶代表资源。环节 1 调研前必调：先把需求特征翻译成 2-4 个关键词，再查该去哪些桶检索。关键词不在路由表时返回全部 8 桶 + 各桶代表，由你按需求挑 2-3 桶。",
+      "按需求特征（品类/气质/内容类型关键词）返回推荐风格桶组合（主桶必查 + 次桶按需）+ 每桶代表资源。有快照的桶代表标 ⚡快照 并单列 evidence 真实路径（环节 1 可直接展示、不启浏览器；缺失不输出路径）。环节 1 调研前必调：先把需求特征翻译成 2-4 个关键词，再查该去哪些桶检索。关键词不在路由表时返回全部 8 桶 + 各桶代表，由你按需求挑 2-3 桶。",
     parameters: {
       query: { type: "string", required: true, description: "需求特征关键词（如：SaaS 落地页 / AI 对话界面 / 数据仪表盘 / 品牌海报 / 文档博客）。可逗号分隔多个。" },
     },
@@ -374,13 +402,38 @@ function apply(ctx) {
           break;
         }
       }
+      // T6：快照按「本次组合列出的桶」取，只保留真实存在的路径（EVD-5）
+      const listedBuckets = matched ? [...matched.route.primary, ...matched.route.secondary] : Object.keys(registry.buckets || {});
+      const assetsDir = resolveAssetsDir();
+      const evidenceBySlug = new Map();
+      if (assetsDir) {
+        for (const b of listedBuckets) {
+          for (const r of registry.resources.filter((x) => x.bucket === b)) {
+            if (!r.slug || evidenceBySlug.has(r.slug)) continue;
+            const ev = readEvidence(assetsDir, r.slug);
+            if (ev.ok) evidenceBySlug.set(r.slug, ev);
+          }
+        }
+      }
+      const snapshotSection = () => {
+        lines.push("", "### 快照（环节 1 可直接展示，零浏览器）");
+        const snapshots = [...evidenceBySlug.values()];
+        if (snapshots.length) {
+          for (const ev of snapshots) lines.push(`- ${ev.slug} → ${formatEvidence(ev)}`);
+          lines.push(`（${snapshots.length} 个桶代表有快照；其余未采集，不输出路径——EVD-5）`);
+        } else if (!assetsDir) {
+          lines.push("- 快照不可用：未找到 design-references/assets（EVD-5：不输出路径）");
+        } else {
+          lines.push("- 本组合暂无快照（EVD-5：不输出路径）；先用 scripts/design-evidence.mjs 采集，或用 design_lookup <branch> 1 查已有快照。");
+        }
+      };
       const bucketRep = (b) => {
         // 桶代表：排除差质源（rank 0），其余按质量排序（优→良→未评估→中）
         const allReps = registry.resources.filter((r) => r.bucket === b);
         const reps = allReps
           .filter((r) => (QUALITY_RANK[resourceQuality(r.slug, registry)] ?? 1) > 0)
           .sort((a, b2) => (QUALITY_RANK[resourceQuality(b2.slug, registry)] ?? 1) - (QUALITY_RANK[resourceQuality(a.slug, registry)] ?? 1))
-          .map((r) => r.slug);
+          .map((r) => `${r.slug}${evidenceBySlug.has(r.slug) ? " ⚡快照" : ""}`);
         const degraded = allReps.filter((r) => (QUALITY_RANK[resourceQuality(r.slug, registry)] ?? 1) === 0).map((r) => r.slug);
         const note = registry.bucketNotes?.[b] ? `｜查询指引: ${registry.bucketNotes[b]}` : "";
         const health = allReps.length === 0 ? "🔴 空桶" : allReps.length === 1 ? "🟡 弱桶" : "🟢 健康";
@@ -417,12 +470,14 @@ function apply(ctx) {
             }
           }
         }
+        snapshotSection();
         lines.push("", "铁律：3 候选来自 ≥2 桶；refero 类真实产品库每桶只算 1 个候选。");
       } else {
         lines.push(`未命中路由表（关键词: ${q || "空"}）。返回全部 8 桶：`, "");
         for (const [b, desc] of Object.entries(registry.buckets || {})) {
           lines.push(`- **[${b}]** ${desc} ${bucketRep(b)}`);
         }
+        snapshotSection();
         lines.push("", "按需求气质挑 2-3 个桶（主）+ 1-2 个次桶，再回 design_lookup 查各桶资源。");
       }
       return lines.join("\n");
@@ -536,7 +591,9 @@ function apply(ctx) {
       // 字体气质
       const fontTone = (t) => {
         const lower = t.toLowerCase();
-        if (/(serif|衬线|宋体|宋体|georgia|times|noto serif)/.test(lower)) return "衬线";
+        // 「无衬线」「sans-serif」里的 serif 不是衬线信号：先摘掉这层否定再判（T8）
+        const masked = lower.replace(/无衬线|sans[\s-]*serif/g, "");
+        if (/(衬线|宋体|georgia|times|serif)/.test(masked)) return "衬线";
         if (/(mono|等宽|jetbrains|monospace|consolas)/.test(lower)) return "等宽";
         if (/(display|展示|grotesk|黑体|无衬线|sans|inter|roboto|space grotesk|plus jakarta|noto sans)/.test(lower)) return "无衬线/展示";
         return "未识别";
@@ -583,11 +640,31 @@ function apply(ctx) {
     },
   }));
 
+  // ---- design_tokens（环节 2：按桶取契约片段，assets 不进上下文） ----
+  ctx.tools.register(defineToolDef({
+    name: "design_tokens",
+    description:
+      "按风格桶取精简 token 契约（≤120 行）：签名一句 + 四要素（字体对/色派/留白档/标志手法）+ 变量表 + .ds-btn/.ds-card/.ds-field 三个可复制组件。assets/ 不进上下文——环节 2 定约束时用本工具取片段，禁止直接读 assets/tokens/*.css。未知桶会报错并列出 8 个可选项。",
+    parameters: {
+      bucket: { type: "string", required: true, description: `风格桶：${TOKEN_BUCKETS.join("/")}` },
+      parts: { type: "string", description: "要取哪些组，逗号分隔：color,type,space,shape,motion,components（省略=全量）" },
+    },
+    async execute(args) {
+      try {
+        return renderDesignTokens(String(args.bucket ?? ""), {
+          parts: args.parts ? String(args.parts).split(/[,，\s]+/).filter(Boolean) : undefined,
+        });
+      } catch (e) {
+        return e.message;
+      }
+    },
+  }));
+
   // ---- design_audit ----
   ctx.tools.register(defineToolDef({
     name: "design_audit",
     description:
-      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51） + DR-A 家族（DR-A3 控件无 accessible name / DR-A4 非原生元素绑点击无 role·tabindex / DR-A5 hover 显现未限定输入设备 / DR-A7 有 nav 无 skip link / DR-A8 正数 tabindex）+ interfaces CS-* 8 条 + 动效 EM-* 子集（EM-2 入场 scale(0) / EM-3 UI 用 ease-in / EM-5 时长>300ms / EM-17 will-change 用在非合成属性；EM-1 由 gate 10、EM-7 由 gate 14、EM-8 由 gate 27 覆盖）+ kill-ai-slop KS-* 子集（KS-03 cozy 暖洗色 / KS-04 默认语义彩虹 / KS-05 单色状态框 / KS-08 衬线乱入 UI / KS-14 AI 文案腔）+ 资产层 DR-A1/DR-A2（品牌 logo/图片资产缺失与占位）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
+      "对目标文件/目录跑设计反模式机器检查（只读不改）：Hallmark 可机器化 slop gates（1/2/10/14/19/24/26/27/30/33/34/37/38a/39/40/41/46/47/50/51）+ interfaces CS-* 8 条 + 动效 EM-* 子集（EM-2 入场 scale(0) / EM-3 UI 用 ease-in / EM-5 时长>300ms；EM-1 由 gate 10、EM-7 由 gate 14、EM-8 由 gate 27 覆盖）+ kill-ai-slop KS-* 子集（KS-03 cozy 暖洗色 / KS-04 默认语义彩虹 / KS-05 单色状态框 / KS-08 衬线乱入 UI / KS-14 AI 文案腔）+ 资产层 DR-A1/DR-A2（品牌 logo/图片资产缺失与占位）+ design-references 环节4 扫描（字重/圆角/渐变/emoji）。返回带 gate 号的 punch list。用于环节4 校验。",
     parameters: {
       target: { type: "string", required: true, description: "文件或目录路径（目录会递归收集 html/css/js/tsx/vue 等）" },
     },
@@ -606,6 +683,7 @@ function apply(ctx) {
         ...runCheatChecks(files),
         ...runKillSlopChecks(files),
         ...runAssetChecks(files, targetAbs),
+        ...runMotionChecks(files),
       ];
       const isPage = files.some((f) => f.kind === "html");
       const kept = applyIgnores(findings, files);
