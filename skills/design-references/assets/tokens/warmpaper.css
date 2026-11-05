@@ -1,0 +1,87 @@
+/* design-assets · bucket: warmpaper · signature: 暖纸底 · 衬线正文 · 双细线分隔（书卷气，克制度高） · source: kami-skeleton, kami-spec, google-fonts, source-han */
+:root {
+  --bg: #F4EFE3;
+  --surface: #EDE6D5;
+  --surface-2: #E5DCC7;
+  --border: #D6CBB2;
+
+  --fg: #2A241B;
+  --muted: #665C4B;
+  --accent: #1B365D;
+  --accent-fg: #F8F3E7;
+
+  --font-display: "Source Han Serif SC", "Noto Serif SC", Georgia, serif;
+  --font-body: "Source Serif 4", "Source Han Serif SC", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --step-1: 13px;
+  --step-2: 15px;
+  --step-3: 17px;
+  --step-4: 22px;
+  --step-5: 30px;
+  --step-6: 56px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-1: 0 1px 0 rgba(42, 36, 27, 0.06);
+  --shadow-2: 0 2px 0 rgba(42, 36, 27, 0.05);
+
+  --dur-fast: 160ms;
+  --dur-base: 280ms;
+  --ease-out: cubic-bezier(0.25, 0.8, 0.3, 1);
+
+  /* 留白档 XL（最松）：S=3.5rem/24px/76ch · M=4.5rem/46px/72ch · L=7rem/48px/68ch · XL=9rem/64px/60ch */
+  --section-gap: 9rem;
+  --page-gutter: 64px;
+  --page-max: 1120px;
+  --measure: 60ch;
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--step-2);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-base) var(--ease-out);
+}
+
+.ds-card {
+  padding: var(--space-6);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.ds-field {
+  display: block;
+  width: 100%;
+  min-height: var(--space-6);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--step-2);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}

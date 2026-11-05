@@ -1,0 +1,15 @@
+{
+  "slug": "saasui-dashboard",
+  "url": "https://www.saasui.design/pattern/dashboard",
+  "capturedAt": "2026-11-05T02:02:56.500Z",
+  "quality": "良",
+  "bucket": "dataviz",
+  "shots": [
+    "desktop",
+    "mobile"
+  ],
+  "colors": 60323,
+  "stale": false,
+  "humanEdited": false,
+  "source": "design-evidence 1.0"
+}

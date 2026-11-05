@@ -1,0 +1,15 @@
+{
+  "slug": "linear-dark",
+  "url": "https://www.shadcn.io/design/linear",
+  "capturedAt": "2026-11-05T01:42:06.521Z",
+  "quality": "优",
+  "bucket": "darktech",
+  "shots": [
+    "desktop",
+    "mobile"
+  ],
+  "colors": 1580,
+  "stale": false,
+  "humanEdited": false,
+  "source": "design-evidence 1.0"
+}

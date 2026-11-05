@@ -1,5 +1,5 @@
 {
-  "generated": "ce807f1e0987",
+  "generated": "54f523823a76",
   "source": "skills/design-references/references/registry.md",
   "resources": [
     {
@@ -35,6 +35,7 @@
       "fallback": "→ 本地文件直读（无退化）",
       "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
       "slug": "poster-compositions",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -45,8 +46,7 @@
       "scenarios": "海报 / 杂志 / 印刷品（印刷网格与策展版式）",
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://posterhouse.org/`",
-      "slug": "poster-house",
-      "bucket": "editorial",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -57,8 +57,7 @@
       "scenarios": "海报 / 杂志（复古档案、拼贴、旧印刷质感）",
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://flashbak.com/`",
-      "slug": "flashbak",
-      "bucket": "retro",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -69,8 +68,7 @@
       "scenarios": "海报 / 品牌图形 / 网页（撞色大胆、实验排印）",
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://www.studiodumbar.com/`",
-      "slug": "studio-dumbar",
-      "bucket": "bold",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -94,6 +92,7 @@
       "fallback": "→ hallmark_study_fetch（pi 快验，零依赖）→ defuddle（DSH 文本抽取）→ web_search / 人工核对",
       "source": "npm 全局 `dembrandt`（MIT；已装，版本自检 `dembrandt --version`、用法自检 `dembrandt --help`；如不在 PATH，按其全局 bin 目录调用）；仓库 `https://github.com/dembrandt/dembrandt`；官网 `https://dembrandt.com/`",
       "slug": "dembrandt",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -141,6 +140,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://component.gallery/`",
       "slug": "component-gallery",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -188,6 +188,7 @@
       "fallback": "→ Storyset（免费用**须署名**）→ 人工绘制 / 诚实占位",
       "source": "官网 `https://undraw.co/`；授权 `https://undraw.co/license`（**禁** ML 训练 / 整包再分发 / 做同类集成）",
       "slug": "undraw",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -199,6 +200,7 @@
       "fallback": "→ Pexels → 诚实占位（灰块 + 说明）",
       "source": "官网 `https://unsplash.com/`；授权 `https://unsplash.com/license`（已核实：免费商用、无需署名；**禁**未做显著修改即转售、禁用它拼同类/竞争服务）",
       "slug": "unsplash",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -210,6 +212,7 @@
       "fallback": "→ 诚实占位",
       "source": "官网 `https://www.pexels.com/`；授权 `https://www.pexels.com/license/`（已核实：可免费用与修改；**禁**让可识别人物出现在负面/冒犯语境、禁转售未修改副本、禁暗示代言、禁在同类素材平台再分发、禁作商标/商号）",
       "slug": "pexels",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -221,6 +224,7 @@
       "fallback": "→ CDN 直引（无退化）",
       "source": "`https://lucide.dev/`；CDN `https://unpkg.com/lucide-static@latest/icons/<name>.svg`",
       "slug": "lucide",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -232,6 +236,7 @@
       "fallback": "→ CDN 直引",
       "source": "`https://heroicons.com/`；`https://cdn.jsdelivr.net/npm/heroicons@latest/24/outline/<name>.svg`",
       "slug": "heroicons",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -243,6 +248,7 @@
       "fallback": "→ CDN 直引（无退化）→ MCP 搜索",
       "source": "`https://reicon.dev/`；CDN `https://unpkg.com/reicon/cdn/reicon.js`；npm `reicon-react`/`reicon-mcp`（MCP 搜索）",
       "slug": "reicon",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -254,6 +260,7 @@
       "fallback": "→ 单库直引（Lucide / Heroicons / Reicon）",
       "source": "官网 `https://iconify.design/`；API `https://api.iconify.design/`；框架仓库 `https://github.com/iconify/iconify`（MIT）",
       "slug": "iconify",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -265,6 +272,7 @@
       "fallback": "→ 官网复制 → Iconify（兜底）",
       "source": "官网 `https://iconpark.oceanengine.com/`；仓库 `https://github.com/bytedance/IconPark`（Apache-2.0）",
       "slug": "iconpark",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -276,6 +284,7 @@
       "fallback": "→ Iconify（成套图标）→ Lucide",
       "source": "官网 `https://www.svgrepo.com/`；授权 `https://www.svgrepo.com/page/licensing/`（已核实：默认 \"SVG Repo License\" 免署名可 remix，**禁**以类似本站的方式再分发/转售；**站内条目逐条授权不同，用时按图标页标注核对**）",
       "slug": "svgrepo",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -287,6 +296,7 @@
       "fallback": "→ CDN 直引",
       "source": "`https://fonts.google.com/`",
       "slug": "google-fonts",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -298,6 +308,7 @@
       "fallback": "→ 霞鹜文楷（人文向）→ 系统字体栈（气质不可控）",
       "source": "仓库 `https://github.com/adobe-fonts/source-han-sans`（LICENSE.txt = SIL OFL 1.1）；宋体 `https://github.com/adobe-fonts/source-han-serif`",
       "slug": "source-han",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -309,6 +320,7 @@
       "fallback": "→ 思源宋体 → 系统楷体（气质不可控）",
       "source": "仓库 `https://github.com/lxgw/LxgwWenKai`（OFL-1.1）",
       "slug": "lxgw-wenkai",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -320,6 +332,7 @@
       "fallback": "→ 官网复制",
       "source": "`https://heropatterns.com/`",
       "slug": "hero-patterns",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -331,6 +344,7 @@
       "fallback": "→ 官网",
       "source": "`https://cssgradient.io/`（或同类）",
       "slug": "css-gradient-tools",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -342,6 +356,7 @@
       "fallback": "→ 官网直接用 → 手写 `oklch()`/`hsl()` 令牌",
       "source": "官网 `https://coolors.co/`（已核实免费档功能：生成 5 色板 / 1 万+ 现成配色 / 存 10 个色板；Pro 解锁 AI 与无限存档）",
       "slug": "coolors",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -353,6 +368,7 @@
       "fallback": "→ 仓库直读",
       "source": "参考实现 `https://github.com/google-labs-code/design.md`（原聚合站 `getdesign.md` 域名已失效：HTTPS 不可用、HTTP 302 到裸 IP，勿再引用）",
       "slug": "design-md-spec",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -388,6 +404,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://tympanus.net/codrops/`（2009 年至今；已核实为教程+demo 出版物）",
       "slug": "codrops",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -411,6 +428,7 @@
       "fallback": "→ web_search",
       "source": "`https://recent.design/`",
       "slug": "recent-design",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -422,6 +440,7 @@
       "fallback": "→ web_search",
       "source": "`https://www.awwwards.com/`",
       "slug": "awwwards",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -433,6 +452,7 @@
       "fallback": "→ web_search",
       "source": "`https://www.siteinspire.com/`",
       "slug": "siteinspire",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -444,6 +464,7 @@
       "fallback": "→ web_search",
       "source": "`https://land-book.com/`",
       "slug": "landbook",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -455,6 +476,7 @@
       "fallback": "→ web_search",
       "source": "`https://onepagelove.com/inspiration`",
       "slug": "one-page-love",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -466,6 +488,7 @@
       "fallback": "→ web_search",
       "source": "`https://www.lapa.ninja/`",
       "slug": "lapa-ninja",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -477,6 +500,7 @@
       "fallback": "→ web_search",
       "source": "`https://muz.li/`",
       "slug": "muzli",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -488,6 +512,7 @@
       "fallback": "→ web_search",
       "source": "`https://www.inspora.design/`",
       "slug": "inspora",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -499,6 +524,7 @@
       "fallback": "→ logo-design-patterns → 上游仓库",
       "source": "`https://www.logggos.club/`",
       "slug": "logggos",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -510,6 +536,7 @@
       "fallback": "→ logoinspo → logo-design-patterns",
       "source": "`https://www.logo-archive.org/`",
       "slug": "logo-archive",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -521,6 +548,7 @@
       "fallback": "→ logo-design-patterns",
       "source": "`https://www.logoinspo.com/`",
       "slug": "logoinspo",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -532,6 +560,7 @@
       "fallback": "→ logoinspo → logo-design-patterns",
       "source": "`https://logosystem.co/`",
       "slug": "logosystem",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -543,6 +572,7 @@
       "fallback": "→ logo-archive → logo-design-patterns",
       "source": "`https://logobook.com/`",
       "slug": "logobook",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -554,6 +584,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.footer.design/`",
       "slug": "footer-gallery",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -565,6 +596,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.cta.gallery/`",
       "slug": "cta-gallery",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -576,6 +608,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://www.navbar.gallery/`",
       "slug": "navbar-gallery",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -587,6 +620,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://supahero.io/`",
       "slug": "supahero",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -598,6 +632,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://threeui.com/browse`",
       "slug": "threeui",
+      "bucket": "liquid",
       "quality": "未评估"
     },
     {
@@ -609,6 +644,7 @@
       "fallback": "→ 官网浏览 → web_search",
       "source": "`https://designspells.com/`",
       "slug": "design-spells",
+      "bucket": "liquid",
       "quality": "未评估"
     },
     {
@@ -620,6 +656,7 @@
       "fallback": "→ refero → web_search",
       "source": "`https://mobbin.com/discover/apps/ios/latest`",
       "slug": "mobbin",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -631,6 +668,7 @@
       "fallback": "→ web_search",
       "source": "`https://loadmo.re/`",
       "slug": "loadmore",
+      "bucket": "minimal",
       "quality": "未评估"
     },
     {
@@ -642,6 +680,7 @@
       "fallback": "→ web_search",
       "source": "`https://www.uipedia.design/`",
       "slug": "uipedia",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -653,6 +692,7 @@
       "fallback": "→ 灵感库聚合",
       "source": "`https://dribbble.com/`",
       "slug": "dribbble",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -747,8 +787,7 @@
       "scenarios": "文档 / 博客 / 阅读（暖纸人文、书卷气、克制排版）",
       "fallback": "→ 官网浏览 → web_search",
       "source": "官网 `https://tw93.fun/`",
-      "slug": "tw93-blog",
-      "bucket": "warmpaper",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -759,8 +798,7 @@
       "scenarios": "网页动效 / 通用（液态/粘性形状、有机 blob 参考）",
       "fallback": "→ 官网浏览 → Haikei 同族生成器",
       "source": "官网 `https://www.blobmaker.app/`（z creative labs 出品）",
-      "slug": "blobmaker",
-      "bucket": "liquid",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -808,6 +846,7 @@
       "fallback": "→ 本地文件直读（无退化）",
       "source": "本地 `references/poster-compositions.md`（本 skill 参考文件）；提炼自 Adrian Punk《AI 做海报、HTML 构图手册》上/下册：`https://x.com/i/article/2092171190270087168` / `https://x.com/i/article/2092639663274233856`；上游源自 Müller-Brockmann《Grid Systems》、格式塔理论、Lupton/Samara——二手合成源，精确引用回查原书",
       "slug": "poster-compositions-landing",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -819,6 +858,7 @@
       "fallback": "→ refero 网站网页浏览拿 → 仓库直读（VoltAgent 合集）",
       "source": "refero 网站（见上）；`https://github.com/VoltAgent/awesome-claude-design`",
       "slug": "design-md",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -830,6 +870,7 @@
       "fallback": "→ refero 网站网页浏览拿 DESIGN.md → 仓库直读（VoltAgent 合集）",
       "source": "本地运行 `dembrandt <url> --design-md --save-output` 落盘 `output/<domain>/`；仓库 `https://github.com/dembrandt/dembrandt`",
       "slug": "dembrandt-extract",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -841,6 +882,7 @@
       "fallback": "→ 手动写约束集（遵循 workflow.md 格式）",
       "source": "skill 仓库 `https://github.com/s-a-s-k-i-a/design-md-skill`；CLI `@google/design.md`（npm）",
       "slug": "design-md-skill",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -852,6 +894,7 @@
       "fallback": "→ 技能本地文件",
       "source": "skill 仓库 `https://github.com/alchaincyf/huashu-design`",
       "slug": "huashu-philosophy",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -863,6 +906,7 @@
       "fallback": "→ 手动应用品牌准则",
       "source": "`https://github.com/anthropics/skills`",
       "slug": "brand-guidelines",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -874,6 +918,7 @@
       "fallback": "→ 上游仓库 → 原则人工应用",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md`",
       "slug": "logo-design-patterns",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -885,6 +930,7 @@
       "fallback": "→ GitHub 直读 → 本地兜底",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/background_styles.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/background_styles.md`",
       "slug": "logo-background-styles",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -896,6 +942,7 @@
       "fallback": "→ GitHub 直读 → 本地兜底",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/webgl_backgrounds.md`）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/webgl_backgrounds.md`",
       "slug": "logo-webgl-backgrounds",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -907,6 +954,7 @@
       "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过，靠 Kami 骨架兜底）",
       "source": "`https://github.com/nutlope/hallmark`（`references/anti-patterns.md` + `typography.md`/`color.md`/`layout-and-space.md`/`motion.md`/`copy.md`）",
       "slug": "hallmark-anti-patterns",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -918,6 +966,7 @@
       "fallback": "→ skill 本地文件直读（软依赖，未安装则跳过）",
       "source": "`https://github.com/nutlope/hallmark`（`references/genres/*.md`）",
       "slug": "hallmark-genre-bans",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -929,6 +978,7 @@
       "fallback": "→ 官网直读（静态文档） → 人工应用",
       "source": "官网 `https://interfaces.dev/cheat-sheet`；机器子集（pi/DSH 同源）`https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/cheat.ts`）",
       "slug": "interfaces-cheat-sheet",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -940,6 +990,7 @@
       "fallback": "→ GitHub 直读（`skills/review-animations/STANDARDS.md`） → 官网直读（静态文档） → 人工应用转译进约束集",
       "source": "源 `https://github.com/emilkowalski/skills`（`skills/review-animations/STANDARDS.md`：频率表/缓动决策序/时长表/物理感，EM-* 机器子集真源）；官网 `https://www.fluidfunctionalism.com/`",
       "slug": "fluid-functionalism",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -950,7 +1001,7 @@
       "scenarios": "网页动效（C2 环节 2 约束：动效标准/实现纪律/术语；机器子集见 EM-*）",
       "fallback": "→ GitHub 直读（`skills/review-animations/STANDARDS.md` 等） → 人工转译进约束集",
       "source": "源 `https://github.com/emilkowalski/skills`",
-      "slug": "emilkowalski-skills",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -962,6 +1013,7 @@
       "fallback": "→ 手写 HTML 遵循令牌（文件导出见下条「文档导出」）",
       "source": "`https://github.com/tw93/Kami`（其 `references/production.md` 写 HTML→PDF 走 WeasyPrint；文件导出改走下条退化链）",
       "slug": "kami-skill",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -973,6 +1025,7 @@
       "fallback": "→ **Chrome headless CLI**（实测通过）：`chrome --headless=new --disable-gpu --print-to-pdf=out.pdf --no-pdf-header-footer page.html`（macOS 的 chrome = `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`）——默认就印背景色/背景图（不必 `print-color-adjust`）、认 `@page{size:A4}`、分页与 `@page` 页码计数器均渲染；**旧旗标 `--print-to-pdf-no-header` 已失效，必须用 `--no-pdf-header-footer`** → 需 Chrome 不支持的高级排版（多栏平衡/自动目录/PDF 书签）才 `pip install weasyprint` → 需真 .pptx 文件时 `pip install python-pptx`，否则走 `guizang-ppt-skill`（HTML 演示形态）",
       "source": "Chrome 154 实测（`--headless=new`）；Playwright 的 `chrome-headless-shell` 同命令亦可用（备用）；校验用 `pdf` 技能（pdftoppm 渲染目视审查 / pdftotext 取字 / pdfinfo 查页幅页数）+ pypdf（合并/拆分/取页）；kami `references/production.md` Part 1 写的是 WeasyPrint，改走本退化链",
       "slug": "doc-export",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -984,6 +1037,7 @@
       "fallback": "→ kami / 手写 HTML",
       "source": "`https://github.com/alchaincyf/huashu-design`",
       "slug": "huashu-design",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -995,6 +1049,7 @@
       "fallback": "→ huashu-design",
       "source": "仓库 `https://github.com/JimLiu/baoyu-design`（注意：非 baoyu-ai，npm 无包）",
       "slug": "baoyu-design",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1006,6 +1061,7 @@
       "fallback": "→ 手写 HTML/CSS",
       "source": "`https://github.com/anthropics/skills`（skill 路径 `skills/frontend-design/`）",
       "slug": "frontend-design",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1017,6 +1073,7 @@
       "fallback": "→ 其他绘图工具",
       "source": "源仓库 `https://github.com/Wangnov/gpt-image-2-skill`",
       "slug": "gpt-image-2",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1028,6 +1085,7 @@
       "fallback": "→ gpt-image-2",
       "source": "`https://github.com/openai/skills`（skill 路径 `skills/imagegen/`）",
       "slug": "imagegen",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1039,6 +1097,7 @@
       "fallback": "→ HTML 原型",
       "source": "`https://github.com/openai/skills`（skills/figma-*）",
       "slug": "figma-family",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1050,6 +1109,7 @@
       "fallback": "→ kami slides 路径",
       "source": "`https://github.com/op7418/guizang-ppt-skill`",
       "slug": "guizang-ppt-skill",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1061,6 +1121,7 @@
       "fallback": "→ motion-dev-animations / CSS 动画",
       "source": "`https://github.com/motiondivision/motion`（⚠️ 该仓库为 JS 库非 skill，且与 motion-dev-animations 同型，按装前规则不装）",
       "slug": "motion-lib",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1072,6 +1133,7 @@
       "fallback": "→ CSS 动画",
       "source": "`https://github.com/199-biotechnologies/motion-dev-animations-skill`",
       "slug": "motion-dev-animations",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1083,6 +1145,7 @@
       "fallback": "→ motion",
       "source": "`https://animejs.com/`",
       "slug": "animejs",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1094,6 +1157,7 @@
       "fallback": "→ 静态 HTML 分段",
       "source": "`https://github.com/heygen-com/hyperframes`",
       "slug": "hyperframes",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1105,6 +1169,7 @@
       "fallback": "→ 手写 SVG",
       "source": "`https://github.com/cathrynlavery/diagram-design`",
       "slug": "diagram-design",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1116,6 +1181,7 @@
       "fallback": "→ 手动应用",
       "source": "`https://github.com/anthropics/skills`",
       "slug": "anthropics-tools",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1127,6 +1193,7 @@
       "fallback": "→ gpt-image-2",
       "source": "`https://github.com/openai/skills`（skills/imagegen/）",
       "slug": "openai-imagegen",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1138,6 +1205,7 @@
       "fallback": "→ hyperframes（HTML 渲染） → 手动视频工具",
       "source": "官网 `https://openmotion.design/`（macOS/Windows）",
       "slug": "openmotion",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1149,6 +1217,7 @@
       "fallback": "→ Figma 家族 / 人工核对（未装时）",
       "source": "官网 `https://openpencil.dev`；仓库 `https://github.com/open-pencil/open-pencil`（MIT，开源 Figma 替代）；`npm install -g @open-pencil/cli`；版本自检 `openpencil --version`。**实测（2026-09-29，当时 v0.15.1；版本变动请复测，勿套用旧结论）**：可用 = info / tree / find / node / pages / lint / analyze colors-typography-spacing-clusters / variables / export png-svg-html-fig / **import（HTML→fig 已修）** / eval；**不可用** = `export -f png --thumbnail`（共享导出路径未支持）、`query`（XPath `evaluateXPathToNodes is not a function`，用 `find --type/--name` 替代）；桌面端省略文件参数即连实时画布（Live 模式）",
       "slug": "openpencil",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1160,6 +1229,7 @@
       "fallback": "→ 取色器 + 目测 → 三条规则人脑执行",
       "source": "本地 `~/Desktop/Design/kami-design-principles/README.md`（三查章节）",
       "slug": "kami-sancha",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1171,6 +1241,7 @@
       "fallback": "→ Kami 三查 + 人工评审",
       "source": "`https://github.com/alchaincyf/huashu-design`（5 维评审章节）",
       "slug": "huashu-5dim",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1182,6 +1253,7 @@
       "fallback": "→ 人工对照 style-families.md",
       "source": "本地 `~/Desktop/Design/zine-style-references/style-families.md`",
       "slug": "zine-consistency",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1193,6 +1265,7 @@
       "fallback": "→ 手动过导航/状态/反馈三问",
       "source": "skill 仓库 `https://github.com/Owl-Listener/designer-skills`（子技能 `design-ops/skills/design-qa-checklist/`）",
       "slug": "design-qa-checklist",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1204,6 +1277,7 @@
       "fallback": "→ 手动走方法步骤",
       "source": "同上仓库 `https://github.com/Owl-Listener/designer-skills` 的 `design-research/skills/`（slug `design-research-methods`）",
       "slug": "design-research-methods",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1215,6 +1289,7 @@
       "fallback": "→ 上游仓库 → 原则人工应用",
       "source": "源 `https://github.com/op7418/logo-generator-skill`（`references/design_patterns.md` Part 0 + Part 4）；不可达时读本地存档 `~/Desktop/Design/logo-generator-references/design_patterns.md`",
       "slug": "logo-quality-floor",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1226,6 +1301,7 @@
       "fallback": "→ skill 本地文件直读（软依赖，未安装则靠 Kami 三查 + 机器扫描兜底）",
       "source": "`https://github.com/nutlope/hallmark`（`references/slop-test.md`）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/`）",
       "slug": "hallmark-slop-test",
+      "bucket": null,
       "quality": "未评估"
     },
     {
@@ -1237,6 +1313,7 @@
       "fallback": "→ 无（机器直接执行）→ 模型按环节 4 Triage 确认",
       "source": "官网 `https://killaislop.com/`（含多语言 slop 图鉴）；仓库 `https://github.com/yetone/kill-ai-slop`（`skill/references/detection.md`，Apache-2.0）；机器子集 `https://github.com/haohaiHuang/my-pi-skills`（`extensions/design-router/checks/kill-slop.ts`，转译取舍见文件头注释）",
       "slug": "kill-ai-slop",
+      "bucket": null,
       "quality": "未评估"
     }
   ],
@@ -1247,6 +1324,14 @@
         "beautiful-ui",
         "minimal-gallery",
         "dembrandt",
+        "recent-design",
+        "awwwards",
+        "siteinspire",
+        "landbook",
+        "one-page-love",
+        "lapa-ninja",
+        "muzli",
+        "inspora",
         "mobbin",
         "openpencil",
         "design-research-methods"
@@ -1274,12 +1359,12 @@
         "refero-design",
         "aceternity",
         "21st-dev",
+        "dembrandt",
         "boardui",
         "watermelon-ui",
         "linear-dark",
         "saasui-dashboard",
         "dash-ui",
-        "dembrandt",
         "openpencil",
         "undraw",
         "component-gallery",
@@ -1327,18 +1412,15 @@
     "B1": {
       "1": [
         "zine-style-library",
-        "poster-compositions",
         "orange-line-illustration",
-        "poster-house",
-        "flashbak",
-        "studio-dumbar",
+        "poster-compositions",
         "unsplash",
         "pexels"
       ],
       "2": [
         "zine-family-recipes",
-        "poster-compositions",
-        "logo-background-styles"
+        "logo-background-styles",
+        "poster-compositions"
       ],
       "3": [
         "gpt-image-2",
@@ -1347,21 +1429,18 @@
       ],
       "4": [
         "zine-consistency",
-        "poster-compositions",
-        "kami-sancha"
+        "kami-sancha",
+        "poster-compositions"
       ]
     },
     "B2": {
       "1": [
         "zine-style-library",
         "orange-line-illustration",
-        "poster-house",
-        "flashbak",
         "undraw",
         "lxgw-wenkai",
         "unsplash",
-        "pexels",
-        "tw93-blog"
+        "pexels"
       ],
       "2": [
         "zine-family-recipes",
@@ -1395,6 +1474,11 @@
         "hero-patterns",
         "21st-dev",
         "uiverse",
+        "footer-gallery",
+        "cta-gallery",
+        "navbar-gallery",
+        "supahero",
+        "design-spells",
         "reicon",
         "beui",
         "boardui",
@@ -1428,14 +1512,13 @@
       "1": [
         "transitions-dev",
         "liquid-gooey",
+        "threeui",
         "beui",
-        "codrops",
-        "blobmaker"
+        "codrops"
       ],
       "2": [
         "fluid-functionalism",
-        "interfaces-cheat-sheet",
-        "emilkowalski-skills"
+        "interfaces-cheat-sheet"
       ],
       "3": [
         "motion-lib",
@@ -1583,11 +1666,11 @@
     }
   },
   "bucketNotes": {
-    "darktech": "Linear 高端极简暗色（shadcn DESIGN.md）；Ghostty 终端暗色；hallmark 主题 cobalt/terminal；refero 搜暗色工具类产品（Vercel/Raycast 暗色系）",
-    "dataviz": "SaasUI Dashboard 模式库（131 真实产品截图）；BoardUI 组件库；Dash UI 多框架设计系统；hallmark 宏结构 stat-led/spec-sheet",
-    "warmpaper": "kami 暖纸底（本地 ~/Desktop/Design/kami-design-principles/）；hallmark 主题 lumen/atmospheric",
-    "retro": "zine 复古族（本地 ~/Desktop/Design/zine-style-references/）；hallmark 复古/档案类主题",
-    "bold": "hallmark 主题 carnival/playful（~/.pi/agent/skills/hallmark/）；uiverse 组件"
+    "darktech": "hallmark 主题 cobalt/terminal（技能内 references/themes/）；refero 搜暗色仪表盘/开发工具类产品（Vercel/Raycast 暗色系）",
+    "dataviz": "hallmark 宏结构 stat-led/spec-sheet（技能内 SKILL.md）；refero 搜数据分析类产品（Linear/Amplitude 类仪表盘）；diagram-design 工具产图表",
+    "warmpaper": "kami 暖纸底（本地 ~/Desktop/Design/kami-design-principles/）；hallmark 主题 lumen/atmospheric（技能内 references/themes/）",
+    "retro": "zine 复古族（本地 ~/Desktop/Design/zine-style-references/）；hallmark 主题 复古/档案类",
+    "bold": "hallmark 主题 carnival/playful（技能内 references/themes/）；uiverse 组件"
   },
   "qualityLevels": {
     "优": "验证成功且多次一次通过",

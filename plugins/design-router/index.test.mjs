@@ -31,6 +31,7 @@ test("注册 7 个工具，6 只读 + 1 写入", () => {
     "design_audit",
     "design_contrast",
     "design_diversity",
+    "design_handoff_check",
     "design_lookup",
     "design_quality",
     "design_route",

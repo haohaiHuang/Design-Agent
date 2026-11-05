@@ -1,0 +1,15 @@
+{
+  "slug": "poster-house",
+  "url": "https://posterhouse.org/",
+  "capturedAt": "2026-11-05T06:39:43.496Z",
+  "quality": "良",
+  "bucket": "editorial",
+  "shots": [
+    "desktop",
+    "mobile"
+  ],
+  "colors": 69618,
+  "stale": false,
+  "humanEdited": false,
+  "source": "design-evidence 1.0"
+}

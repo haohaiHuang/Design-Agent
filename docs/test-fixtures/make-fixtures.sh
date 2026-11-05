@@ -5,7 +5,9 @@
 set -e
 DEST="${1:-$HOME/Desktop/design-test}"
 P="$DEST/project"
-mkdir -p "$P/styles" "$P/designs"
+# 产物根 = **工作区根**的 designs/（不是 project/designs/）。
+# 早前版本建在 project/ 下，直接埋了「产物根」这个坑（真机 1-2 就栽在这里）。
+mkdir -p "$P/styles" "$DEST/designs"
 
 # ── 素材 A：待改进页面（audit 有料：实测 14 项检出）────────────────────────
 cat > "$P/landing.html" <<'EOF'
@@ -56,7 +58,7 @@ cat > "$P/styles/theme.css" <<'EOF'
 EOF
 
 echo "正在清理（保留既有 designs/ 产物）..."
-ls -d "$P"/designs/* >/dev/null 2>&1 && echo "  ℹ️ designs/ 已有产物，未清空（续跑测试需要）" || true
+ls -d "$DEST"/designs/* >/dev/null 2>&1 && echo "  ℹ️ designs/ 已有产物，未清空（续跑测试需要）" || true
 
 echo ""
 echo "✅ 测试素材已生成：$DEST"
@@ -66,7 +68,7 @@ echo "  project/checkout.html   ← 素材 B：文件名 checkout（测文件名
 echo "  project/member.html     ← 素材 B：内容含「登录」但文件名不含 login（测内容通道）"
 echo "  project/dashboard.html  ← 素材 B：控制台"
 echo "  project/styles/theme.css← 素材 B：--brand:#5e6ad2（蓝，测内容特征通道）"
-echo "  project/designs/        ← 产物目录（初始为空）"
+echo "  designs/                ← 产物目录【工作区根，初始为空】——不是 project/designs/"
 echo ""
 echo "记录初始哈希（验证「绝不动原项目文件」用）："
 cd "$P" && shasum -a 256 *.html styles/*.css | tee "$DEST/.initial-hashes.txt"

@@ -4,8 +4,8 @@
  * 定位：把 design-references 的确定性层（registry 查询、机器化检查）从"模型读
  * markdown 后自己 grep"升级为确定性工具。由 my-agent 预设挂载（相对路径）。
  *
- * 工具清单（7 个）：design_lookup / design_route / design_diversity / design_tokens /
- * design_audit / design_contrast（6 个只读）+ design_quality（含 1 个写入动作：
+ * 工具清单（8 个）：design_lookup / design_route / design_diversity / design_tokens /
+ * design_audit / design_contrast / design_handoff_check（7 个只读）+ design_quality（含 1 个写入动作：
  * 仅写本地质量日志 ~/.dsh/design-router-quality.json，不入 git、不碰工作区）。
  *
  * 移植自 my-pi-skills extensions/design-router（pi extension → DSH Cordis 插件）：
@@ -30,6 +30,7 @@ import { runAssetChecks } from "./checks/assets.mjs";
 import { runMotionChecks } from "./checks/motion.mjs";
 import { renderDesignTokens, findAssetsDir, BUCKETS as TOKEN_BUCKETS } from "./scripts/design-tokens.mjs";
 import { formatEvidence, readEvidence } from "./checks/evidence.mjs";
+import { runHandoffChecks } from "./checks/handoff.mjs";
 
 const name = "design-router";
 const inject = ["tools"];
@@ -711,6 +712,44 @@ function apply(ctx) {
       }
       const lines = [`检出 ${findings.length} 项对比度问题：`, ""];
       for (const f of findings) lines.push(`${f.severity === "error" ? "🔴" : "🔵"} [gate ${f.gate}] ${f.message}  ${f.location}`);
+      return lines.join("\n");
+    },
+  }));
+
+  // ---- design_handoff_check（交付物一致性机械核对；HC-*）----
+  // 存在理由见 checks/handoff.mjs 头部：真机上出现过「文书冻结、原型继续迭代、
+  // 最后仍声明交付完成」→ 第三方开发照着文档会写出与原型相反的实现。
+  ctx.tools.register(defineToolDef({
+    name: "design_handoff_check",
+    description:
+      "交付物一致性机械核对（只读不改，HC-1~HC-8）：检查 designs/ 下的文书与参考原型是否自洽——① 引用路径是否可达（含裸文件名/包外引用）② 文书 vs 原型的色值/字号 clamp/字距/时长是否互斥 ③ 文书引用的对比度数字能否用其自身令牌复算 ④ §7 是否把本 Agent 的 DSH 工具当 shell 命令用而未标归属/替代法 ⑤ **证据新鲜度**：文书/取证是否早于原型最后改动（真机实测过：报告早 7 分钟却被当「修复后实测」）⑥ **未定义令牌**：被 var() 引用却任何地方都没定义（照此产出无效 CSS）⑦ **验收自洽性**：把 §7 里「`模式` → 0 处」这类验收抽出来实跑到视觉基准上，基准自己命中 = 基准过不了自己的验收（真机实测：`999px` 被 `.skip{left:-9999px}` 命中）⑧ **反向断言**：要求为 0 的模式先在**改前项目**上跑——命中 0 说明这条验收查不到任何东西（真机实测：验收写 `transition: all`〔带空格〕而项目里是 `transition:all .3s`）。**调用时机：调用 present 声明交付物之前必跑；有 error 级就先修再 present。**",
+    parameters: {
+      target: { type: "string", required: true, description: "designs 目录绝对路径（工作区根的 designs/）" },
+      project: { type: "string", required: false, description: "原项目目录（默认取 designs 的同级 project/），用于解析令牌与路径可达性" },
+    },
+    async execute(args) {
+      const dir = resolve(String(args.target || ""));
+      const findings = runHandoffChecks({
+        designsDir: dir,
+        projectDir: args.project ? resolve(String(args.project)) : undefined,
+      });
+      if (findings.length === 0) {
+        return "✅ 交付物自洽：引用路径可达、文书与原型数值无冲突、对比度可复算、验收命令已标归属。";
+      }
+      const errs = findings.filter((f) => f.severity === "error").length;
+      const lines = [
+        `检出 ${findings.length} 项交付物一致性问题（error ${errs}）：`,
+        "",
+      ];
+      for (const f of findings) {
+        lines.push(`${f.severity === "error" ? "🔴" : "🔵"} [${f.gate}] ${f.message}  ${f.location}`);
+      }
+      lines.push("");
+      lines.push(
+        errs > 0
+          ? "⚠️ 有 error：**先修完再 present**（文书与原型必须一致，否则开发会写出与原型相反的实现）。"
+          : "⚠️ 无 error 级，但 warn 项要在交付说明里交代清楚。",
+      );
       return lines.join("\n");
     },
   }));

@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "note": "8 桶 × 四要素签名（字体对 / 色派 / 留白档 / 标志手法）+ 来源 + 可测特征。CSS 是机器真值，本文件是'像同一个作者'的可读判据；checks/design-tokens.test.mjs 逐条核对两者一致。assets/ 不进上下文，读取请用 design_tokens <bucket>。",
+  "tierNotes": {
+    "S": "紧",
+    "M": "中偏紧",
+    "L": "松",
+    "XL": "最松"
+  },
+  "buckets": {
+    "minimal": {
+      "fontPair": { "display": "Space Grotesk", "body": "Inter", "mono": "JetBrains Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#F8FAFD",
+        "ink": "#192029",
+        "accent": "#006FE6",
+        "accentArea": "≤5%",
+        "note": "冷白纸，非纯白；电光蓝只做信号"
+      },
+      "whitespace": { "tier": "L", "sectionGap": "7rem", "gutter": "48px", "pageMax": "1216px", "measure": "68ch" },
+      "signatureMove": "冷灰纸面 · 发丝线分界 · 亮底上的深 graphite 代码卡作 hero（无装饰阴影，6px 技术圆角）",
+      "source": ["refero-design", "hallmark-genre-bans", "google-fonts", "source-han"],
+      "feature": { "id": "shadow2-none", "rule": "--shadow-2 === none（无装饰阴影）" }
+    },
+    "darktech": {
+      "fontPair": { "display": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
+      "palette": {
+        "mode": "dark",
+        "paper": "#0A0A0B",
+        "ink": "#EDEDEF",
+        "accent": "#5E6AD2",
+        "accentArea": "≤5%",
+        "note": "近黑底，非纯黑；单色薰衣草蓝只做焦点"
+      },
+      "whitespace": { "tier": "M", "sectionGap": "4.5rem", "gutter": "46px", "pageMax": "1200px", "measure": "72ch" },
+      "signatureMove": "近黑底 · 三阶表面阶梯靠面色分层（1px 发丝描边，深度不靠阴影） · 单色薰衣草蓝只做焦点",
+      "source": ["linear-dark", "source-han"],
+      "feature": { "id": "surface-ascending", "rule": "--bg < --surface < --surface-2 的相对亮度严格递增（三阶表面阶梯）" }
+    },
+    "editorial": {
+      "fontPair": { "display": "Playfair Display", "body": "Inter", "mono": "IBM Plex Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#FDFCF8",
+        "ink": "#17130D",
+        "accent": "#C0392B",
+        "accentArea": "≤5%",
+        "note": "印刷纸白 + 朱红点缀，无第二彩色"
+      },
+      "whitespace": { "tier": "L", "sectionGap": "7rem", "gutter": "48px", "pageMax": "1216px", "measure": "68ch" },
+      "signatureMove": "衬线大标题 · 单栏窄版心 · 朱红只做引题与编号（印刷感，无盒阴影）",
+      "source": ["orange-line-illustration", "hallmark-genre-bans", "google-fonts", "source-han"],
+      "feature": { "id": "serif-display", "rule": "--font-display 首选族是衬线（Playfair / serif / Georgia / Songti）" }
+    },
+    "bold": {
+      "fontPair": { "display": "Archivo Black", "body": "Work Sans", "mono": "Space Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#FFE14D",
+        "ink": "#17130A",
+        "accent": "#23145C",
+        "accentArea": "≤5%",
+        "note": "亮黄底 + 深紫撞色，高饱和只占块面"
+      },
+      "whitespace": { "tier": "S", "sectionGap": "3.5rem", "gutter": "24px", "pageMax": "1280px", "measure": "76ch" },
+      "signatureMove": "满饱和撞色块 · 粗硬描边 · 零模糊硬投影（波普节奏，圆角克制）",
+      "source": ["uiverse", "hallmark-genre-bans", "google-fonts", "source-han"],
+      "feature": { "id": "hard-shadow", "rule": "--shadow-2 的模糊半径为 0（硬投影，不是柔光）" }
+    },
+    "warmpaper": {
+      "fontPair": { "display": "Source Han Serif SC", "body": "Source Serif 4", "mono": "IBM Plex Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#F4EFE3",
+        "ink": "#2A241B",
+        "accent": "#1B365D",
+        "accentArea": "≤5%",
+        "note": "暖纸底 + 墨蓝，低饱和书卷气"
+      },
+      "whitespace": { "tier": "XL", "sectionGap": "9rem", "gutter": "64px", "pageMax": "1120px", "measure": "60ch" },
+      "signatureMove": "暖纸底 · 衬线正文 · 双细线分隔（书卷气，克制度高）",
+      "source": ["kami-skeleton", "kami-spec", "google-fonts", "source-han"],
+      "feature": { "id": "warm-paper-bg", "rule": "--bg 是暖纸色：R > G > B 且相对亮度在 0.6–0.95" }
+    },
+    "liquid": {
+      "fontPair": { "display": "Sora", "body": "Manrope", "mono": "JetBrains Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#F0F6F7",
+        "ink": "#0F2129",
+        "accent": "#0B7285",
+        "accentArea": "≤5%",
+        "note": "冷雾底 + 青绿，浅色玻璃感"
+      },
+      "whitespace": { "tier": "M", "sectionGap": "4.5rem", "gutter": "46px", "pageMax": "1200px", "measure": "72ch" },
+      "signatureMove": "全圆角胶囊 · 多层柔光阴影 · 弹簧缓动（流体悬浮）",
+      "source": ["liquid-gooey", "transitions-dev", "beui", "google-fonts", "source-han"],
+      "feature": { "id": "pill-radius", "rule": "--radius-lg ≥ 24px（胶囊/大圆角）" }
+    },
+    "dataviz": {
+      "fontPair": { "display": "IBM Plex Sans", "body": "IBM Plex Sans", "mono": "IBM Plex Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#F7F8FA",
+        "ink": "#161B22",
+        "accent": "#1F5AE0",
+        "accentArea": "≤5%",
+        "note": "近白灰底 + 单一数据蓝，图表优先"
+      },
+      "whitespace": { "tier": "S", "sectionGap": "3.5rem", "gutter": "24px", "pageMax": "1440px", "measure": "76ch" },
+      "signatureMove": "高密度小字 · 网格线分栏 · 单色 accent 只标数据（图表优先，装饰归零）",
+      "source": ["boardui", "saasui-dashboard", "dash-ui", "google-fonts", "source-han"],
+      "feature": { "id": "dense-scale", "rule": "--space-8 ≤ 72px 且 --step-6 ≤ 48px（高密度刻度）" }
+    },
+    "retro": {
+      "fontPair": { "display": "Space Mono", "body": "IBM Plex Serif", "mono": "Space Mono" },
+      "palette": {
+        "mode": "light",
+        "paper": "#EDE4D3",
+        "ink": "#241F17",
+        "accent": "#9E3B24",
+        "accentArea": "≤5%",
+        "note": "做旧米黄 + 赭红，套印双色"
+      },
+      "whitespace": { "tier": "S", "sectionGap": "3.5rem", "gutter": "24px", "pageMax": "1180px", "measure": "76ch" },
+      "signatureMove": "零圆角方框 · 双色套印 · 做旧纸底（档案拼贴）",
+      "source": ["zine-style-library", "zine-family-recipes", "google-fonts", "source-han"],
+      "feature": { "id": "square-corners", "rule": "--radius-sm/md/lg 全部 ≤ 4px（零圆角方框）" }
+    }
+  }
+}

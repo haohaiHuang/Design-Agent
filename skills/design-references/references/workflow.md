@@ -1,7 +1,7 @@
 # 环节操作手册 — 五环节动作序列 × 资源调用 × 退化链
 
 > 配合 SKILL.md 路由使用。每环节：目标 → 动作序列 → 资源调用（主→次→兜底）→ 产物格式 → 退化链。
-> 方法论来源：事实验证门（环节0 5b）/ 品牌资产门（环节1 1a）/ 候选“看得见”+并排展示（环节1 9a）提炼自 huashu-design（~/.agents/skills/huashu-design）与 baoyu-design（~/.agents/skills/baoyu-design）——两 skill 不装 Pi，方法论以规则形式归位本文件。
+> 方法论来源：事实验证门（环节0 5b）/ 品牌资产门（环节1 1a）/ 候选“看得见”+并排展示（环节1 9a）提炼自 huashu-design 与 baoyu-design 两技能——两 skill 不装 Pi，方法论以规则形式归位本文件。
 > 铁律 1：参考必须转译成约束（环节 2），不"看一眼"就产出。
 > 铁律 2：信息不全先问询（≤3 问），禁止跳过环节 0。
 > 铁律 3：**每个环节产出必须先展示给用户确认，确认后才进下一环节。禁止连续产出多份设计稿再让用户一起看。**
@@ -86,7 +86,7 @@
 5. 分支 A：**网页浏览 `https://styles.refero.design/` 搜同品类真实产品**（SPA 需浏览器——pi 平台用 ego-browser / DSH 用 web_search 探测或 dembrandt 验证升级；不可用则走 web 搜索层）→ 拿完整 DESIGN.md（仅在用户参考库无可匹配候选时）；分支 B：Zine 路由表定位风格族 → 读族详情，**再按内容量×情绪查 `references/poster-compositions.md` 速查表选构图**（主构图 1 个 + 辅助关系 1 条）
 6. **搜索失败时走决策树**（见下方「搜索失败决策框架」）
 7. 每个候选记录 token 草稿 + 理由（供环节 2 直接消费）
-8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；command not found 时用绝对路径 `~/.npm-global/bin/dembrandt`）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
+8. **候选验证（硬步骤：对选中的 2-3 个候选逐一验证，退化链——本地 .fig 直读 > `hallmark_study_fetch <url>` 快验（pi，秒级零依赖）；需要精确 token 直引 / 站点 JS 重或 SPA / 快验失败时，升级 `dembrandt <url> --design-md --save-output`（真浏览器渲染，产精确计算值 + google-labs 规范 DESIGN.md，落 `output/<domain>/`；如不在 PATH 按其全局 bin 目录调用）；DSH：dembrandt（首选）→ `defuddle parse <url> --md` 文本抽取 → web_search → 人工核对；其他平台：WebFetch 或人工核对）**：
    - **候选是本地 .fig/.pen 文件**（用户参考库里的设计稿）→ 直接 `openpencil analyze/variables/info` 直读，**跳过 URL 抓取**（源数据比渲染推断更精确）
    - 候选是 URL → `hallmark_study_fetch` 快验 → 失败/需精确值升级 `dembrandt`
    验证成功（任一引擎拿到精确值）→ 该候选可"直引"（萃取具体数值进约束，dembrandt/openpencil 验证的可直接回填参考台账）；验证失败/抓不到 → 标注"未验证"，只能"属性级借用"（如"暗色仪表盘式"），禁止把未验证候选当直引参考。验证结果一并展示给用户。
@@ -161,25 +161,27 @@
 
 **动作序列**：
 
-1. 取 Kami 十条不变量 + design-tokens.css 打底（所有场景常驻）
-2. 从选定候选提取：色板（取色验证 R≥G>B 暖调）→ 字体栈 → 间距（4pt 基准）→ 质感规则
+1. **按桶取契约（起手动作）**：调 `design_tokens <主桶> [--parts color,type,space,components]` 取该桶契约（37 个变量 + .ds-btn/.ds-card/.ds-field，单桶 ≤120 行）；主桶由环节 1 的 `design_route` 定位。**契约随桶变**，没有一套跨场景常驻的打底——同名变量在不同桶里就是不同的值，这正是换桶不撞车的原因。
+2. 从选定候选提取：色板（落到契约的 `--bg/--fg/--accent`，**不再用 R≥G>B 判暖调**——那是暖色桶的尺子）→ 字体栈（`--font-display/--font-body`）→ 间距（`--space-*`，4pt 基准）→ 质感规则（`--radius-*/--shadow-*`）
 3. 分支 A 补交互约束层：导航/状态/反馈（A1 用 design-md-skill 生成 DESIGN.md；或从 Beautiful UI 范式转译）
-4. 输出约束集：每条满足"可执行 + 可校验"，**每条标注来源**（参考 DESIGN.md 哪条规则 / Kami 哪条不变量 / 用户资产哪个 token）——禁止无来源的约束
+4. 输出约束集：每条满足"可执行 + 可校验"，**每条标注来源**（桶契约哪个变量 / 参考 DESIGN.md 哪条规则 / 用户资产哪个 token）——禁止无来源的约束
 5. **展示约束集给用户确认**，确认后才进环节 3
 
 **产物格式**：
 
 ```
-约束集:
-1. 底色 #f5f4ed 暖调（禁纯白/冷灰）〔来源: Kami 不变量1〕
-2. 唯一彩色 --brand（面积 ≤5%）〔来源: Kami 不变量2 / 用户品牌色 #4A3728〕
-3. 字体: serif 400/500 两档（禁加粗/斜体）〔来源: Kami 不变量5〕
+约束集（示例=warmpaper 桶）:
+1. 底色 var(--bg) #F4EFE3 暖纸（禁纯白/冷灰）〔来源: 桶契约 --bg / 候选 DESIGN.md〕
+2. 唯一彩色 var(--accent) #1B365D（面积 ≤5%，只做信号）〔来源: 桶契约 --accent + 签名「暖纸底 · 衬线正文 · 双细线分隔」〕
+3. 字体: display "Source Han Serif SC" / body "Source Serif 4"（禁混第三族）〔来源: 桶契约 --font-display/--font-body〕
+4. 留白: --section-gap 9rem / --measure 60ch（XL 档）〔来源: 桶契约留白档变量〕
+5. 可测特征: --bg 满足 R>G>B 且亮度 0.6–0.95〔来源: assets/signature.json · warmpaper.feature〕
 ...
 ```
 
-**资源调用**：Kami 骨架（C 规则·主·常驻）→ refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖；**安装与已知 bug 见 registry E 表 openpencil 行**，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装，版本自检 `dembrandt --version`）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
+**资源调用**：**桶契约 `assets/tokens/<bucket>.css`（C 直引·主·按桶，经 `design_tokens` 取片段；入口见 registry C 段「桶契约」条目）** → refero 网站选定的 DESIGN.md（C 直引·网页浏览取得）→ **参考为 .fig 时 `openpencil variables --json` 直接导出其 token 集合，转译为约束并标注来源（C 数据·次·软依赖；**安装与已知 bug 见 registry E 表 openpencil 行**，未装走 Figma 家族/人工核对）** → **参考为 URL 时 `dembrandt <url> --design-md` 萃取产物可直接作约束来源（C 数据·次·已装，版本自检 `dembrandt --version`）** → design-md-skill（C 生成·A1）→ Zine 族配方（C 转译·B）→ **构图词典（C 转译：B 海报 = 主构图1 + 辅助1 + 破格≤1 + B 配方标签 + 避坑禁项；A 网页 = hero/首屏单屏构图用落地页子集 03/05/13/16/17/25/26/27/02，页面级结构仍用 Hallmark 宏结构——两层正交：宏结构管页面区块节奏，词典管单屏画面组织；来源 poster-compositions.md）**→ **logo/icon 任务必读 design_patterns.md Part 0（C 规则·次：GitHub 源 `op7418/logo-generator-skill` 优先，本地存档 `~/Desktop/Design/logo-generator-references/` 兜底）**→ **去 AI 味前置约束（hallmark 已装且任务为网页/通用时，转译进约束集并标注来源）：anti-patterns.md 禁忌清单 + 对应 genre 的允许/禁止清单（C 规则·次·软依赖，见 registry hallmark-anti-patterns / hallmark-genre-bans）**→ **动效约束（产物含交互/动效时必转译，来源 emilkowalski/skills 动效原则——频率分级/缓动决策序/时长表/物理感，见 inject-map.md craft 约束 Animation 条目；机器子集 EM-* 已进环节 4 audit）**。
 
-**退化链**：Kami 骨架文件 → Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
+**退化链**：桶契约（`design_tokens`）→ 用户资产 token / 选定候选 DESIGN.md 手写 33 变量 → Kami 骨架（仅 warmpaper 与文档排版桶）→ Kami 轻量版 README（本地）→ 十条不变量心法手动应用。
 
 ---
 
@@ -247,20 +249,14 @@
    - `openpencil export <file> -f png --thumbnail` → 视觉评审截图
    - 任一不达标 → 回环节 2 改约束，与 HTML 产物同一裁决
    - **未装 openpencil → 导出 PNG + Figma 家族技能或人工核对**
-1c. **渲染核对（与「机器扫描」「独立评审」并列的第三件事，不能互相替代）**：机器扫描只能读文本，**看不见"代码看着对、渲染出来是坏的"**。必须真渲染并读**计算样式**核对：
-   - **注释定界符自毁**：CSS 注释**不嵌套**——注释里再写 `/*` 会让第一个 `*/` 提前闭合，把紧跟其后的 `:root` 一起吞掉，**全页令牌瞬间失效**（实测症状：标题回退 Times 16px、按钮底色透明、圆角归零），而 `design_audit` 与任何静态检查都看不出来。同理自查"声明的 `:root` 变量是否真的被定义、被消费"。
-   - **溢出必须逐元素判，不能用滚动条判**：`overflow-x: clip` 会把文档级滚动兜住，于是 `scrollWidth === clientWidth` **失去分辨力——内容被裁掉也照样通过**。正确做法：逐元素比较 `getBoundingClientRect()` 与视口宽，并区分「真溢出」与「在滚动容器内可达（合法）」。
-     ```js
-     [...document.querySelectorAll('*')].filter(el => el.getBoundingClientRect().right > innerWidth + 1)
-       .map(el => [el.tagName, Math.round(el.getBoundingClientRect().right), el.className]);
-     ```
+1c. **渲染核对（与「机器扫描」「独立评审」并列的第三件事，不能互相替代）**：`node ~/my-pi-skills/extensions/design-router/scripts/design-render.mjs <产物> --size desktop,mobile --json`
+
+    规则集 RND-1..8、退出码 0/1/2 与证据目录只认 `docs/design-assets/SPEC.md` §6.3，这里不复制规则表。工具负责机器可判项（注释自毁、逐元素溢出、令牌断链、CJK 回退、截图非空、视口伪影、首屏透明态、计算样式快照）；**机器扫描只能读文本，看不见"代码看着对、渲染出来是坏的"**，所以这一步必须真跑。剩下的三件事工具做不到：
    - **图表读数逐项对齐（机器闸门完全看不见）**：闸门只读 CSS/文本，**几何与数值编码不在检查面内**——闸门全绿不等于图对。每个图的每一段（弧长 / 扇区 / 柱高 / 点位 / 占比条）都要量一遍是否等于标签里的数字。典型陷阱：半环 / 仪表盘按「百分比 × 360°」取端点 → 读数约为标签值的 2 倍，且值弧与轨道不同心（接缝处可见折点）。顺带核**定义域是否收紧**：曲线挤在画布下 1/3、轴范围远大于数据波动 = 纵向空间被浪费，收紧 y 域或降图高。
-   - **多视口 + 关键状态**：桌面 / 平板 / 窄屏各一档；只截图不够，同时 dump 关键元素的计算样式（字号、行高、圆角、颜色、字体族是否命中目标族）。
    - **视觉模型的结论必须回源码核对**：本地视觉模型会**凭空报出**圆角、阴影、渐变、纹理这类"看起来该有"的东西（实测两例：报出"亚麻纹理"而原图纯平；报出"8px 圆角 / 轻微阴影 / 线性渐变"而源码 grep 计数为 0）。凡是"有没有某属性"这类可判定问题，一律用 `grep`/计算样式定论，视觉模型只用于"气质/观感"这类无法 grep 的判断。
-   - **移动端渲染通道（踩过的坑）**：**禁用 `Google Chrome --headless --window-size=375`**。Chrome 有最小窗口宽度（实测 `innerWidth` 被抬到 **500**），拿到的是"更宽布局被裁到 375"的假图——它会让窄屏结论全错，而图看着正常。可用通道（**按序试**，每换一条都先跑自检）：① `chrome-headless-shell`（Playwright 缓存 `ms-playwright/chromium_headless_shell-*/…`，实测 `--window-size=375` 下 `innerWidth` 真为 375）；② **iframe 预览壳**：外层页面写死 `width:375px` 的 iframe 承载被测页面，最稳、零依赖，推荐；③ **PDF 中转**：`ego-browser` 的 `Page.printToPDF` 出 PDF 再用 `pdftoppm` 转 PNG（本机实测：系统 Chrome 无头 `Trace/BPT trap`、`screencapture` 无屏幕录制权限、`ego-browser` 的 CDP 截图接口超时，三条常见路径都不通时这条稳定可用）；④ 自检：渲染后先断言 `innerWidth` 等于目标宽，不等就换通道，别继续分析截图；把本机最终可用的通道与坑位写进产物目录（如 `designs/shots/README.md`）供下一轮复用。
-   - **截图非空自检**：路径写错时截图会是一张纯灰图而毫无报错。加一条机器判据——**灰度/颜色种类数 > 8** 才算有效截图（实测抓到过两张全灰的"移动端截图"）。
-   - **刻意保留的证据块要打豁免标记**：引用证据 / 现状复现 / 正误对照 里会**故意**出现原来的 13px 圆角、渐变按钮、编造指标，`design_audit` 会照报。用行内标记 `slop-ignore: <理由>` 明确豁免（写在被标注行上方或行尾的注释里；适用该行或所在的 `{ }` 块），**必须带非空理由**，空理由不生效；工具会在结论里列明豁免了几项，便于复核。
-2. Kami 三查：取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%
+   - **成品导出（HTML → PDF，与截图通道分开，别互相借用）**：`"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf=out.pdf page.html`（2026-09-30 实测通过，当时 Chrome 154；Playwright 缓存的 `chrome-headless-shell` 同命令亦可；**另一台机器要复测**）。**实测结论**：默认就印背景色/背景图（**不需要** `print-color-adjust: exact`——早期误记，实为探针落在页边白区）、认 `@page{size:A4}`（输出 594.96×841.92pt）、`page-break-*` 分页与 `@page` 页码计数器（`@bottom-center{content: counter(page) "/" counter(pages)}`）都能渲染。**坑**：旧旗标 `--print-to-pdf-no-header` 已失效（页眉日期照印），必须用 `--no-pdf-header-footer`。WeasyPrint **不必装**（kami `references/production.md` 写的是它）——只有需要 Chrome 不支持的高级排版（多栏平衡/自动目录/PDF 书签）时才上。导出后照例核一遍：`pdfinfo` 看页数/页幅、`pdftoppm` 渲染目视、`pdftotext` 核文字是否齐。
+   - **无浏览器时**：CLI 会打印 `SKIP: no browser (RND-0)` 并非零退出（SPEC §6.3），把跳过如实写进结论，**不要把人看截图当成替代结论**。刻意保留的证据块仍用 `slop-ignore: <理由>` 豁免，理由必须非空。
+2. **三查按桶生效（不是通用验收尺）**：warmpaper 桶（及文档排版）照跑 Kami 三查——取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%；其余桶改查自己的桶契约：`design_tokens <桶>` 输出的「可测特征」一条 + 色值白名单是否全落在该桶变量上。**冷色桶（darktech / dataviz / liquid）禁用 R≥G>B 判暖调**——旧尺子会把深蓝紫 accent 判成不合格（实测 `#5E6AD2`：R94 < G106），这是 P4 记录过的误伤。
 3. 风格一致性：逐条核对约束集（色板/质感/排版）；分支 B 补构图验收（poster-compositions.md 11 项：入口/焦点/主次比例/共同边线/沟槽/留白/破格≤1/图文层级/裁切安全/响应式）
 4. 分支 A 补 UX QA：导航/状态/反馈可用性（design-qa-checklist）
 5. **成品视觉评审——默认用独立 critic 子代理，不用产出者自评（关键纪律，源自 Anshu critic loop）**：产出者自评不客观（它看自己的代码/rationale 会自我辩护），且产出者与评审同分布 → 自评只是“自查语法”，不是品味判断。**注意：critic 也替代不了步骤 1c 的渲染核对**——critic 看的是截图，而"注释自毁导致令牌全失效""`clip` 掩盖的溢出"这类问题在截图里可能看着正常（实测两轮 critic 都没看出注释自毁，是计算样式核对抓到的）；**渲染核对、机器扫描、独立评审是三件事，都要做**。**起用边界**：① **必须起** —— 完整审计迭代（产出参考原型/修改方向）、L2 从零新建收尾、任何要交给开发当视觉基准的产物；② **可省** —— L0 纯查/纯萃取（只产报告或 token 文档）、单项微调的一条建议、纯事实核查；③ **不确定就起**：起 critic 的成本远低于把一个视觉缺陷交出去。评审动作：无头浏览器/截图工具渲染成品（多视口：桌面+移动+关键状态）→ **另起独立 critic 子代理（pi：调 `design-critic` agent；关键前提：critic 模型能力 ≥ 执行模型且支持视觉直读，否则审的是文字转述、能力降级）**（全新上下文、不携带约束集推导过程）→ 只喂截图路径 + {方向锁产物} + 环节 1 选定的真实参考/范例图当 moodboard（critic 不知晓产品 PRD，防止“功能正确性”污染审美判断）→ 按四维输出：方向保真 / 执行质量（对照工作室线）/ AI 味残留 / 克制度 → 10 分制独立打分。critic 提示词内嵌见下方「critic 评审提示词」；**critic prompt 里不写入通过线/验收线**（知道分数线 = 分数朝线虚胖，LLM 会迎合隐含目标），通过线只存在于你的验收决定里。视觉层 58 gates 照跑（机器子集层 1 已覆盖），critic 管 gates 管不了的“整体气质”判断。（无子代理能力时退化：huashu 5 维自查 + 无头浏览器截图 + 视觉模型复核，并明示这是自评降级）
@@ -316,11 +312,11 @@ Do NOT remove elements that carry the chosen direction's personality
 FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规则}
 ```
 
-**资源调用**：Kami 三查（V 规则·主）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/** 视觉迭代/审美投诉任务优先读 ui-quickfix.md（V 规则·次·源自 Waza /ui，产物已存在时的方向锁 + grep sibling + native exception + Aesthetic Review）** / **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
+**资源调用**：桶契约可测特征（V 规则·主·按桶，经 `design_tokens`）/ Kami 三查（V 规则·主，仅 warmpaper 与文档排版桶）/ huashu 5 维（V 规则·主）/ design-qa-checklist（V 规则·A）/ Zine 风格一致性（V 规则·B）/ 构图 11 项验收（V 规则·B，poster-compositions.md）/** 视觉迭代/审美投诉任务优先读 ui-quickfix.md（V 规则·次·源自 Waza /ui，产物已存在时的方向锁 + grep sibling + native exception + Aesthetic Review）** / **logo/icon 任务必读 design_patterns.md Part 4 图形质量底线（V 规则·次：GitHub 源优先，本地存档兜底）**。
 
 **四段校验分层（每层管的东西不同，全跑）**：
 1. **机器层**：`design_audit`（pi 的 design-router extension / DSH 的 my-agent 预设插件，同源工具）跑可机器判定的 slop gates + 色值/emoji/字重/圆角/渐变扫描（合并了环节 4 机器扫描与 hallmark 机器子集）+ **动效 EM-* 子集**（grep 可查：EM-1 `transition: all` / EM-2 入场 `scale(0)` / EM-3 入场 `ease-in` / EM-4 刻意动画用内置 `ease-out` / EM-5 UI 时长 >300ms 无理由 / EM-6 keyframes 用于 toast/toggle 等快速触发 / EM-7 动 width/height/margin/padding/top/left / EM-8 缺 `prefers-reduced-motion` / EM-9 hover 无 `(hover:hover) and (pointer:fine)` 门控 / EM-10 锚定弹层 `transform-origin: center` / EM-17 `will-change` 用在非合成属性（只应用 transform/opacity/filter）；来源 emilkowalski/skills `skills/review-animations/STANDARDS.md`（勿写成裸 `STANDARDS.md`——该仓根目录无此文件），需精确值直引时读 ~/Desktop/DSH/Chat/Design-Agent/… 或 https://github.com/emilkowalski/skills/blob/main/skills/review-animations/STANDARDS.md）。**机器实现映射**：EM-2/EM-3/EM-5/EM-17 为 design_audit 独立 gate；EM-1 由 gate 10 覆盖、EM-7 由 gate 14 覆盖、EM-8 由 gate 27 覆盖（同语义不重复输出）；EM-4/6/9/10 为 grep 自查。**编号段位**：EM-1~EM-10 + EM-17 为机器层，EM-11~EM-16 为视觉层自查号；新增机器 gate 从 EM-18 起往后追加，不改既有号
-2. **品牌层**：Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）
+2. **品牌层（按桶）**：warmpaper → Kami 三查（取色 R≥G>B / 品牌色面积 ≤5% / 页面密度 60-80%）；其余桶 → 该桶契约的可测特征 + accent 面积 ≤5%
 3. **视觉层**：hallmark slop-test 58 gates 全量（V 规则·次·软依赖——机器子集已由第 1 层跑，视觉/上下文类由模型按 slop-test.md 自查：gate 6/8/28/29/31/32/35/36/44/45/52-54/56/57）+ **动效视觉自查**（EM-11 频率档匹配——高频区是否仍有动画 / EM-12 目的能否命名——说不出目的即删 / EM-13 crossfade 是否干净（脏则 blur(2px)<20px 遮盖）/ EM-14 stagger 30–80ms 节奏 / EM-15 退出路径与进入对称 / EM-16 慢放验证——2–5× 或 DevTools 动画检查器看缓动/原点/同步）；A 分支 hero/首屏可加构图 11 项自查（poster-compositions.md，与 gates 去重：焦点/主次比例/留白帮助阅读）
 4. **UX 层**：design-qa-checklist（导航/状态/反馈可用性）
 
@@ -333,15 +329,24 @@ FAIL 项: {约束3: 品牌色面积超8% | 修正: 回环节2 收紧点缀色规
 **环节 4 达标即视为设计完成，进入收尾**，不再向下滑入开发：
 
 - **交付物**：设计产物（HTML 原型/demo/幻灯片/信息图/动画）+ **设计规范文档 `designs/DECISION.md`**。归档到项目 designs/ 等子目录。
-- **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，四段结构：
+- **设计规范文档（收尾必生成，硬性要求）**：每次任务收尾**必须**写 `designs/DECISION.md`，五段结构（第 5 段仅在“要转开发”时写）：
   ```
   # DECISION.md — 设计决策与页面规范
   ## 1. Brief（环节 0）      场景分支/格式/受众/目标/硬约束
   ## 2. 候选与选择理由（环节 1）  2-3 候选（token 草稿+理由）+ 用户选定项与理由
   ## 3. 页面规范/约束集（环节 2） 最终确认的 ≤10 条约束，每条带来源标注
-  ## 4. 校验结果（环节 4）    design_audit 输出 + Kami 三查对照 + PASS/FAIL
+  ## 4. 校验结果（环节 4）    design_audit 输出 + 按桶三查对照（warmpaper: Kami 三查 / 其余: 契约可测特征）+ PASS/FAIL
+  ## 5. 开发交接规格（仅转开发时写）  六类字段，见下
   ```
   规范供开发交接直接用，候选理由供追溯；该文档即开发交接包的主体。
+- **§5 开发交接规格的六类字段（仅“要转开发”才写，不转开发不写）**——借 design-ops `handoff-spec` 骨架（上游未装，内容已内化到本段，不另建第二个交接物）：
+  1. **视觉规格**：间距/尺寸/色（写 token 名不写 hex）/字阶/圆角/阴影/响应式断点行为
+  2. **交互规格**：各状态清单（default / hover / focus-visible / active / disabled / loading / error / success 中适用的）+ 动效参数（属性/时长/缓动，直接引约束集的 EM-* 数值）+ 键盘交互
+  3. **内容规格**：字符上限与截断、动态内容 min/max、empty/loading/error 文案
+  4. **资产交付**：字体文件、图标（SVG 命名约定）、图片分辨率与格式变体
+  5. **边界情况**：最短/最长内容、各断点行为、a11y（ARIA / 键盘可达 / 读屏）
+  6. **实现注记**：可复用组件、数据结构假设、API 依赖、性能注意
+  **详略分界**：产物为 HTML/CSS 时，1–2 类可直接指向源码/token 文件（不重抄数值）；产物为静态图/Figma（.fig/.pen）时才需写全精确值（即真正的 redline 场景）。
 - **默认不进入开发**：设计完成 ≠ 开始开发。除非用户**显式**要求（"开始开发/实现上线/继续做下去"），否则本流程止于设计交付——不写生产代码、不搭后端、不做工程化。
 - **转开发的条件与方式**：用户要求开发时，`designs/DECISION.md` 作为开发交接包（含设计文件清单），建议交给开发 Agent/流程执行；不默认自己动手写生产代码。
 - **收尾动作**：确认交付物齐全归档（designs/）+ DECISION.md 已生成 → 极简总结（做了什么、caveats、下一步可选方向，含"如需开发可转交"）。

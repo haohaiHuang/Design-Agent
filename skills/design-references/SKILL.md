@@ -8,6 +8,8 @@ description: 设计任务路由技能。第一层判定任务所处阶段（从�
 **调用顺序：阶段判定（任务在流程哪个点）→ 场景分支（A/B/C）→ 路由到需要的那一个环节。**
 
 > 资源明细见 `~/resources/design-references.md`（台账，每条带三维标注）；三维索引见 `references/registry.md`；环节操作细节见 `references/workflow.md`。
+>
+> **桶契约（环节 2 的主数据源）**：`assets/tokens/<bucket>.css`（37 变量 + `.ds-btn`/`.ds-card`/`.ds-field`）与 `assets/signature.json`（8 桶 × 字体对 / 色派 / 留白档 / 标志手法 + `source` + 可测特征）。**默认不读**——用 `design_tokens <bucket> [--parts color,type,space,components]` 取片段（单桶 ≤120 行），一次只取当前桶，不遍历 8 份。
 
 ## 第一层：阶段判定（先判任务在流程哪个点，不无谓前滚）
 
@@ -48,9 +50,9 @@ description: 设计任务路由技能。第一层判定任务所处阶段（从�
 | 产品阶段 | 环节子集 | 技能/参考调用 |
 | --- | --- | --- |
 | 探索期（需求→概念） | 0 + 1 | refero Styles 网站（网页浏览）+ Beautiful UI（A1）/ minimal（兜底） |
-| 定义期（方案→设计） | 0 + 1 + 2 | Kami 骨架（C 常驻）+ refero 网站 DESIGN.md（直引·网页浏览）+ design-md-skill（A1 约束生成） |
+| 定义期（方案→设计） | 0 + 1 + 2 | 桶契约 `design_tokens <主桶>`（C 主·按桶）+ refero 网站 DESIGN.md（直引·网页浏览）+ design-md-skill（A1 约束生成） |
 | 执行期（开发→迭代） | 3（+2 按需） | kami / huashu-design / Figma 家族 / motion |
-| 评估期（验收→反馈） | 4 → 回 2 | Kami 三查 + design-qa-checklist + huashu 5 维 |
+| 评估期（验收→反馈） | 4 → 回 2 | 按桶三查（warmpaper: Kami 三查 / 其余: 契约可测特征）+ design-qa-checklist + huashu 5 维 |
 
 环节 2 的约束集是**沉淀物**：定义期产出一次，执行期多次复用。
 

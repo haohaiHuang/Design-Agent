@@ -1,0 +1,86 @@
+/* design-assets · bucket: dataviz · signature: 高密度小字 · 网格线分栏 · 单色 accent 只标数据（图表优先，装饰归零） · source: boardui, saasui-dashboard, dash-ui, google-fonts, source-han */
+:root {
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #EEF1F6;
+  --border: #D5DBE4;
+
+  --fg: #161B22;
+  --muted: #55606E;
+  --accent: #1F5AE0;
+  --accent-fg: #FFFFFF;
+
+  --font-display: "IBM Plex Sans", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-body: "IBM Plex Sans", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --step-1: 11px;
+  --step-2: 12px;
+  --step-3: 13px;
+  --step-4: 18px;
+  --step-5: 24px;
+  --step-6: 40px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 40px;
+  --space-8: 56px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --shadow-1: 0 1px 0 rgba(22, 27, 34, 0.06);
+  --shadow-2: 0 4px 16px rgba(22, 27, 34, 0.08);
+
+  --dur-fast: 90ms;
+  --dur-base: 150ms;
+  --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
+
+  /* 留白档 S（紧）：S=3.5rem/24px/76ch · M=4.5rem/46px/72ch · L=7rem/48px/68ch · XL=9rem/64px/60ch */
+  --section-gap: 3.5rem;
+  --page-gutter: 24px;
+  --page-max: 1440px;
+  --measure: 76ch;
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--step-2);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.ds-card {
+  padding: var(--space-5);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.ds-field {
+  display: block;
+  width: 100%;
+  min-height: var(--space-6);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--step-2);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}

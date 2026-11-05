@@ -1,0 +1,88 @@
+/* design-assets · bucket: retro · signature: 零圆角方框 · 双色套印 · 做旧纸底（档案拼贴） · source: zine-style-library, zine-family-recipes, google-fonts, source-han */
+:root {
+  --bg: #EDE4D3;
+  --surface: #E4D8C2;
+  --surface-2: #D9CBB2;
+  --border: #B9A98D;
+
+  --fg: #241F17;
+  --muted: #5F5443;
+  --accent: #9E3B24;
+  --accent-fg: #FBF4E4;
+
+  --font-display: "Space Mono", "Source Han Serif SC", ui-monospace, monospace;
+  --font-body: "IBM Plex Serif", "Source Han Serif SC", Georgia, serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --step-1: 12px;
+  --step-2: 13px;
+  --step-3: 15px;
+  --step-4: 20px;
+  --step-5: 28px;
+  --step-6: 48px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --shadow-1: 3px 3px 0 rgba(36, 31, 23, 0.85);
+  --shadow-2: 6px 6px 0 rgba(36, 31, 23, 0.85);
+
+  --dur-fast: 100ms;
+  --dur-base: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* 留白档 S（紧）：S=3.5rem/24px/76ch · M=4.5rem/46px/72ch · L=7rem/48px/68ch · XL=9rem/64px/60ch */
+  --section-gap: 3.5rem;
+  --page-gutter: 24px;
+  --page-max: 1180px;
+  --measure: 76ch;
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--step-2);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.ds-card {
+  padding: var(--space-6);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.ds-field {
+  display: block;
+  width: 100%;
+  min-height: var(--space-6);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--step-2);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}

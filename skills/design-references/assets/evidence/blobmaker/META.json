@@ -1,0 +1,15 @@
+{
+  "slug": "blobmaker",
+  "url": "https://www.blobmaker.app/",
+  "capturedAt": "2026-11-05T07:05:32.043Z",
+  "quality": "良",
+  "bucket": "liquid",
+  "shots": [
+    "desktop",
+    "mobile"
+  ],
+  "colors": 2039,
+  "stale": false,
+  "humanEdited": false,
+  "source": "design-evidence 1.0"
+}

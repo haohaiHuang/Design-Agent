@@ -1,0 +1,88 @@
+/* design-assets · bucket: liquid · signature: 全圆角胶囊 · 多层柔光阴影 · 弹簧缓动（流体悬浮） · source: liquid-gooey, transitions-dev, beui, google-fonts, source-han */
+:root {
+  --bg: #F0F6F7;
+  --surface: #E4EFF1;
+  --surface-2: #D8E7EB;
+  --border: #C7DCE2;
+
+  --fg: #0F2129;
+  --muted: #4C6470;
+  --accent: #0B7285;
+  --accent-fg: #FFFFFF;
+
+  --font-display: "Sora", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-body: "Manrope", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --step-1: 12px;
+  --step-2: 14px;
+  --step-3: 16px;
+  --step-4: 22px;
+  --step-5: 30px;
+  --step-6: 60px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 36px;
+  --space-7: 56px;
+  --space-8: 88px;
+
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --shadow-1: 0 2px 8px rgba(15, 33, 41, 0.08);
+  --shadow-2: 0 12px 32px rgba(15, 33, 41, 0.14);
+
+  --dur-fast: 140ms;
+  --dur-base: 260ms;
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* 留白档 M（中偏紧）：S=3.5rem/24px/76ch · M=4.5rem/46px/72ch · L=7rem/48px/68ch · XL=9rem/64px/60ch */
+  --section-gap: 4.5rem;
+  --page-gutter: 46px;
+  --page-max: 1200px;
+  --measure: 72ch;
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+
+.ds-card {
+  padding: var(--space-6);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.ds-field {
+  display: block;
+  width: 100%;
+  min-height: var(--space-6);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--step-2);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}

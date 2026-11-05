@@ -1,0 +1,86 @@
+/* design-assets · bucket: minimal · signature: 冷灰纸面 · 发丝线分界 · 亮底上的深 graphite 代码卡作 hero（无装饰阴影，6px 技术圆角） · source: refero-design, hallmark-genre-bans, google-fonts, source-han */
+:root {
+  --bg: #F8FAFD;
+  --surface: #F1F4F7;
+  --surface-2: #E8EBEF;
+  --border: #DEE2E7;
+
+  --fg: #192029;
+  --muted: #6D7279;
+  --accent: #006FE6;
+  --accent-fg: #FAFCFE;
+
+  --font-display: "Space Grotesk", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-body: "Inter", "Source Han Sans SC", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --step-1: 12px;
+  --step-2: 14px;
+  --step-3: 16px;
+  --step-4: 22px;
+  --step-5: 28px;
+  --step-6: 72px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 64px;
+  --space-8: 104px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --shadow-1: 0 1px 2px rgba(24, 32, 41, 0.06);
+  --shadow-2: none;
+
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 留白档 L（松）：S=3.5rem/24px/76ch · M=4.5rem/46px/72ch · L=7rem/48px/68ch · XL=9rem/64px/60ch */
+  --section-gap: 7rem;
+  --page-gutter: 48px;
+  --page-max: 1216px;
+  --measure: 68ch;
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.ds-card {
+  padding: var(--space-6);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.ds-field {
+  display: block;
+  width: 100%;
+  min-height: var(--space-6);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--step-2);
+  color: var(--fg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}

@@ -14,7 +14,7 @@
 
 | 组件 | 作用 |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（6 个只读 + 1 个本地日志写入，零外部运行时依赖） |
+| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（7 个工具：6 只读 + 1 个本地日志写入，零外部运行时依赖） |
 | [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：三层路由 persona（阶段判定 → 场景分支 → 环节）+ 每环节确认门禁 |
 | [`skills/design-references/`](skills/design-references/) | 阶段/场景路由技能（阶段判定 → A 产品/B 内容/C 通用 → 五环节），DSH 适配版 |
 | [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
@@ -132,7 +132,7 @@ dsh --profile web --dump-config-schema > /tmp/schema.json         # 再用 jsons
 
 ```
 plugins/design-router/
-├── index.mjs          # 插件入口：注册 6 个工具（5 只读 + 1 本地日志写入，其余不碰文件）
+├── index.mjs          # 插件入口：注册 7 个工具（6 只读 + 1 本地日志写入，其余不碰文件）
 ├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/kill-slop/assets/types
 └── data/
     └── registry.json  # registry.md 的数据化产物（91 资源 × 9 分支路由）

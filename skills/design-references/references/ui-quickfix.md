@@ -56,12 +56,12 @@
 - 动效改善层级/氛围，还是纯装饰？
 - 去掉所有装饰阴影还高级吗？
 - AI Slop Test：陌生人瞥一眼首屏会否觉得"AI 做的"？扫：reflex 字体 / 默认渐变 / 居中 hero + 双侧 CTA / 三张相同卡片 / 通用顶栏——不是方向明确要求的都修掉
-- **渲染核对（截图看着正常 ≠ 渲染是对的，必做）**：① 逐元素查溢出（`getBoundingClientRect().right > innerWidth`），**不要用 `scrollWidth === clientWidth`**——`overflow-x: clip` 会让它失去分辨力，内容被裁掉也照样"通过"；② 查"注释定界符自毁"（CSS 注释不嵌套，注释里再写 `/*` 会吞掉后面的 `:root`，全页令牌失效而静态检查看不见）；③ 查声明的 `:root` 变量是否真被定义与消费；④ **图表读数逐项对齐**（弧长/扇区/柱高/点位 vs 标签数字；半环按「百分比 × 360°」取端点会得到约 2 倍读数）——几何与数值编码不在机器闸门检查面内，闸门全绿不等于图对
-- **看中文字形真的加载了没**：拉丁族（Inter / IBM Plex / Source Serif…）通常不含 CJK，声明了也会静默回退。同一段中文在多个族里**宽度完全相同**（= 每字等宽 × 字数）即证明该族没有中文字形；`document.fonts.check('40px "X"', '暖')` 可直接判定。要中文气质可控就得显式引入 CJK 族，否则各平台各自回退（macOS 落 PingFang/Songti、Windows 落雅黑/SimSun）
+- **渲染核对（截图看着正常 ≠ 渲染是对的，必做）**：`node ~/my-pi-skills/extensions/design-router/scripts/design-render.mjs <产物> --size desktop,mobile --json`
+  规则集 RND-1..8、退出码 0/1/2 与证据目录只认 `docs/design-assets/SPEC.md` §6.3。工具判机器可判项（溢出 / 注释自毁 / 令牌断链 / CJK 回退 / 截图非空 / 视口伪影 / 首屏透明态 / 计算样式），人只看气质。
+- **图表读数逐项对齐**（工具不做）：弧长/扇区/柱高/点位 vs 标签数字；半环按「百分比 × 360°」取端点会得到约 2 倍读数。几何与数值编码不在机器闸门检查面内，闸门全绿不等于图对
 - **刻意保留的对照片段**（"改前 / 引用证据 / 正误对照"）用 `slop-ignore: <理由>` 行内标记豁免，别让审计把对照物当成真缺陷；理由必须非空
 - **中文标题别盲用 `text-wrap: balance`**：它不懂中文词边界，会把词组从中间切开（实测断在「工/作」之间）；中文标题手动断行或配 `word-break: keep-all`
-- 全宽 + 375px 各渲染一次；移动端破了先修再交付。宿主不能渲染时，把要检查的确切视图交给用户。
-  **窄屏通道注意**：`Google Chrome --headless --window-size=375` 有最小窗口宽度（实测 `innerWidth` 被抬到 500），拿到的是"更宽布局裁到 375"的**假图且图看着正常** → 用 `chrome-headless-shell`、**iframe 预览壳**（外层写死 `width:375px` 的 iframe），或 `ego-browser Page.printToPDF` + `pdftoppm` 的 PDF 中转（本机实测：系统 Chrome 无头崩溃、`screencapture` 无权限、`ego-browser` CDP 截图超时），渲染后先断言 `innerWidth` 等于目标宽再分析；截图还要过一道"非空"检查（颜色/灰阶种类 > 8，路径写错时会得到一张纯灰图且不报错）
+- 命令默认 `desktop,mobile` 各渲染一次；移动端破了先修再交付。宿主不能渲染时，CLI 会打印 `SKIP: no browser (RND-0)` 并非零退出——如实标注，**不要把人看截图当成替代结论**
 
 结束：命名美学方向（2-3 句 + 理由）+ 非显然选择（字体/色彩/布局逻辑）+ 占位内容替换指引。
 
