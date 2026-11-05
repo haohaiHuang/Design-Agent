@@ -49,13 +49,13 @@ node plugins/design-router/scripts/check-checks-sync.mjs <上游>/extensions/des
 
 | 量 | 值 |
 | --- | --- |
-| 技能树指纹 | `sha256:5c462378b7a2b0ab`（9 处副本一致） |
-| `registry.md` 文件指纹 | `sha256:2b405555a257849aba443f8f6bd49e4056037541177646748729cb063767ab79` |
-| `workflow.md` 文件指纹 | `sha256:2591764d116d15816b1196ee3beb944b62c59dfbed1c7e8f6874657694e014f1` |
-| `ui-quickfix.md` 文件指纹 | `sha256:1858c2fe1080bf38d7272cc8a928d9f87c44cb1a1dd0d328d3afeb4a5901f507` |
-| `SKILL.md` 文件指纹 | `sha256:32f3592abd7c985a680c24e78e6e956aec5bb65bdee842f51ae1ca1b91679c7f`（**在技能树指纹覆盖范围内**，改动它同样要同步各副本） |
-| `registryGenerated` | 上游 `6c6a53d65e6c` / DSH `b14f02fc1b97`（不同属预期） |
-| 资源条目 | 两侧均 **104**（Phase 10 新增 `emilkowalski-skills`） |
+| 技能树指纹 | `sha256:fe25e656b266caff`（9 处副本一致，2026-11-05 复核） |
+| `registry.md` 文件指纹 | `sha256:d64e767b4f316ea4d0cde9791b64dc82f6a78835196bf4cce239e804c7cb615b` |
+| `workflow.md` 文件指纹 | `sha256:c0c9cc1272bc87be41f37df26b32567219b4677de5191d63ab9f97ad900da81a` |
+| `ui-quickfix.md` 文件指纹 | `sha256:f943aa6a8a1370a2a8246924b8bc6c9bcf84af191fcbab4b0bb292b891784d54` |
+| `SKILL.md` 文件指纹 | `sha256:c0e04491161380109a00921b6554bad9588cba524c5c75930d3f2da2523c4217`（**在技能树指纹覆盖范围内**，改动它同样要同步各副本） |
+| `registryGenerated` | 上游 `ce807f1e0987` / DSH `54f523823a76`（不同属预期） |
+| 资源条目 | 两侧均 **110**（2026-11-05 资产化收口：8 桶契约 + 11 条快照 + 5 个新来源） |
 | EXTRA 池 | 各自主张（**非契约**）；两侧恰好相同：`logoExtra` 键 1/2/4、`hallmarkExtra[4]` 含 `kill-ai-slop` |
 
 **共享件清单（2026-09-30 起）**：`skills/design-references/` 的**整棵树**都算共享件（`references/*` + `SKILL.md`），
