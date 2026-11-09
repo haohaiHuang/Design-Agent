@@ -24,12 +24,15 @@
  *   HC-7 验收自洽性      —— 把 §7 里的 grep 型验收命令抽出来**逐条实跑**：命令本身能不能跑、
  *                          会不会被注释/子串假阳、断言是否可能恒真（真机实测：`999px` 禁令被
  *                          `.skip{left:-9999px}` 命中；`transition:all` 命中注释；`.doc-row` 计数 `0===0`）
+ *   HC-9 实现映射表      —— §5 是否把「元素 → 实现物」落成可核对的表：表存在、每行两列实现至少一列、
+ *                          证据 path:line 真实可达、状态列非空；声称「项目已有」的组件在项目里搜得到。
+ *                          覆盖度（每个可见块有没有行）不机器判定——见该段注释。
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 
-const DS_TOOLS = ["design_audit", "design_contrast", "design_lookup", "design_route", "design_diversity", "design_quality"];
+const DS_TOOLS = ["design_audit", "design_contrast", "design_lookup", "design_route", "design_diversity", "design_quality", "design_search", "design_gap"];
 const BARE_DOC_NAMES = ["ui-quickfix.md", "workflow.md", "SKILL.md", "registry.md", "poster-compositions.md"];
 
 function readIfFile(p) {
@@ -57,6 +60,39 @@ function walk(dir, depth = 0, out = []) {
     else out.push(p);
   }
   return out;
+}
+
+// ---------- HC-9 用的 markdown 表格解析 ----------
+/** 行内单元格拆分：去首尾竖线后按 | 切，保留原顺序（不做转义处理，交付表格不用转义） */
+function splitRow(line) {
+  let s = String(line).trim();
+  if (s.startsWith("|")) s = s.slice(1);
+  if (s.endsWith("|")) s = s.slice(0, -1);
+  return s.split("|").map((c) => c.trim());
+}
+
+/** 收集 markdown 表格：连续以 | 开头的行成块；返回 [{header, rows}]（跳过 --- 分隔行） */
+function markdownTables(text) {
+  const out = [];
+  let buf = [];
+  const flush = () => {
+    if (buf.length >= 2) {
+      const rows = buf.slice(1).filter((l) => !/^\s*\|?[\s:|-]+\|?\s*$/.test(l));
+      out.push({ header: splitRow(buf[0]), rows: rows.map(splitRow) });
+    }
+    buf = [];
+  };
+  for (const line of String(text).split("\n")) {
+    if (/^\s*\|/.test(line)) buf.push(line);
+    else flush();
+  }
+  flush();
+  return out;
+}
+
+/** 表头单元格归一化：去掉粗体标记、反引号与空白，便于做列名匹配 */
+function normCell(c) {
+  return String(c).replace(/[*`\s]/g, "");
 }
 
 // ---------- WCAG 相对亮度 ----------
@@ -441,6 +477,168 @@ export function runHandoffChecks(opts = {}) {
           location: "§7",
         });
       }
+    }
+  }
+
+  // ---------- HC-9 实现映射表（元素 → 实现物，可核对）----------
+  // 存在理由：上面 HC-2 只核对「文书 vs 原型的数值一致」。数值对了，开发仍要自己推
+  // 「这该是哪个组件、有哪些状态」——真机盲测里 A-3「依据不可达」就是这个形状：
+  // 文书给了一串度量值，没有一个可执行物。
+  // 判据：写了 §5 开发交接规格的文书，必须含一张「元素 → 实现物」表，且每行证据可解析。
+  // 覆盖度（每个可见块是否都有一行）**不机器判定**——静态解析 HTML 分不清布局容器与可见块，
+  // 硬判会误报，而误报比漏报更糟；覆盖度交给 4.critique / 盲测。
+  const claimDocs9 = docs.filter((f) => /DECISION\.md$|修改方向\.md$/.test(f));
+  if (claimDocs9.length > 0 && protos.length > 0) {
+    // 只认**标题行**：正文里"见 §5 开发交接规格"这类交叉引用不能让 HC-9 误判为"写了 §5"
+    const SPEC_HEAD = /(^|\n)#{1,4}\s*5[.、\s]/;
+    const EVID_RE = /([\w./\u4e00-\u9fa5-]+\.(?:html?|css|md|svg|json))(?::(\d+))?/;
+    const textLineCount = (p) => (readIfFile(p) || "").split("\n").length;
+    // 项目文本只在需要核对「声称项目已有」时读一次；超大项目设上限，避免拖慢核对
+    const projText = (() => {
+      if (!existsSync(projectDir)) return "";
+      const files = walk(projectDir).filter((f) => /\.(html|css|scss|js|mjs|tsx?|vue|md|json)$/.test(f)).slice(0, 400);
+      return files.map((f) => readIfFile(f) || "").join("\n");
+    })();
+    for (const doc of claimDocs9) {
+      const txt = readIfFile(doc) || "";
+      if (!SPEC_HEAD.test(txt)) continue; // 不转开发就不写 §5，不判
+      const tables = markdownTables(txt);
+      const table = tables.find((t) => {
+        const h = t.header.map(normCell);
+        return h.some((c) => /元素|区块|区域/.test(c)) && h.some((c) => /证据|依据/.test(c));
+      });
+      if (!table) {
+        // 有 §5 却没表：要么写成散文（开发读不出实现物），要么表头缺「元素/证据」列
+        const anyTable = tables.length > 0;
+        findings.push({
+          gate: "HC-9",
+          rule: "mapping-table-missing",
+          severity: "error",
+          message: anyTable
+            ? `§5 里有一张表，但表头缺「元素」或「证据」列——HC-9 无法核对实现映射。表头需含：元素 / 目标项目已有实现 / 等价实现 / 状态 / 证据`
+            : `§5 开发交接规格里没有「元素 → 实现物」表——开发只拿到度量值，还得自己推组件与状态（就是盲测里 A-3「依据不可达」的形状）。补一张表：元素 / 语义角色 / 目标项目已有实现 / 等价实现 / 状态 / 证据`,
+          location: basename(doc),
+        });
+        continue;
+      }
+      const h = table.header.map(normCell);
+      const idxElem = h.findIndex((c) => /元素|区块|区域/.test(c));
+      const idxEvid = h.findIndex((c) => /证据|依据/.test(c));
+      const implIdx = h.map((c, i) => (/实现|组件/.test(c) ? i : -1)).filter((i) => i >= 0);
+      const idxState = h.findIndex((c) => /状态/.test(c));
+      if (implIdx.length === 0) {
+        findings.push({
+          gate: "HC-9",
+          rule: "mapping-table-header",
+          severity: "error",
+          message: `映射表缺「实现」列（目标项目已有实现 / 等价实现 至少一列）——只有元素名不构成交接`,
+          location: basename(doc),
+        });
+        continue;
+      }
+      if (table.rows.length === 0) {
+        findings.push({
+          gate: "HC-9",
+          rule: "mapping-table-empty",
+          severity: "error",
+          message: `映射表只有表头没有行——等于没写`,
+          location: basename(doc),
+        });
+        continue;
+      }
+      table.rows.forEach((cells, i) => {
+        const at = (idx) => (idx >= 0 && idx < cells.length ? cells[idx] : "");
+        const elem = at(idxElem).replace(/[*`]/g, "").trim();
+        const evid = at(idxEvid);
+        const implVals = implIdx.map(at).filter((v) => v && v.trim() && v.trim() !== "—" && v.trim() !== "-");
+        const stateVal = at(idxState).trim();
+        const rowLabel = `第 ${i + 1} 行${elem ? `（${elem}）` : ""}`;
+        if (!elem) {
+          findings.push({
+            gate: "HC-9",
+            rule: "mapping-row-incomplete",
+            severity: "error",
+            message: `映射表 ${rowLabel} 缺元素名——不知道这一行映射的是什么`,
+            location: basename(doc),
+          });
+        }
+        if (implVals.length === 0) {
+          findings.push({
+            gate: "HC-9",
+            rule: "mapping-impl-missing",
+            severity: "error",
+            message: `映射表 ${rowLabel} 两个实现列都为空——开发没有可执行物（目标项目没有该组件时，必须给等价实现）`,
+            location: basename(doc),
+          });
+        }
+        if (idxState >= 0 && !stateVal) {
+          findings.push({
+            gate: "HC-9",
+            rule: "mapping-state-empty",
+            severity: "warn",
+            message: `映射表 ${rowLabel} 状态列为空——交互规格里点名的状态要落到行上（default / hover / focus / disabled / loading / error / empty 中适用的）`,
+            location: basename(doc),
+          });
+        }
+        // 证据：path[:line]，或指向文书自身的 §N
+        const m = evid.match(EVID_RE);
+        if (!m) {
+          if (!/§\s*\d/.test(evid)) {
+            findings.push({
+              gate: "HC-9",
+              rule: "mapping-evidence-format",
+              severity: "error",
+              message: `映射表 ${rowLabel} 证据列不是可解析的「文件:行号」，也没指向文书 §N——第三方核不到出处`,
+              location: basename(doc),
+            });
+          }
+          return;
+        }
+        const rel = m[1].replace(/^\.\//, "");
+        const candidates = [join(root, rel), join(designsDir, rel.replace(/^designs\//, "")), join(dirname(doc), rel)];
+        const hit = candidates.find((p) => existsSync(p) && statSync(p).isFile());
+        if (!hit) {
+          findings.push({
+            gate: "HC-9",
+            rule: "mapping-evidence-unreachable",
+            severity: "error",
+            message: `映射表 ${rowLabel} 证据指向不存在的文件：\`${rel}\``,
+            location: rel,
+          });
+          return;
+        }
+        if (m[2]) {
+          const line = Number(m[2]);
+          const total = textLineCount(hit);
+          if (!Number.isFinite(line) || line < 1 || line > total) {
+            findings.push({
+              gate: "HC-9",
+              rule: "mapping-evidence-line",
+              severity: "error",
+              message: `映射表 ${rowLabel} 证据行号越界：\`${rel}:${line}\`，该文件只有 ${total} 行`,
+              location: `${rel}:${line}`,
+            });
+          }
+        }
+        // 声称「目标项目已有实现」→ 项目里应当真能搜到；搜不到是 warn（可能来自生成物或别名）
+        if (projText && implVals.length > 0) {
+          const names = new Set();
+          for (const v of implVals) {
+            for (const x of v.match(/\b[A-Z][A-Za-z0-9]{2,}\b/g) || []) names.add(x);
+            for (const x of v.match(/\.[a-z][a-z0-9-]{2,}/g) || []) names.add(x);
+          }
+          const absent = [...names].filter((n) => !projText.includes(n));
+          if (names.size > 0 && absent.length === names.size) {
+            findings.push({
+              gate: "HC-9",
+              rule: "mapping-claim-unverified",
+              severity: "warn",
+              message: `映射表 ${rowLabel} 声称的实现物在目标项目里搜不到：${absent.join(", ")}——确认是别名/生成物，否则开发照此实现会落空`,
+              location: basename(doc),
+            });
+          }
+        }
+      });
     }
   }
 

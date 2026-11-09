@@ -6,6 +6,38 @@
 
 ---
 
+## 2026-11-09 · 交接物 + Agent 接口补强（来源：astryx 评估）
+
+**背景**：评估 Meta 开源的 astryx 能否接进设计 Agent。结论是只取两样：**交接物的「元素 → 实现物」映射**、**Agent 接口的「缺什么就记下来」**；不引入 React 组件库（会破坏单文件交付与非生产代码边界）。
+
+### 改动 1：§5 增「实现映射表」+ HC-9 机械核对
+
+- **文件**：`plugins/design-router/checks/handoff.mjs`（新增 HC-9）、`index.mjs`（`design_handoff_check` 描述）、`presets/*/`（§5 样例里加表头）、`docs/atomic-ops.md`（`5.handoff` 行）
+- **改成什么**：写了 §5 的文书必须含表 `元素 | 语义角色 | 目标项目已有实现 | 等价实现 | 状态 | 证据`。HC-9 验：表存在（表头含元素/证据/实现列）、每行两列实现至少一列、状态列非空、证据 `文件:行号` 真实可达且行号不越界；声称「项目已有」而项目里搜不到 → warn。
+- **为什么**：HC-2 只核对数值一致，开发拿到「圆角 12 / 内边距 16」还得自己推组件与状态（盲测 A-3「依据不可达」）。
+- **边界**：覆盖度（每个可见块有没有行）**不机器判定**——静态解析 HTML 分不清布局容器与可见块，硬判会误报；交 `4.critique`。
+- **pi 版同步**：无（HC-9 与预设是 DSH 侧；技能树未动，9 处指纹仍一致）。
+
+### 改动 2：`design_gap`（缺口记录，本地日志）+ 改动 3：`design_search`（按词检索）
+
+- **文件**：`plugins/design-router/index.mjs`、`index.test.mjs`、`README*.md`
+- **`design_gap`**：lookup 无命中 / 退化到 web_search 时记录关键词、分支、环节、替代做法、最后能否交付；`list` 按关键词聚合。只写 `~/.dsh/design-router-gaps.json`，**不自动写回 registry**。
+- **`design_search`**：在 110 条资源上按 名称/slug/场景/来源/桶 打分检索。补的是结构性漏查——`design_lookup` 必须先给分支，猜错分支会整批漏掉。
+- **为什么**：退化链此前不留痕，同类需求下轮仍从零开始，registry 也无从知道该补什么。
+- **pi 版同步**：待回灌（pi 版 design-router 尚无这两个工具）。
+
+### 改动 4：persona `suffix` 去掉 `{{cwd}}`（真机验证时暴露）
+
+- **文件**：`presets/my-agent/agent.cordis.yml`、`presets/design-agent-preset/cordis.patch.yml`
+- **现象**：2026-11-09 真机，新建「设计 Agent」会话发第一条消息即失败：
+  `unknown prompt variable "{{cwd}}" in section "deployment:persona-suffix", registered variables: provider, model`
+- **根因**：DSH 0.2.1 的 prompt 变量只注册 `model` / `provider`（`@deepseek-ai/dsh-agent-loop`），
+  `dsh-system-prompt` 对未知变量是**硬报错**，不是留空。预设仍按 0.1.5 时代的 `{{cwd}}` 写 suffix。
+- **改成什么**：`suffix` 改为无变量文案；头部注释同步更正，写明 0.2.1 的可用变量集合。
+- **为什么**：这是"预设装上了、一用就挂"的隐性失败——预设列表看起来正常，报错只在发送后出现。
+
+---
+
 ## 2026-09-01 · 动效维度补全（来源：emilkowalski/skills）
 
 **背景**：emilkowalski/skills（github.com/emilkowalski/skills，34k stars）是动效决策框架 + 精确值表（频率分级/缓动决策序/时长表/物理感/反模式清单），100% 原则、0% 参考。设计工作流此前只有 interfaces.dev 的 5 行动效条目（缺决策层与反模式层）。本次不装技能（Skill=工作流/原则封装，与本工作流编排层重复），改为**提炼原则进环节 2 约束 + 环节 4 校验**。

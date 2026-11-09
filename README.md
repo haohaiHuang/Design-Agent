@@ -133,11 +133,14 @@ Ported from [my-pi-skills](https://github.com/haohaiHuang/my-pi-skills) `extensi
 | Tool | Purpose | Phase |
 | --- | --- | --- |
 | `design_lookup <branch> <stage>` | Query the design-resource registry (R/C/E/V 3-D index + fallback chain + sources; output tags style buckets) | "What do I consult at this step?" |
+| `design_search <keywords>` | Free-text search over the 110 resources (scored on name / slug / scenarios / source / style bucket). `design_lookup` requires you to name a branch first, and a wrong branch hides a whole batch; this finds by word and then routes. Zero hits = a real gap | Phase 1 entry |
 | `design_route <need>` | Map need keywords to recommended style-bucket combos (primary must-check + secondary on-demand) + per-bucket representative resources | Phase 1 research (anti-homogeneity routing) |
 | `design_diversity <c1> <c2> <c3>` | Machine check of 3 candidates' difference (hue family / font tone / source bucket), PASS/FAIL | Before presenting candidates in Phase 1 (anti-homogeneity check) |
 | `design_quality <report\|query>` | Record/query source-quality signals (extraction success / rework rate / reachability — objective, not taste-based); local log, not in git | Record after Phase 4 / consume for downranking in Phase 1 |
 | `design_audit <target>` | Machine slop gates (hallmark machine subset) + interfaces CS-* 8 rules + phase-4 scans (incl. `DR-4` weight/radius, `DR-5` comment self-destruct & undefined vars, `DR-6` non-text contrast per WCAG 1.4.11) + inherited-contrast. Strips comments before scanning, resolves one level of `var()`, reads same-dir linked stylesheets, honours inline `slop-ignore: <reason>` waivers | Phase 4 verification |
 | `design_contrast <target>` | WCAG 2.1 + APCA-approx contrast | Phase 4 verification |
+| `design_handoff_check <designs dir>` | Handoff consistency gates HC-1~HC-9: reachable refs / cross-file numbers / recomputable contrast / tool attribution / evidence freshness / undefined tokens / acceptance self-consistency / blind assertions / **implementation mapping table** (§5's element → implementation table must be checkable, evidence as `file:line`) | Before `present` |
+| `design_gap <report\|list>` | Structured record of resource gaps: when lookup misses or falls back to web_search, record what was missing, what was used instead, and whether it shipped; `list` aggregates by keyword. **Local log only; never auto-writes the registry** | Phase 1 fallback / wrap-up review |
 
 ### Intentional differences from the pi version
 

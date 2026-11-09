@@ -150,6 +150,77 @@ check("HC-8 不误报有效验收（linear-gradient 在项目里能命中）",
 check("HC-8 对'本就针对新增项'的模式只报 warn",
   hc8.some((f) => f.rule === "acceptance-blind" && f.severity === "warn" && f.message.includes("nonexistent-thing-xyz")));
 
+// ---- HC-9 实现映射表（元素 → 实现物）----
+const hc9Of = (F) => F.filter((f) => f.gate === "HC-9");
+const writeDecision = (body) => writeFileSync(join(designs, "DECISION.md"), body.join("\n"));
+const specHead = ["# DECISION.md", "## 5. 开发交接规格", ""];
+
+// 有 §5 却没表 → error
+writeDecision([...specHead, "视觉规格见 §3；交互状态见原型。"]);
+let F5 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 抓到 §5 没有映射表", hc9Of(F5).some((f) => f.rule === "mapping-table-missing" && f.severity === "error"),
+  JSON.stringify(hc9Of(F5).map((f) => f.message)));
+
+// 表存在但实现列全空 / 状态空 / 证据断链
+writeDecision([
+  ...specHead,
+  "| 元素 | 语义角色 | 目标项目已有实现 | 等价实现 | 状态 | 证据 |",
+  "| --- | --- | --- | --- | --- | --- |",
+  "| 顶部指标卡 | 指标摘要 | — | — | | reference-x.html:1 |",
+  "| 提交按钮 | 主操作 | Button | — | default / hover | reference-missing.html:3 |",
+]);
+const F6 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 抓到两列实现都空", hc9Of(F6).some((f) => f.rule === "mapping-impl-missing" && f.severity === "error"));
+check("HC-9 抓到状态列为空（warn）", hc9Of(F6).some((f) => f.rule === "mapping-state-empty" && f.severity === "warn"));
+check("HC-9 抓到证据文件不存在", hc9Of(F6).some((f) => f.rule === "mapping-evidence-unreachable" && f.severity === "error"));
+check("HC-9 不把合法的实现列误报为缺失",
+  !hc9Of(F6).some((f) => f.rule === "mapping-impl-missing" && f.message.includes("提交按钮")));
+
+// 证据行号越界
+writeDecision([
+  ...specHead,
+  "| 元素 | 语义角色 | 目标项目已有实现 | 等价实现 | 状态 | 证据 |",
+  "| --- | --- | --- | --- | --- | --- |",
+  "| 顶部指标卡 | 指标摘要 | — | .metric-card | default / loading | reference-x.html:999 |",
+]);
+const F7 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 抓到证据行号越界", hc9Of(F7).some((f) => f.rule === "mapping-evidence-line" && f.severity === "error"),
+  JSON.stringify(hc9Of(F7).map((f) => f.message)));
+
+// 好表：项目里真有的类名 + 可达证据 → 0 项 HC-9
+writeDecision([
+  ...specHead,
+  "| 元素 | 语义角色 | 目标项目已有实现 | 等价实现 | 状态 | 证据 |",
+  "| --- | --- | --- | --- | --- | --- |",
+  "| 顶部指标卡 | 指标摘要 | — | .ok | default / loading / empty | reference-x.html:1 |",
+]);
+const F8 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 好表 0 项问题", hc9Of(F8).length === 0, JSON.stringify(hc9Of(F8).map((f) => f.message)));
+
+// 声称项目已有、但项目里搜不到 → warn
+writeDecision([
+  ...specHead,
+  "| 元素 | 语义角色 | 目标项目已有实现 | 等价实现 | 状态 | 证据 |",
+  "| --- | --- | --- | --- | --- | --- |",
+  "| 顶部指标卡 | 指标摘要 | MetricCard | — | default | reference-x.html:1 |",
+]);
+const F9 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 对『项目搜不到的实现物』只报 warn",
+  hc9Of(F9).some((f) => f.rule === "mapping-claim-unverified" && f.severity === "warn"),
+  JSON.stringify(hc9Of(F9).map((f) => f.message)));
+
+// 正文提到「§5 开发交接规格」但没有 §5 标题 → 不判（避免交叉引用误报）
+writeDecision([
+  "# DECISION.md",
+  "## 3. 约束集",
+  "- 转开发时的字段见 §5 开发交接规格（本次不转开发，不写 §5）",
+  "## 7. 开发交接提示词",
+  "验收：无",
+]);
+const F10 = runHandoffChecks({ designsDir: designs, projectDir: project });
+check("HC-9 不把正文里的交叉引用当成写了 §5", hc9Of(F10).length === 0,
+  JSON.stringify(hc9Of(F10).map((f) => f.message)));
+
 rmSync(root, { recursive: true, force: true });
 console.log(`\nℹ tests ${pass + fail}\nℹ pass ${pass}\nℹ fail ${fail}`);
 process.exit(fail === 0 ? 0 : 1);

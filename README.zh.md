@@ -14,7 +14,7 @@
 
 | 组件 | 作用 |
 | --- | --- |
-| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（7 个工具：6 只读 + 1 个本地日志写入，零外部运行时依赖） |
+| [`plugins/design-router/`](plugins/design-router/) | 确定性工具 Cordis 插件（10 个工具：8 只读 + 2 个本地日志写入，零外部运行时依赖） |
 | [`presets/my-agent/`](presets/my-agent/) | DSH 预设（`agent.cordis.yml` + `preset.yml`）：三层路由 persona（阶段判定 → 场景分支 → 环节）+ 每环节确认门禁 |
 | [`skills/design-references/`](skills/design-references/) | 阶段/场景路由技能（阶段判定 → A 产品/B 内容/C 通用 → 五环节），DSH 适配版 |
 | [`skills/hallmark/`](skills/hallmark/) | 反 AI 味执行技能（MIT 上游副本，来自 [nutlope/hallmark](https://github.com/nutlope/hallmark)；`site/` 主题 tokens 与示例已随技能内置，自包含） |
@@ -114,11 +114,14 @@ dsh --profile web --dump-config-schema > /tmp/schema.json         # 再用 jsons
 | 工具 | 作用 | 对应环节 |
 | --- | --- | --- |
 | `design_lookup <branch> <stage>` | 查 design-references 资源注册表（R/C/E/V 三维索引 + 退化链 + 来源，输出标注风格桶） | 全流程"这一步查什么" |
+| `design_search <关键词>` | 在 110 条资源里自由文本检索（名称/slug/适用场景/来源/风格桶打分）。`design_lookup` 要你先给分支，猜错分支会整批漏掉；本工具按词找再跳分支；零命中即真缺口 | 环节 1 调研入口 |
 | `design_route <需求特征>` | 按需求关键词返回推荐风格桶组合（主桶必查 + 次桶按需）+ 各桶代表资源 | 环节 1 调研（反同质化定位） |
 | `design_diversity <c1> <c2> <c3>` | 3 候选差异度机器检查（色相族/字体气质/来源桶），PASS/FAIL | 环节 1 候选展示前（反同质化校验） |
 | `design_quality <report\|query>` | 质量信号记录/查询（提取成功率/回炉率/可达性等客观信号，非审美），本地日志不入 git | 环节 4 后记录 / 环节 1 消费降权 |
 | `design_audit <target>` | 机器化 slop gates（hallmark 机器子集）+ interfaces CS-* 8 条 + 环节 4 扫描（含 `DR-4` 字重/圆角、`DR-5` 注释自毁与未定义变量、`DR-6` 非文本对比度 WCAG 1.4.11）+ 继承链对比度。扫描前剥离注释、解析一层 `var()`、读同目录外链样式表、支持 `slop-ignore: <理由>` 行内豁免 | 环节 4 校验 |
 | `design_contrast <target>` | WCAG 2.1 + APCA 近似对比度 | 环节 4 校验 |
+| `design_handoff_check <designs 目录>` | 交付物一致性机械核对 HC-1~HC-9：引用可达 / 跨件数值一致 / 对比度可复算 / 工具归属 / 证据新鲜度 / 未定义令牌 / 验收自洽 / 反向断言 / **实现映射表**（§5 的「元素 → 实现物」表须可核对，证据写成 `文件:行号`） | 收尾 present 前 |
+| `design_gap <report\|list>` | 资源缺口结构化记录：lookup 无命中或退化到 web_search 时记下缺什么、用什么替代、最后能否交付；`list` 按关键词聚合。**只写本地日志，不自动写回 registry** | 环节 1 退化时 / 收尾复盘 |
 
 ### 与 pi 版的差异（有意裁剪）
 
@@ -132,7 +135,7 @@ dsh --profile web --dump-config-schema > /tmp/schema.json         # 再用 jsons
 
 ```
 plugins/design-router/
-├── index.mjs          # 插件入口：注册 7 个工具（6 只读 + 1 本地日志写入，其余不碰文件）
+├── index.mjs          # 插件入口：注册 10 个工具（8 只读 + 2 本地日志写入，其余不碰文件）
 ├── checks/            # 检查器移植（TS→JS）：typography/layout/a11y/copy/contrast/cheat/kill-slop/assets/types
 └── data/
     └── registry.json  # registry.md 的数据化产物（91 资源 × 9 分支路由）

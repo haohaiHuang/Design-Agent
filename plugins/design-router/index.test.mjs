@@ -24,21 +24,25 @@ function tools() {
   return Object.fromEntries(reg.map((t) => [t.name, t]));
 }
 
-test("注册 7 个工具，6 只读 + 1 写入", () => {
+test("注册 10 个工具，8 只读 + 2 写入（design_quality / design_gap）", () => {
   const byName = tools();
   const names = Object.keys(byName).sort();
   assert.deepEqual(names, [
     "design_audit",
     "design_contrast",
     "design_diversity",
+    "design_gap",
     "design_handoff_check",
     "design_lookup",
     "design_quality",
     "design_route",
+    "design_search",
     "design_tokens",
   ]);
-  // 除 design_quality 外无 writeFileSync 语义（description 声明边界）
+  // 两个写入工具的 description 都必须声明本地日志边界，且不碰工作区
   assert.match(byName.design_quality.description, /写入边界|~\/\.dsh\/design-router-quality\.json/);
+  assert.match(byName.design_gap.description, /~\/\.dsh\/design-router-gaps\.json/);
+  assert.match(byName.design_gap.description, /不会自动写回 registry/);
 });
 
 test("design_tokens 按桶取契约（≤120 行）且未知桶列出 8 个可选项", async () => {
@@ -498,5 +502,51 @@ test("T6：91 天 → stale；缺失 → 不带路径 + warn", async () => {
     }
   } finally {
     rmSync(assets, { recursive: true, force: true });
+  }
+});
+
+test("design_search：按词检索能跨分支命中，空结果指向 design_gap", async () => {
+  const { design_search } = tools();
+  const hit = await design_search.execute({ query: "暗色 仪表盘", limit: 5 });
+  assert.match(hit, /检索「暗色 仪表盘」/);
+  assert.match(hit, /slug: `/, "应输出可用的 slug");
+  assert.ok(!/未命中/.test(hit), "常用词组合不该零命中");
+
+  const miss = await design_search.execute({ query: "昆曲 脸谱 文创 包装" });
+  assert.match(miss, /未命中/);
+  assert.match(miss, /design_gap/, "零命中要指向缺口记录，而不是让模型自己编");
+
+  assert.match(await design_search.execute({ query: "  " }), /需要 query/);
+});
+
+test("design_gap：report 写入本地日志、list 按关键词聚合，且不越界写工作区", async () => {
+  const { design_gap } = tools();
+  const dir = mkdtempSync(join(tmpdir(), "dr-gap-"));
+  const logPath = join(dir, "gaps.json");
+  process.env.DSH_DESIGN_ROUTER_GAP_LOG = logPath;
+  try {
+    const r1 = await design_gap.execute({ action: "report", query: "仪表盘 暗色", branch: "a2", stage: "1", fallback: "web_search" });
+    assert.match(r1, /已记录缺口/);
+    assert.match(r1, /累计 1 次/);
+    await design_gap.execute({ action: "report", query: "仪表盘 暗色", branch: "A2", stage: "1", fallback: "web_search", resolved: "yes" });
+    const r3 = await design_gap.execute({ action: "report", query: "竖版海报 丝网", branch: "B1", fallback: "凭经验写", resolved: "no" });
+    assert.match(r3, /累计 1 次/);
+
+    assert.ok(existsSync(logPath), "缺口日志应落在本地指定路径");
+    const saved = JSON.parse(readFileSync(logPath, "utf8"));
+    assert.equal(saved.entries.length, 3);
+    assert.equal(saved.entries[1].resolved, true);
+    assert.equal(saved.entries[2].resolved, false);
+
+    const list = await design_gap.execute({ action: "list" });
+    assert.match(list, /仪表盘 暗色\*\* ×2/);
+    assert.match(list, /已交付 1 \/ 未交付 0/);
+    assert.match(list, /竖版海报 丝网/);
+
+    assert.match(await design_gap.execute({ action: "report" }), /需要 query/);
+    assert.match(await design_gap.execute({ action: "oops" }), /report 或 list/);
+  } finally {
+    delete process.env.DSH_DESIGN_ROUTER_GAP_LOG;
+    rmSync(dir, { recursive: true, force: true });
   }
 });

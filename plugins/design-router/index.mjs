@@ -4,9 +4,10 @@
  * 定位：把 design-references 的确定性层（registry 查询、机器化检查）从"模型读
  * markdown 后自己 grep"升级为确定性工具。由 my-agent 预设挂载（相对路径）。
  *
- * 工具清单（8 个）：design_lookup / design_route / design_diversity / design_tokens /
- * design_audit / design_contrast / design_handoff_check（7 个只读）+ design_quality（含 1 个写入动作：
- * 仅写本地质量日志 ~/.dsh/design-router-quality.json，不入 git、不碰工作区）。
+ * 工具清单（10 个）：design_lookup / design_route / design_search / design_diversity / design_tokens /
+ * design_audit / design_contrast / design_handoff_check（8 个只读）
+ * + design_quality / design_gap（各含 1 个写入动作：只写本地日志
+ * ~/.dsh/design-router-quality.json、~/.dsh/design-router-gaps.json，不入 git、不碰工作区）。
  *
  * 移植自 my-pi-skills extensions/design-router（pi extension → DSH Cordis 插件）：
  *   - 去掉 pi 专属的 before_agent_start 注入、/design-router 命令、design_research
@@ -96,6 +97,38 @@ function resourceQuality(slug, registry) {
   if (entry && entry.quality) return entry.quality;
   const res = registry?.resources.find((r) => r.slug === slug);
   return res?.quality || "未评估";
+}
+
+// ---------- 资源缺口日志（本地 ~/.dsh/design-router-gaps.json，不入 git）----------
+// 存在理由：lookup 无命中时现在的做法是退化到 web_search，但退化过程与结果都不留痕——
+// 下一轮同样的问题还是从零开始，registry 也不会因为「真的缺这一类」而长大。
+// 这里只做一件事：把缺口结构化记下来（关键词/分支/环节/替代做法/最后能否交付）。
+// 它**不会**自动写回 registry，也不碰工作区。
+const GAP_MAX_ENTRIES = 500;
+
+function gapLogPath() {
+  return process.env.DSH_DESIGN_ROUTER_GAP_LOG || join(homedir(), ".dsh", "design-router-gaps.json");
+}
+
+function loadGapLog() {
+  try {
+    const p = gapLogPath();
+    const j = existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null;
+    return j && Array.isArray(j.entries) ? j : { version: 1, entries: [] };
+  } catch {
+    return { version: 1, entries: [] };
+  }
+}
+
+function saveGapLog(log) {
+  try {
+    const p = gapLogPath();
+    mkdirSync(dirname(p), { recursive: true });
+    writeFileSync(p, JSON.stringify(log, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // ---------- audit 文件收集 ----------
@@ -385,6 +418,83 @@ function apply(ctx) {
     },
   }));
 
+  // ---- design_search（资源自由文本检索；lookup 是「按分支×环节取」，本工具是「按词找」）----
+  // 存在理由：110 条资源只有 branch×stage 一种入口。需求跨分支（"带数据表格的品牌官网首页"）时
+  // 得先猜分支再查，漏查是结构性的——猜错分支就永远看不到那批资源。
+  ctx.tools.register(defineToolDef({
+    name: "design_search",
+    description:
+      "在 registry 的 110 条资源里做自由文本检索（只读）：按 名称 / slug / 适用场景 / 来源 / 风格桶 打分排序。用于「我知道要什么，但不确定该走哪个分支」时——design_lookup 必须给分支与环节，猜错分支就会漏掉整批资源；本工具按词找，再由此跳到对应分支。命中为空是真缺口，用 design_gap 记一条。",
+    parameters: {
+      query: { type: "string", required: true, description: "检索词，用需求里的词（如「仪表盘 暗色」「海报 丝网印刷」「字体 衬线」）；多个词用空格分开" },
+      limit: { type: "number", required: false, description: "返回条数上限，默认 8" },
+    },
+    async execute(args) {
+      const q = String(args.query || "").trim();
+      if (!q) return "❌ 需要 query（用需求里的词，如「仪表盘 暗色」）";
+      const limit = Math.min(Math.max(Number(args.limit) || 8, 1), 20);
+      const tokens = q.toLowerCase().split(/[\s,，、|/]+/).filter(Boolean);
+      const bucketLabel = (b) => {
+        const v = registry.buckets?.[b];
+        return v ? String(v).split("：")[0] : "";
+      };
+      const score = (r, t) => {
+        const slug = String(r.slug || "").toLowerCase();
+        const name = String(r.name || "").toLowerCase();
+        const scen = String(r.scenarios || "").toLowerCase();
+        const src = String(r.source || "").toLowerCase();
+        const bucket = bucketLabel(r.bucket).toLowerCase();
+        const meta = [r.role, r.form, r.level].join(" ").toLowerCase();
+        let s = 0;
+        if (slug === t) s += 100;
+        else if (slug.includes(t)) s += 55;
+        if (name.includes(t)) s += 45;
+        if (scen.includes(t)) s += 18;
+        if (bucket.includes(t)) s += 14;
+        if (src.includes(t)) s += 10;
+        if (meta.includes(t)) s += 5;
+        return s;
+      };
+      const scored = registry.resources
+        .map((r) => ({ r, s: tokens.reduce((acc, t) => acc + score(r, t), 0) }))
+        .filter((x) => x.s > 0)
+        .sort((a, b) => b.s - a.s);
+      // AND 优先：命中全部关键词的排前面；只命中部分词的降级为「弱相关」
+      const strong = scored.filter((x) => tokens.every((t) => score(x.r, t) > 0));
+      const weak = scored.filter((x) => !strong.includes(x));
+      const picked = (strong.length ? strong : weak).slice(0, limit);
+      if (picked.length === 0) {
+        return (
+          `未命中「${q}」。\n` +
+          "→ 这是真缺口：用 `design_gap` action=report 记一条（query=" +
+          q +
+          "），再看是不是该走 web_search 退化链。"
+        );
+      }
+      const lines = [
+        `## 检索「${q}」：${strong.length ? `${strong.length} 条命中` : `${weak.length} 条弱相关（没有资源同时命中全部词）`}，显示 ${picked.length} 条`,
+        "",
+      ];
+      for (const { r } of picked) {
+        const qtag = resourceQuality(r.slug, registry);
+        const mark = qtag === "优" ? "⭐" : qtag === "差" ? "⚠️" : qtag === "中" ? "🟡" : "";
+        lines.push(
+          `### ${r.name} ${r.bucket ? `[桶 ${r.bucket} · ${bucketLabel(r.bucket) || "—"}]` : ""} ${mark}`.trim(),
+          `- slug: \`${r.slug || "(无)"}\` · 角色 ${r.role || "—"} · 形态 ${r.form || "—"} · 层级 ${r.level || "—"}`,
+          `- 适用: ${r.scenarios || "—"}`,
+          `- 来源: ${r.source || "—"}`,
+          "",
+        );
+      }
+      lines.push(
+        weak.length && strong.length === 0 ? "⚠️ 以上是弱相关：没有资源同时命中全部关键词，确认是否被拆成了两类需求。" : "",
+        "下一步：确定场景分支后，用 `design_lookup <分支> <环节>` 取该环节的完整清单（含退化链与快照）；",
+        "候选要进 `design_diversity` 校验差异度；本次检索若无满意结果，`design_gap` 记一条缺口。",
+      );
+      return lines.filter((l) => l !== "").join("\n");
+    },
+  }));
+
   // ---- design_route（需求特征 → 推荐风格桶组合）----
   ctx.tools.register(defineToolDef({
     name: "design_route",
@@ -532,6 +642,92 @@ function apply(ctx) {
       if (!res && !e) return `❌ 未知 slug: ${slug}`;
       const q = e?.quality || res?.quality || "未评估";
       return `## ${slug} 质量\n- 当前: ${q}${e ? `（${e.reason || "无理由"}，累计 ${e.count} 次，最近 ${e.at?.slice(0, 10) || "?"}）` : "（无历史记录，registry 默认）"}\n- 档位说明: ${registry.qualityLevels?.[q] || "见 registry.md"}`;
+    },
+  }));
+
+  // ---- design_gap（资源缺口结构化记录；只写本地缺口日志）----
+  ctx.tools.register(defineToolDef({
+    name: "design_gap",
+    description:
+      "记录 / 查看「参考资源缺口」（只写本地 ~/.dsh/design-router-gaps.json，不入 git、不碰工作区）。用途：design_lookup 无命中、或只能退化到 web_search 时，把**缺什么**结构化留下——关键词、场景分支、环节、当时的替代做法、最后能不能交付。为什么需要：退化链现在不留痕，同一类需求下轮仍从零开始，registry 也无从知道该补什么。**本工具不会自动写回 registry**；是否补资源由人看 `list` 的聚合结果决定。action=report 时 query 必填；action=list 时按关键词聚合，看重复出现的就是真缺口。",
+    parameters: {
+      action: { type: "string", required: true, description: "report（记录缺口）或 list（聚合查看）" },
+      query: { type: "string", required: false, description: "report 必填：当时要找什么（用需求里的词，别写成结论，如「仪表盘 暗色 组件库」）" },
+      branch: { type: "string", required: false, description: "可选：场景分支 A1/A2/A3/B1/B2/B3/C1/C2/C3" },
+      stage: { type: "string", required: false, description: "可选：环节 1调研 / 2约束 / 3产出 / 4校验" },
+      fallback: { type: "string", required: false, description: "可选：改用了什么替代（web_search / 直接凭经验写 / 换桶…）" },
+      resolved: { type: "string", required: false, description: "可选：这轮最后交付了吗——yes / no；留空表示还没结论，收尾时补" },
+      note: { type: "string", required: false, description: "可选：一句话补充（为什么没命中、缺的是资源还是索引）" },
+    },
+    async execute(args) {
+      const action = String(args.action || "").toLowerCase();
+      const log = loadGapLog();
+      if (action === "report") {
+        const query = String(args.query || "").trim();
+        if (!query) return "❌ report 需要 query：当时要找什么（用需求里的词）";
+        const resolvedRaw = String(args.resolved || "").toLowerCase();
+        const resolved = resolvedRaw === "yes" ? true : resolvedRaw === "no" ? false : null;
+        const entry = {
+          at: new Date().toISOString(),
+          query,
+          branch: String(args.branch || "").toUpperCase(),
+          stage: String(args.stage || ""),
+          fallback: String(args.fallback || ""),
+          resolved,
+          note: String(args.note || ""),
+        };
+        log.entries.push(entry);
+        if (log.entries.length > GAP_MAX_ENTRIES) log.entries = log.entries.slice(-GAP_MAX_ENTRIES);
+        const ok = saveGapLog(log);
+        const same = log.entries.filter((e) => e.query === query).length;
+        return (
+          `${ok ? "✅ 已记录缺口" : "⚠️ 写入失败"}: ${query}` +
+          `（分支 ${entry.branch || "—"} · 环节 ${entry.stage || "—"} · 替代 ${entry.fallback || "—"}）\n` +
+          `同一关键词累计 ${same} 次；日志 ${gapLogPath()}\n` +
+          (resolved === null ? "提示：这轮交付后回来补 resolved=yes/no，否则分不清「真缺」和「找到了但没复访」。" : "")
+        );
+      }
+      if (action === "list") {
+        const entries = log.entries || [];
+        if (entries.length === 0) {
+          return "（无缺口记录）lookup 无命中 / 退化到 web_search 时用 design_gap action=report 记一条，收尾再聚合看哪类真缺。";
+        }
+        const byQuery = new Map();
+        for (const e of entries) {
+          const k = (e.query || "").toLowerCase();
+          const cur = byQuery.get(k) || { query: e.query, count: 0, resolved: 0, unresolved: 0, branches: new Set(), last: "" };
+          cur.count++;
+          if (e.resolved === true) cur.resolved++;
+          else if (e.resolved === false) cur.unresolved++;
+          if (e.branch) cur.branches.add(e.branch);
+          if (e.at > cur.last) cur.last = e.at;
+          byQuery.set(k, cur);
+        }
+        const rows = [...byQuery.values()].sort((a, b) => b.count - a.count || (a.last < b.last ? 1 : -1));
+        const lines = [
+          `## 资源缺口聚合（${entries.length} 条记录 / ${rows.length} 个关键词）`,
+          "",
+          "次数最高的是最值得补进 registry 的；`未结` 高的说明退化链在反复发生。",
+          "",
+        ];
+        for (const r of rows.slice(0, 15)) {
+          lines.push(
+            `- **${r.query}** ×${r.count}｜分支 ${[...r.branches].join("/") || "—"}｜` +
+              `已交付 ${r.resolved} / 未交付 ${r.unresolved}｜最近 ${r.last.slice(0, 10)}`,
+          );
+        }
+        const recent = entries.slice(-5).reverse();
+        lines.push("", "### 最近 5 条", "");
+        for (const e of recent) {
+          lines.push(
+            `- ${e.at.slice(0, 10)} ${e.query}（${e.branch || "—"} · ${e.stage || "—"}）替代：${e.fallback || "—"}` +
+              (e.note ? ` · ${e.note}` : ""),
+          );
+        }
+        lines.push("", `日志: ${gapLogPath()}（本地，不入 git）`);
+        return lines.join("\n");
+      }
+      return "❌ action 需为 report 或 list";
     },
   }));
 
@@ -722,7 +918,7 @@ function apply(ctx) {
   ctx.tools.register(defineToolDef({
     name: "design_handoff_check",
     description:
-      "交付物一致性机械核对（只读不改，HC-1~HC-8）：检查 designs/ 下的文书与参考原型是否自洽——① 引用路径是否可达（含裸文件名/包外引用）② 文书 vs 原型的色值/字号 clamp/字距/时长是否互斥 ③ 文书引用的对比度数字能否用其自身令牌复算 ④ §7 是否把本 Agent 的 DSH 工具当 shell 命令用而未标归属/替代法 ⑤ **证据新鲜度**：文书/取证是否早于原型最后改动（真机实测过：报告早 7 分钟却被当「修复后实测」）⑥ **未定义令牌**：被 var() 引用却任何地方都没定义（照此产出无效 CSS）⑦ **验收自洽性**：把 §7 里「`模式` → 0 处」这类验收抽出来实跑到视觉基准上，基准自己命中 = 基准过不了自己的验收（真机实测：`999px` 被 `.skip{left:-9999px}` 命中）⑧ **反向断言**：要求为 0 的模式先在**改前项目**上跑——命中 0 说明这条验收查不到任何东西（真机实测：验收写 `transition: all`〔带空格〕而项目里是 `transition:all .3s`）。**调用时机：调用 present 声明交付物之前必跑；有 error 级就先修再 present。**",
+      "交付物一致性机械核对（只读不改，HC-1~HC-9）：检查 designs/ 下的文书与参考原型是否自洽——① 引用路径是否可达（含裸文件名/包外引用）② 文书 vs 原型的色值/字号 clamp/字距/时长是否互斥 ③ 文书引用的对比度数字能否用其自身令牌复算 ④ §7 是否把本 Agent 的 DSH 工具当 shell 命令用而未标归属/替代法 ⑤ **证据新鲜度**：文书/取证是否早于原型最后改动（真机实测过：报告早 7 分钟却被当「修复后实测」）⑥ **未定义令牌**：被 var() 引用却任何地方都没定义（照此产出无效 CSS）⑦ **验收自洽性**：把 §7 里「`模式` → 0 处」这类验收抽出来实跑到视觉基准上，基准自己命中 = 基准过不了自己的验收（真机实测：`999px` 被 `.skip{left:-9999px}` 命中）⑧ **反向断言**：要求为 0 的模式先在**改前项目**上跑——命中 0 说明这条验收查不到任何东西（真机实测：验收写 `transition: all`〔带空格〕而项目里是 `transition:all .3s`）⑨ **实现映射表**：写了 §5 就必须有一张 markdown 表，表头含「元素 / 目标项目已有实现 / 等价实现 / 状态 / 证据」，每行证据写成 `文件:行号` 且真实可达（行号不得越界），状态列非空；两个实现列都空 is error，声称「项目已有」而项目里搜不到是 warn。**调用时机：调用 present 声明交付物之前必跑；有 error 级就先修再 present。**",
     parameters: {
       target: { type: "string", required: true, description: "designs 目录绝对路径（工作区根的 designs/）" },
       project: { type: "string", required: false, description: "原项目目录（默认取 designs 的同级 project/），用于解析令牌与路径可达性" },
