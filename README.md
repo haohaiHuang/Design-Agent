@@ -222,25 +222,36 @@ plain `cp -R` (same result, just a second copy).
 > so after changing the plugin you must **restart the `dsh web` process** for it to be reloaded. Re-install with
 > `cp -RL presets/my-agent ~/.dsh/.agent-presets/` and then restart; re-installing without restarting keeps running the old checkers.
 
-## Prerequisites (from real-machine testing)
+## Dependency layers (read this when deploying)
 
-The audit checks and the skill's rendering discipline lean on a few local tools. Missing ones only degrade output, but degrade it a lot:
+Rule of thumb: **judgement ships with the repo, tools belong to the machine, output formats are installed on demand.** The repo states *what is needed and what happens when it is missing*; which machine has what is recorded in `my-skills-inventory`, not here.
+
+| Layer | Contents | When missing |
+| --- | --- | --- |
+| **Method (ships with the repo)** | `skills/design-references`, `skills/hallmark`, `plugins/design-router`, the preset itself | Not "a plugin is missing" — the agent is incomplete. Follow "one-click reproduce" above |
+| **Execution capability (machine must install)** | any screenshot-capable browser (ego-browser / tabbit / Chrome headless — **any one**), `vision-cli`, `dembrandt`, `defuddle`, `pdftoppm` / `pdftotext` | **You may skip the render, but you must not claim "render verified" — mark it "not verified"** and state the evidence level in the handoff |
+| **Format adapters (optional)** | kami (docs / PDF layout), guizang-ppt-skill (slide decks), huashu-design (hi-fi prototypes / motion, **format only**), orange-line-illustration (editorial illustration) | Hand-write HTML → Chrome `--print-to-pdf`; **declare the downgrade** (e.g. `.pptx` → HTML deck) |
+
+Principle: **reference capabilities and formats, never skill names.** Names change, capabilities don't. A format adapter owns the output format only — it must never take over design judgement; any hard gate that would change the judgement flow is not adopted.
+
+### Installing execution capability (examples)
 
 ```bash
-# 1) Visual review (vision skill + the critic sub-agent's direct image reading)
-#    vision-cli / ego-browser usually live in ~/.local/bin — if that dir is not on PATH the tools report "not found"
-ln -sf ~/.local/bin/vision-cli   /opt/homebrew/bin/vision-cli
-ln -sf ~/.local/bin/ego-browser  /opt/homebrew/bin/ego-browser   # any dir already on PATH
+# Render verification: any one of these
+#   Chrome (system) / chrome-headless-shell (Playwright cache) / ego-browser / tabbit
+ln -sf ~/.local/bin/ego-browser /opt/homebrew/bin/ego-browser   # if not already on PATH
 
-# 2) Reference-site token extraction
-npm install -g dembrandt            # real-browser render → exact tokens + DESIGN.md
+# Direct image reading (the critic sub-agent reads screenshots)
+ln -sf ~/.local/bin/vision-cli /opt/homebrew/bin/vision-cli
 
-# 3) Screenshot channel (measured on this machine; try in order)
-#    chrome-headless-shell (Playwright cache) → iframe preview shell →
-#    ego-browser Page.printToPDF + pdftoppm
-#    Note: headless Google Chrome enforces a minimum window width (`--window-size=375` yields
-#    innerWidth 500), so narrow-viewport shots come out as a wider layout cropped to 375.
+# Reference-site token extraction
+npm install -g dembrandt
+
+# PDF artifact checks: pdftoppm / pdftotext / pdfinfo (poppler)
 ```
+
+> Screenshot channel, try in order: `chrome-headless-shell` → iframe preview shell → `ego-browser Page.printToPDF + pdftoppm`.
+> Known trap: headless Chrome enforces a minimum window width (`--window-size=375` yields innerWidth 500), so narrow shots are a wider layout cropped to 375.
 
 ## Verified (re-runnable verification entry points)
 

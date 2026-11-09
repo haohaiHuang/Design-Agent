@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-11-09 · 依赖分层：判断内化、能力可换名
+
+**背景**：真机验证暴露出设计 Agent 的 persona 点名了 10 个技能，其中 3 个（`mermaid-visualizer` / `excalidraw-diagram` / `json-canvas`）本机根本没装、3 个（`huashu-design` / `baoyu-design` / `kami`）链路里没有调用点。判断：**依赖外部技能 = 把演化权交给上游**，技能停更/改名/下架时能力被静默降级。改为「判断归我、手段借人、形态换名」。
+
+### 改动
+
+- **persona**：`## 技能层级（谁在什么时候用）` 整段替换为 `## 依赖分层`——方法层（随仓库，判断本体）/ 执行能力（机器需装，缺失必须标「未核对」，不得声称已验证）/ 形态适配（可选装，缺失声明形态降级）。**引用能力与形态，不引用技能名**；素材一律经 `design_lookup` / `design_search`，persona 不再背名单。
+- **删掉的耦合**：3 个幽灵技能名；`huashu 5 维自评` 改为自己的 critic 四维（方向保真 / 执行质量 / AI 味残留 / 克制度）自评降级；`截图用 ego-browser` 改为「任一能截图的浏览器」；预设 description 去掉「执行层 baoyu-design、huashu-design、kami」。
+- **README 双语**：「环境前置」改为「依赖分层」——写入三层边界与缺失义务，并注明机器状态记 `my-skills-inventory`，不在本仓。
+- **Inventory**：新增 `design/dsh-design-agent-deps.md` + `design/deps-check.sh`（只读探测本机缺什么），契约留在本仓 README，Inventory 只记状态。
+
+**为什么**：`{{cwd}}` 与「执行层技能」是同一类病——文档承诺大于实现，换机才炸。判断必须可版本化、可测试；能力与形态允许换实现。
+
+**怎么验证**：`yq` 解析三个预设文件合法；插件测试 25 + 22 全绿；`deps-check.sh` 实跑 18 行状态；persona 内 `grep` 已无 `mermaid/excalidraw/json-canvas/baoyu/kami/huashu` 字样。
+
 ## 2026-11-09 · 交接物 + Agent 接口补强（来源：astryx 评估）
 
 **背景**：评估 Meta 开源的 astryx 能否接进设计 Agent。结论是只取两样：**交接物的「元素 → 实现物」映射**、**Agent 接口的「缺什么就记下来」**；不引入 React 组件库（会破坏单文件交付与非生产代码边界）。

@@ -191,25 +191,36 @@ npm install -g dembrandt        # URL→设计 token（环节 1 候选验证）
 > 改动插件后必须**重启 `dsh web` 进程**才会被重新加载。改完记得 `cp -RL presets/my-agent ~/.dsh/.agent-presets/` 重装，
 > 再重启服务；只重装不重启，新会话仍跑旧检查器。
 
-## 环境前置（真机测试补充）
+## 依赖分层（换机必读）
 
-`design_audit` 与技能里的渲染纪律依赖几个本机工具，缺失只降级、不阻断，但会明显拉低交付质量：
+判据：**判断随仓库走，工具看机器，形态按需装。** 仓库只写「需要什么 + 缺了怎么办」；某台机器上装了什么，记在 `my-skills-inventory`，不在本仓。
+
+| 层 | 内容 | 缺失时 |
+| --- | --- | --- |
+| **方法层（随包）** | `skills/design-references`、`skills/hallmark`、`plugins/design-router`、预设本身 | 不叫「少装一个插件」，叫 agent 不完整——按上面「一键复现」装 |
+| **执行能力（机器需装）** | 能截图的浏览器（ego-browser / tabbit / Chrome headless **任一**）、`vision-cli`、`dembrandt`、`defuddle`、`pdftoppm` / `pdftotext` | **可以不出图，但不得声称「渲染核对通过」，只能标「未核对」**；判断依据的等级写进交付 |
+| **形态适配（可选装）** | kami（文档 / PDF 排版）、guizang-ppt-skill（翻页 PPT）、huashu-design（高保真原型 / 动画，**仅形态**）、orange-line-illustration（插画） | 手写 HTML → Chrome `--print-to-pdf`，**形态降级要明说**（如 `.pptx` → HTML 演示） |
+
+原则：**引用能力与形态，不引用技能名。** 名字会变，能力不会；形态技能只负责产出形态，不得接管设计判断——任何要求改变判断流程的硬门禁一律不采纳。
+
+### 执行能力的装法（示例）
 
 ```bash
-# 1) 视觉复核（vision 技能 + critic 子代理的视觉直读）
-#    vision-cli 与 ego-browser 常在 ~/.local/bin —— 若该目录不在 PATH，工具会报 "not found"
-ln -sf ~/.local/bin/vision-cli   /opt/homebrew/bin/vision-cli
-ln -sf ~/.local/bin/ego-browser  /opt/homebrew/bin/ego-browser   # 在 PATH 上的目录即可
+# 渲染核对：任选其一即可
+#   Chrome（系统自带） / chrome-headless-shell（Playwright 缓存） / ego-browser / tabbit
+ln -sf ~/.local/bin/ego-browser /opt/homebrew/bin/ego-browser   # 若它不在 PATH 上
 
-# 2) 参考站 token 萃取
-npm install -g dembrandt            # 真浏览器渲染 → 精确 token + DESIGN.md
+# 视觉直读（critic 子代理读截图）
+ln -sf ~/.local/bin/vision-cli /opt/homebrew/bin/vision-cli
 
-# 3) 截图通道（本机实测结论，按序试）
-#    chrome-headless-shell（Playwright 缓存）→ iframe 预览壳 →
-#    ego-browser Page.printToPDF + pdftoppm
-#    注意：Google Chrome 无头 --window-size=375 有最小窗宽（innerWidth 被抬到 500），
-#    直接用它出窄屏图会得到"更宽布局被裁到 375"的假图。
+# 参考站 token 萃取
+npm install -g dembrandt
+
+# PDF 产物校验：pdftoppm / pdftotext / pdfinfo（poppler 工具集）
 ```
+
+> 截图通道按序试：`chrome-headless-shell` → iframe 预览壳 → `ego-browser Page.printToPDF + pdftoppm`。
+> 已知坑：Chrome 无头 `--window-size=375` 有最小窗宽（innerWidth 被抬到 500），直接用它出窄屏图会得到「更宽布局被裁到 375」的假图。
 
 ## 已验证（可复跑的验证入口）
 
